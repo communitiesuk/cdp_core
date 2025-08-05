@@ -1,0 +1,27 @@
+# The main job for cdp_dab.
+resources:
+  jobs:
+    hello_job:
+      name: hello_job
+      tasks:
+        - task_key: hello
+          notebook_task:
+            notebook_path: ../src/helloworld.ipynb
+            base_parameters:
+              name: Bob
+            source: WORKSPACE
+          existing_cluster_id: 0402-201242-ld92p0md
+          email_notifications:
+            on_success:
+              - adam.wallace@communities.gov.uk
+            on_failure:
+              - adam.wallace@communities.gov.uk
+        - task_key: hello_2
+          depends_on:
+            - task_key: hello
+          notebook_task:
+            notebook_path: ../src/helloworld.ipynb
+            source: WORKSPACE
+      queue:
+        enabled: true
+      performance_target: STANDARD
