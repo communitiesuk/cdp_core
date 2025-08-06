@@ -2,6 +2,7 @@ dataset: "LAD_APR_2023_UK_NC"
 schema_version: 1
 url: "https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/"
 table_description: Contains Local Authority District Name and Code as of April 2023
+write_method: overwrite
 partition_by: null
 primary_key: LAD23CD
 de_dupe_col: LAD23NM

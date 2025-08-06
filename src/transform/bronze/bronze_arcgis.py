@@ -1,8 +1,19 @@
+from pyspark.dbutils import DBUtils
+from pyspark.sql import DataFrame, SparkSession
+
+spark = SparkSession.builder.getOrCreate()
+dbutils = DBUtils(spark)
+import sys
+import argparse
+
+user_email = dbutils.notebook.entry_point.getDbutils().notebook().getContext().tags().apply('user')
+sys.path.append(f"/Workspace/Users/{user_email}/cdp_core/src")
+
 from urllib.parse import urlencode
 from typing import Dict
 
 import pandas as pd
-from pyspark.sql import DataFrame, SparkSession
+
 
 from utils.readers import RestClient
 from utils.util import config_reader
@@ -32,9 +43,11 @@ def load(df: DataFrame, config: Dict) -> None:
     add_descriptions(CATALOG_SLT1_DEV, SCHEMA_BRONZE, table_name, config)
 
 if __name__ == "__main__":
-    dataset = dbutils.widgets.get("dataset")
-    runtime = dbutils.widgets.get("runtime")
-    config = config_reader(dataset)
+    # dataset = dbutils.widgets.get("dataset")
+    parser = argparse.ArgumentParser(description="ETL process")
+    parser.add_argument("--dataset", required=True, help="Dataset name")
+    args = parser.parse_args()
+    config = config_reader(args.dataset)
     
     df = extract(config)
     df = transform(df)

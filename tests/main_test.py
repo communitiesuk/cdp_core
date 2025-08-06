@@ -1,7 +1,13 @@
-import pytest
 import os
 import sys
 
+import pytest
+from pyspark.sql import SparkSession
+from pyspark.dbutils import DBUtils
+
+
+spark = SparkSession.builder.getOrCreate()
+dbutils = DBUtils(spark)
 
 # Get the path to this notebook, for example "/Workspace/Repos/{username}/{repo-name}".
 notebook_path = dbutils.notebook.entry_point.getDbutils().notebook().getContext().notebookPath().get()
