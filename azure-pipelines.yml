@@ -11,8 +11,7 @@ stages:
         displayName: "Install Databricks CLI"
         steps:
           - script: |
-              winget search databricks
-              winget install Databricks.DatabricksCLI
+              curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
               databricks -v
             displayName: "Install Databricks CLI"
 
