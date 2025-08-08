@@ -21,3 +21,11 @@ stages:
         displayName: "Dev Job 2"
         steps:
           - script: echo "Hello from Dev Job 2"
+  
+  - stage: Test
+    displayName: "TEST"
+    jobs:
+      - job: DevJob2
+        displayName: "Dev Job 2"
+        steps:
+          - script: echo "Hello from Dev Job 2"
