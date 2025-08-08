@@ -11,13 +11,12 @@ stages:
         displayName: "Install Databricks CLI"
         steps:
           - script: |
-              brew tap databricks/tap
-              brew install databricks
+              winget search databricks
+              winget install Databricks.DatabricksCLI
+              databricks -v
             displayName: "Install Databricks CLI"
 
-          - script: |
-              databricks -v
-            displayName: "est"
+
   
   - stage: Test
     displayName: "TEST"
