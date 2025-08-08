@@ -11,16 +11,13 @@ stages:
         displayName: "Install Databricks CLI"
         steps:
           - script: |
-              pip install databricks-cli
+              brew tap databricks/tap
+              brew install databricks
             displayName: "Install Databricks CLI"
 
-          - script: echo "Hello World from Dev Job 1"
-            displayName: "Print Hello World"
-
-      - job: DevJob2
-        displayName: "Dev Job 2"
-        steps:
-          - script: echo "Hello from Dev Job 2"
+          - script: |
+              databricks -v
+            displayName: "est"
   
   - stage: Test
     displayName: "TEST"
