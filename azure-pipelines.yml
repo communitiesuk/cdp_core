@@ -9,7 +9,7 @@ stages:
     displayName: "DEV"
     jobs:
       - job: InstallDatabricksCLI
-        displayName: "Install Databricks CLI"
+        displayName: "Install UV & Databricks CLI"
         steps:
           - script: |
               curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
