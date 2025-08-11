@@ -1,0 +1,41 @@
+dataset: "LAD_APR_2023_UK_NC"
+schema_version: 1
+url: "https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/"
+table_description: Contains Local Authority District Name and Code as of April 2023
+write_method: overwrite
+partition_by: null
+primary_key: LAD23CD
+de_dupe_col: LAD23NM
+table_tag: 
+  sensitivity: "OFFICIAL"
+  owner_email: "finn.tan@test.com"
+  source: arcgis
+  method: api
+
+params:
+  where: "1=1"
+  resultType: "standard"
+  outFields: "LAD23CD,LAD23NM"
+  returnIdsOnly: "false"
+  returnUniqueIdsOnly: "false"
+  returnCountOnly: "false"
+  returnDistinctValues: "false"
+  cacheHint: "false"
+  sqlFormat: "none"
+  f: "pjson"
+
+schema:
+
+  LAD23CD:
+    target: local_authority_district_code_2023
+    type: StringType
+    description: Local Authority District Code for 2023
+    tag: 
+      - example_tag1
+      - example_tag2
+      
+  LAD23NM:
+    target: local_authority_district_name_2023
+    type: StringType
+    description: Local Authority District Name for 2023
+    tag: null
