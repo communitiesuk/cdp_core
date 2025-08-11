@@ -23,14 +23,14 @@ targets:
     default: true
     workspace:
       host: https://adb-1964496556207941.1.azuredatabricks.net
-      root_path: /Workspace/Users/Shared/.bundle/${bundle.name}/${bundle.target}
+      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
 
-  prod:
-    mode: production
-    workspace:
-      host: https://adb-1964496556207941.1.azuredatabricks.net
-      # We explicitly deploy to /Workspace/Users/suawallace@tdigitalcommunities.onmicrosoft.com to make sure we only have a single copy.
-      root_path: /Workspace/Users/Shared/.bundle/${bundle.name}/${bundle.target}
-    permissions:
-      - user_name: suawallace@tdigitalcommunities.onmicrosoft.com
-        level: CAN_MANAGE
+  # prod:
+  #   mode: production
+  #   workspace:
+  #     host: https://adb-1964496556207941.1.azuredatabricks.net
+  #     # We explicitly deploy to /Workspace/Users/suawallace@tdigitalcommunities.onmicrosoft.com to make sure we only have a single copy.
+  #     root_path: /Workspace/Users/Shared/.bundle/${bundle.name}/${bundle.target}
+  #   permissions:
+  #     - user_name: suawallace@tdigitalcommunities.onmicrosoft.com
+  #       level: CAN_MANAGE
