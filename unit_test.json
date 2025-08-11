@@ -1,0 +1,7 @@
+{
+  "run_name": "Run Unit Tests",
+  "existing_cluster_id": "0806-104748-0qd7ez72",
+  "spark_python_task": {
+    "python_file": "Workspace/Users/6f4aedc5-6ff3-48f3-8d6a-e4c03148e42f/.bundle/cdp_dab/dev/files/tests/main_test.py"
+    }
+}
