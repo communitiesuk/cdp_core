@@ -3,6 +3,9 @@ trigger:
     include:
       - main
 
+variables:
+  - group: cdp-core-pipeline-vars
+
 # each job runs on a separate agent
 stages:
   - stage: DEV
@@ -31,7 +34,7 @@ stages:
             condition: succeeded()
             displayName: "Validate Databricks Bundle"
             inputs:
-              azureSubscription: SPN-SP-sub-tst-ctdpslt001databricks-001
+              azureSubscription: $(SPN_ID)
               useGlobalConfig: true
               scriptType: bash
               scriptLocation: inlineScript
