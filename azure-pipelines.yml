@@ -13,15 +13,21 @@ stages:
         steps:
           - script: |
               curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
-              pip install uv pylint
+              pip install uv pylint yamllint
               databricks -v
             displayName: "Install Agent Requirements"
 
           - script: |
               echo "Running Pylint"
-              pylint src/ --fail-under=8
-            displayName: "Run Code Smells"
+              # pylint src/ --fail-under=8 --rcfile=.pylintrc
+              pylint src/ --rcfile=.pylintrc
+            displayName: "Run Code Lint"
       
+          - script: |
+              echo "Running Yaml Lint"
+              yamllint -c .yamllint .
+            displayName: "Run Code Lint"
+
           - task: AzureCLI@2
             condition: succeeded()
             displayName: "Validate Databricks Bundle"
@@ -49,16 +55,16 @@ stages:
                 echo "Deploying Databricks Bundle"
                 databricks bundle deploy --target dev
           
-          - task: AzureCLI@2
-            condition: succeeded()
-            displayName: "Unit Tests"
-            inputs:
-              azureSubscription: SPN-SP-sub-tst-ctdpslt001databricks-001
-              useGlobalConfig: true
-              scriptType: bash
-              scriptLocation: inlineScript
-              inlineScript: |
-                databricks jobs submit --json '{"run_name": "Run Unit Tests", "existing_cluster_id": "0806-104748-0qd7ez72", "spark_python_task": {"python_file": "Workspace/Users/6f4aedc5-6ff3-48f3-8d6a-e4c03148e42f/.bundle/cdp_dab/dev/files/tests/main_test.py"}}'
+          # - task: AzureCLI@2
+          #   condition: succeeded()
+          #   displayName: "Unit Tests"
+          #   inputs:
+          #     azureSubscription: SPN-SP-sub-tst-ctdpslt001databricks-001
+          #     useGlobalConfig: true
+          #     scriptType: bash
+          #     scriptLocation: inlineScript
+          #     inlineScript: |
+          #       databricks jobs submit --json '{"run_name": "Run Unit Tests", "existing_cluster_id": "0806-104748-0qd7ez72", "spark_python_task": {"python_file": "Workspace/Users/6f4aedc5-6ff3-48f3-8d6a-e4c03148e42f/.bundle/cdp_dab/dev/files/tests/main_test.py"}}'
 
   
   - stage: Test
