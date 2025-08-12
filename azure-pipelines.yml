@@ -8,14 +8,19 @@ stages:
   - stage: DEV
     displayName: "DEV"
     jobs:
-      - job: InstallDatabricksCLI
-        displayName: "Install UV & Databricks CLI"
+      - job: InstallRequirements
+        displayName: "Install Agent Requirements"
         steps:
           - script: |
               curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
-              pip install uv
+              pip install uv pylint
               databricks -v
-            displayName: "Install Databricks CLI"
+            displayName: "Install Agent Requirements"
+
+          - script: |
+              echo "Running Pylint"
+              pylint src/ --fail-under=8
+            displayName: "Run Code Smells"
       
           - task: AzureCLI@2
             condition: succeeded()
