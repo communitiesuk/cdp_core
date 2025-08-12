@@ -1,13 +1,13 @@
-# This is a Databricks asset bundle definition for cdp_dab.
+# This is a Databricks asset bundle definition for cdp_core.
 # See https://docs.databricks.com/dev-tools/bundles/index.html for documentation.
 bundle:
-  name: cdp_dab
+  name: cdp_core
   uuid: 98c7c9ce-c84d-4717-b5d8-25950e338d17
 
-artifacts:
-  python_artifact:
-    type: whl
-    build: uv build --wheel
+# artifacts:
+#   python_artifact:
+#     type: whl
+#     build: uv build --wheel
 
 include:
   - resources/*.yml
