@@ -9,7 +9,7 @@ stages:
       - job: DEV
         displayName: "Deploy DEV"
         variables:
-          - template: templates/variables.yml
+          - template: variables.yml
             parameters:
               environment: ${{ parameters.environment }}
         steps:
