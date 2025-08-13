@@ -46,7 +46,7 @@ stages:
               inlineScript: |
                 set -e
                 echo "Deploying Databricks Bundle"
-                export DATABRICKS_HOST=$(DATABRICKS_DEV_HOST)
+                export DATABRICKS_HOST=$(DATABRICKS_HOST)
                 databricks bundle deploy --var="environment=development"
           
           # - task: AzureCLI@2
