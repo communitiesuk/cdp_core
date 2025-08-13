@@ -8,27 +8,31 @@ variables:
 
 stages:
   - template: templates/dev.yml
+    parameters:
+      deploy_env: 'dev'
+      workspace_URL: $(DATABRICKS_DEV_HOST)
+      SPN: $(SPN_ID)
 
-  - template: templates/test.yml
+  # - template: templates/test.yml
 
-  - stage: ProdApproval
-    dependsOn: TEST
-    condition: succeeded('TEST')
-    displayName: "Prod Approval"
-    jobs:
-      - job: WaitForApproval
-        displayName: "Wait for Prod Approval"
-        pool: 'server'
-        steps:
-          - task: ManualValidation@0
-            inputs:
-              instructions: 'Please approve the deployment to production.'
-              onTimeout: 'reject'
-              timeoutInMinutes: 180
-              notifyUsers: |
-                finn.tann@communities.gov.uk
+  # - stage: ProdApproval
+  #   dependsOn: TEST
+  #   condition: succeeded('TEST')
+  #   displayName: "Prod Approval"
+  #   jobs:
+  #     - job: WaitForApproval
+  #       displayName: "Wait for Prod Approval"
+  #       pool: 'server'
+  #       steps:
+  #         - task: ManualValidation@0
+  #           inputs:
+  #             instructions: 'Please approve the deployment to production.'
+  #             onTimeout: 'reject'
+  #             timeoutInMinutes: 180
+  #             notifyUsers: |
+  #               finn.tann@communities.gov.uk
 
-  - template: templates/prod.yml
+  # - template: templates/prod.yml
   
   # - stage: release
   #   jobs:

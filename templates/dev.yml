@@ -21,6 +21,27 @@ stages:
               yamllint -c .yamllint . || true
             displayName: "Run YamlLint"
 
+          - task: CopyFiles@2
+            displayName: "Get Artifacts"
+            inputs:
+              SourceFolder: '$(Build.Repository.LocalPath)'
+              Contents: '**'
+              TargetFolder: '$(Build.BinariesDirectory)'
+              CleanTargetFolder: true
+              OverWrite: true
+
+          - task: replacetoken@5
+            inputs:
+              rootDirectory: '$(Build.BinariesDirectory)/'
+              targetFiles: '**/databricks.yml'
+              tokenPattern: 'azpipelines'
+              writeBOM: true
+              encoding: 'auto'
+              actionOnMissing: 'warn'
+              keepToken: false
+              actionOnNoFiles: 'continue'
+            displayName: "Replace Variable Values in Databricks YML"
+
           - task: AzureCLI@2
             condition: succeeded()
             displayName: "Validate Databricks Bundle"
