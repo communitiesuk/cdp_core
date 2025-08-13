@@ -1,6 +1,6 @@
 stages:
-  - stage: DEV1
-    displayName: "DEV1"
+  - stage: DEV
+    displayName: "DEV"
     jobs:
       - job: DEV
         displayName: "Deploy DEV"
