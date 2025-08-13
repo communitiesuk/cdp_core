@@ -2,11 +2,6 @@ parameters:
   - name: environment
     type: string
 
-variables:
-  - template: templates/variables.yml
-    parameters:
-      environment: ${{ parameters.environment }}
-      
 stages:
   - stage: TEST
     displayName: "TEST"
@@ -15,6 +10,10 @@ stages:
     jobs:
       - job: targets
         displayName: "Deploy Test"
+        variables:
+        - template: variables.yml
+          parameters:
+            environment: ${{ parameters.environment }}
         steps:
           - script: |
               echo $(DATABRICKS_HOST)
