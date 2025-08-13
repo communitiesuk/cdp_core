@@ -36,7 +36,7 @@ stages:
         steps:
           - task: AzureCLI@2
             condition: succeeded()
-            displayName: "Validate Databricks Bundle"
+            displayName: "Release"
             inputs:
               azureSubscription: $(GITHUB_SC_ID)
               useGlobalConfig: true
@@ -54,7 +54,7 @@ stages:
                   --notes "Release created by Azure DevOps pipeline." \
                   --target $(Build.SourceBranchName) \
                   --repo $(GITHUB_HOST)
-            displayName: "Release"
+            
 
 
 # TODO - tagging release branch
