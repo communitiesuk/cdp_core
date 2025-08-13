@@ -1,0 +1,24 @@
+stages:
+  - stage: PROD
+    displayName: "PROD"
+    dependsOn: ProdApproval
+    jobs:
+      - job: PROD
+        displayName: "Deploy PROD"
+        steps:
+          - script: |
+              echo "Deploying to PROD"
+            displayName: "Deploying to PROD"
+
+          # - task: AzureCLI@2
+          #   condition: succeeded()
+          #   displayName: "Deploy Databricks Bundle"
+          #   inputs:
+          #     azureSubscription: $(SPN_ID)
+          #     useGlobalConfig: true
+          #     scriptType: bash
+          #     scriptLocation: inlineScript
+          #     inlineScript: |
+          #       set -e
+          #       echo "Deploying Databricks Bundle"
+          #       databricks bundle deploy --target prod

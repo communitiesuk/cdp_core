@@ -6,107 +6,11 @@ trigger:
 variables:
   - group: cdp-core-pipeline-vars
 
-# each job runs on a separate agent
 stages:
   - template: templates/dev.yml
-  - stage: DEV
-    displayName: "DEV"
-    jobs:
-      - job: DEV
-        displayName: "Deploy DEV"
-        steps:
-          - script: |
-              echo "Installing Requirements"
-              curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
-              pip install uv pylint yamllint
-            displayName: "Install Agent Requirements"
 
-          - script: |
-              echo "Running Pylint"
-              pylint src/ --rcfile=.pylintrc --exit-zero
-            displayName: "Run PyLint"
-      
-          - script: |
-              echo "Running Yaml Lint"
-              yamllint -c .yamllint . || true
-            displayName: "Run YamlLint"
+  - template: templates/test.yml
 
-          - task: AzureCLI@2
-            condition: succeeded()
-            displayName: "Validate Databricks Bundle"
-            inputs:
-              azureSubscription: $(SPN_ID)
-              useGlobalConfig: true
-              scriptType: bash
-              scriptLocation: inlineScript
-              inlineScript: |
-                set -e
-                export DATABRICKS_HOST=$(DATABRICKS_DEV_HOST)
-                echo "Validating Databricks Bundle"
-                databricks bundle validate
-          
-          - task: AzureCLI@2
-            condition: succeeded()
-            displayName: "Deploy Databricks Bundle"
-            inputs:
-              azureSubscription: $(SPN_ID)
-              useGlobalConfig: true
-              scriptType: bash
-              scriptLocation: inlineScript
-              inlineScript: |
-                set -e
-                echo "Deploying Databricks Bundle"
-                databricks bundle deploy --target dev
-          
-          - task: AzureCLI@2
-            condition: succeeded()
-            displayName: "Unit Tests"
-            inputs:
-              azureSubscription: $(SPN_ID)
-              useGlobalConfig: true
-              scriptType: bash
-              scriptLocation: inlineScript
-              inlineScript: |
-                databricks jobs submit --json @unit_test.json --no-wait
-
-  
-  # - stage: TEST
-  #   displayName: "TEST"
-  #   dependsOn: DEV
-  #   condition: succeeded('DEV')
-  #   jobs:
-  #     - job: targets
-  #       displayName: "Deploy Test"
-  #       steps:
-  #         - script: |
-  #             echo "Installing Databricks CLI"
-  #             curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
-  #           displayName: "Install Databricks CLI"
-
-  #         - task: AzureCLI@2
-  #           condition: succeeded()
-  #           displayName: "Deploy Databricks Bundle"
-  #           inputs:
-  #             azureSubscription: $(SPN_ID)
-  #             useGlobalConfig: true
-  #             scriptType: bash
-  #             scriptLocation: inlineScript
-  #             inlineScript: |
-  #               set -e
-  #               echo "Deploying Databricks Bundle"
-  #               databricks bundle deploy --target test
-          
-          # - task: AzureCLI@2
-          #   condition: succeeded()
-          #   displayName: "System Integration Tests"
-          #   inputs:
-          #     azureSubscription: $(SPN_ID)
-          #     useGlobalConfig: true
-          #     scriptType: bash
-          #     scriptLocation: inlineScript
-          #     inlineScript: |
-          #       databricks bundle run hello_job
-  
   - stage: ProdApproval
     dependsOn: DEV
     displayName: "Prod Approval"
@@ -122,30 +26,9 @@ stages:
               timeoutInMinutes: 180
               notifyUsers: |
                 finn.tann@communities.gov.uk
-  
-  - stage: PROD
-    displayName: "PROD"
-    dependsOn: ProdApproval
-    jobs:
-      - job: PROD
-        displayName: "Deploy PROD"
-        steps:
-          - script: |
-              echo "Deploying to PROD"
-            displayName: "Deploying to PROD"
 
-          # - task: AzureCLI@2
-          #   condition: succeeded()
-          #   displayName: "Deploy Databricks Bundle"
-          #   inputs:
-          #     azureSubscription: $(SPN_ID)
-          #     useGlobalConfig: true
-          #     scriptType: bash
-          #     scriptLocation: inlineScript
-          #     inlineScript: |
-          #       set -e
-          #       echo "Deploying Databricks Bundle"
-          #       databricks bundle deploy --target prod
+  - template: templates/prod.yml
+
 
 # TODO - tagging release branch
 # TODO - variable passthrough for databricks.yml
