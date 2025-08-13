@@ -1,3 +1,12 @@
+parameters:
+  - name: environment
+    type: string
+
+variables:
+  - template: templates/variables.yml
+    parameters:
+      environment: ${{ parameters.environment }}
+      
 stages:
   - stage: TEST
     displayName: "TEST"
