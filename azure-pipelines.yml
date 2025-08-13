@@ -7,43 +7,45 @@ variables:
   - group: cdp-core-pipeline-vars
 
 stages:
-  - template: templates/dev.yml
+  # - template: templates/dev.yml
 
-  - template: templates/test.yml
+  # - template: templates/test.yml
 
-  - stage: ProdApproval
-    dependsOn: TEST
-    condition: succeeded('TEST')
-    displayName: "Prod Approval"
-    jobs:
-      - job: WaitForApproval
-        displayName: "Wait for Prod Approval"
-        pool: 'server'
-        steps:
-          - task: ManualValidation@0
-            inputs:
-              instructions: 'Please approve the deployment to production.'
-              onTimeout: 'reject'
-              timeoutInMinutes: 180
-              notifyUsers: |
-                finn.tann@communities.gov.uk
+  # - stage: ProdApproval
+  #   dependsOn: TEST
+  #   condition: succeeded('TEST')
+  #   displayName: "Prod Approval"
+  #   jobs:
+  #     - job: WaitForApproval
+  #       displayName: "Wait for Prod Approval"
+  #       pool: 'server'
+  #       steps:
+  #         - task: ManualValidation@0
+  #           inputs:
+  #             instructions: 'Please approve the deployment to production.'
+  #             onTimeout: 'reject'
+  #             timeoutInMinutes: 180
+  #             notifyUsers: |
+  #               finn.tann@communities.gov.uk
 
-  - template: templates/prod.yml
+  # - template: templates/prod.yml
   
   - stage: release
     jobs:
       - job: CreateRelease
         steps:
           - script: |
+              echo $(Build.SourceBranchName)
+              echo $(Build.BuildId)
               git checkout $(Build.SourceBranchName)
               TAG_NAME=$(Build.BuildId)
-              git push $(GITHUB HOST) $TAG_NAME
+              git push $(GITHUB_HOST) $TAG_NAME
 
               gh release create $TAG_NAME \
                 --title "Release $TAG_NAME" \
                 --notes "Release created by Azure DevOps pipeline." \
                 --target $(Build.SourceBranchName) \
-                --repo $(GITHUB REPO)
+                --repo $(GITHUB_HOST)
             displayName: "Pipeline Completion"
 
 
