@@ -8,6 +8,7 @@ variables:
 
 # each job runs on a separate agent
 stages:
+  - template: templates/dev.yml
   - stage: DEV
     displayName: "DEV"
     jobs:
@@ -104,7 +105,7 @@ stages:
           #     scriptType: bash
           #     scriptLocation: inlineScript
           #     inlineScript: |
-          #       databricks jobs submit --json @unit_test.json --no-wait
+          #       databricks bundle run hello_job
   
   - stage: ProdApproval
     dependsOn: DEV
@@ -145,3 +146,11 @@ stages:
           #       set -e
           #       echo "Deploying Databricks Bundle"
           #       databricks bundle deploy --target prod
+
+# TODO - tagging release branch
+# TODO - variable passthrough for databricks.yml
+# TODO - modularise
+# TODO - add SIT tests
+# TODO - fix unit test run (explore whl / job)
+# TODO - investigate email notifications
+# TODO - investigate running only speciic jobs on PR
