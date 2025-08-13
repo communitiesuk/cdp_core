@@ -112,8 +112,7 @@ stages:
     jobs:
       - job: WaitForApproval
         displayName: "Wait for Prod Approval"
-        pool:
-          vmImage: 'ubuntu-latest'
+        pool: 'server'
         steps:
           - task: ManualValidation@0
             inputs:
