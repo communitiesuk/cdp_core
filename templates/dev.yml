@@ -21,19 +21,19 @@ stages:
               yamllint -c .yamllint . || true
             displayName: "Run YamlLint"
 
-          # - task: AzureCLI@2
-          #   condition: succeeded()
-          #   displayName: "Validate Databricks Bundle"
-          #   inputs:
-          #     azureSubscription: $(SPN_ID)
-          #     useGlobalConfig: true
-          #     scriptType: bash
-          #     scriptLocation: inlineScript
-          #     inlineScript: |
-          #       set -e
-          #       export DATABRICKS_HOST=$(DATABRICKS_DEV_HOST)
-          #       echo "Validating Databricks Bundle"
-          #       databricks bundle validate 
+          - task: AzureCLI@2
+            condition: succeeded()
+            displayName: "Validate Databricks Bundle"
+            inputs:
+              azureSubscription: $(SPN_ID)
+              useGlobalConfig: true
+              scriptType: bash
+              scriptLocation: inlineScript
+              inlineScript: |
+                set -e
+                export DATABRICKS_HOST=$(DATABRICKS_HOST)
+                echo "Validating Databricks Bundle"
+                databricks bundle validate 
           
           - task: AzureCLI@2
             condition: succeeded()
@@ -49,13 +49,13 @@ stages:
                 export DATABRICKS_HOST=$(DATABRICKS_DEV_HOST)
                 databricks bundle deploy --var="deploy_env=development"
           
-          - task: AzureCLI@2
-            condition: succeeded()
-            displayName: "Unit Tests"
-            inputs:
-              azureSubscription: $(SPN_ID)
-              useGlobalConfig: true
-              scriptType: bash
-              scriptLocation: inlineScript
-              inlineScript: |
-                databricks jobs submit --json @unit_test.json --no-wait
+          # - task: AzureCLI@2
+          #   condition: succeeded()
+          #   displayName: "Unit Tests"
+          #   inputs:
+          #     azureSubscription: $(SPN_ID)
+          #     useGlobalConfig: true
+          #     scriptType: bash
+          #     scriptLocation: inlineScript
+          #     inlineScript: |
+          #       databricks jobs submit --json @unit_test.json --no-wait

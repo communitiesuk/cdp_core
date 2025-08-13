@@ -3,15 +3,32 @@ trigger:
     include:
       - main
 
+
+parameters:
+  - name: environment
+    displayName: 'Select Environment'
+    type: string
+    default: 'dev'
+    values:
+      - dev
+      - test
+      - prod
+
+
 variables:
-  - group: cdp-core-pipeline-vars
+  - ${{ if eq(parameters.environment, 'dev') }}:
+    - group: cdp-core-pipeline-dev-vars
+  - ${{ if eq(parameters.environment, 'test') }}:
+    - group: cdp-core-pipeline-test-vars
+  - ${{ if eq(parameters.environment, 'prod') }}:
+    - group: cdp-core-pipeline-prod-vars
+
 
 stages:
   - template: templates/dev.yml
     parameters:
-      deploy_env: 'dev'
-      workspace_URL: $(DATABRICKS_DEV_HOST)
-      SPN: $(SPN_ID)
+      environment: 'dev'
+
 
   # - template: templates/test.yml
 
