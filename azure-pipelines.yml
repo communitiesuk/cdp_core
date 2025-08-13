@@ -5,8 +5,10 @@ trigger:
 
 stages:
   - template: templates/dev.yml
-    parameters:
-      environment: 'dev'
+    variables:
+      - template: templates/variables.yml
+        parameters:
+          environment: 'dev'
 
   # - template: templates/test.yml
   #   parameters:

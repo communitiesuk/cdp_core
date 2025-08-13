@@ -1,6 +1,6 @@
-parameters:
-  - name: environment
-    type: string
+# parameters:
+#   - name: environment
+#     type: string
 
 stages:
   - stage: DEV
@@ -8,16 +8,10 @@ stages:
     jobs:
       - job: DEV
         displayName: "Deploy DEV"
-        variables:
-          - template: variables.yml
-            parameters:
-              environment: ${{ parameters.environment }}
 
         steps:
           - script: |
               echo "Installing Requirements"
-              echo $(azureSubscription)
-              echo $(AzDoServiceConnectionName)
               curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
               pip install uv pylint yamllint
             displayName: "Install Agent Requirements"
@@ -32,19 +26,19 @@ stages:
               yamllint -c .yamllint . || true
             displayName: "Run YamlLint"
 
-          # - task: AzureCLI@2
-          #   condition: succeeded()
-          #   displayName: "Validate Databricks Bundle"
-          #   inputs:
-          #     azureSubscription: $(SPN_ID) # BUG - https://github.com/microsoft/azure-pipelines-tasks/issues/17218
-          #     useGlobalConfig: true
-          #     scriptType: bash
-          #     scriptLocation: inlineScript
-          #     inlineScript: |
-          #       set -e
-          #       export DATABRICKS_HOST=$(DATABRICKS_HOST)
-          #       echo "Validating Databricks Bundle"
-          #       databricks bundle validate --var="environment=development"
+          - task: AzureCLI@2
+            condition: succeeded()
+            displayName: "Validate Databricks Bundle"
+            inputs:
+              azureSubscription: $(SPN_ID) # BUG - https://github.com/microsoft/azure-pipelines-tasks/issues/17218
+              useGlobalConfig: true
+              scriptType: bash
+              scriptLocation: inlineScript
+              inlineScript: |
+                set -e
+                export DATABRICKS_HOST=$(DATABRICKS_HOST)
+                echo "Validating Databricks Bundle"
+                databricks bundle validate --var="environment=development"
           
           # - task: AzureCLI@2
           #   condition: succeeded()
