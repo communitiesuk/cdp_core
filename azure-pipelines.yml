@@ -7,59 +7,51 @@ variables:
   - group: cdp-core-pipeline-vars
 
 stages:
-  # - template: templates/dev.yml
+  - template: templates/dev.yml
 
-  # - template: templates/test.yml
+  - template: templates/test.yml
 
-  # - stage: ProdApproval
-  #   dependsOn: TEST
-  #   condition: succeeded('TEST')
-  #   displayName: "Prod Approval"
-  #   jobs:
-  #     - job: WaitForApproval
-  #       displayName: "Wait for Prod Approval"
-  #       pool: 'server'
-  #       steps:
-  #         - task: ManualValidation@0
-  #           inputs:
-  #             instructions: 'Please approve the deployment to production.'
-  #             onTimeout: 'reject'
-  #             timeoutInMinutes: 180
-  #             notifyUsers: |
-  #               finn.tann@communities.gov.uk
-
-  # - template: templates/prod.yml
-  
-  - stage: release
+  - stage: ProdApproval
+    dependsOn: TEST
+    condition: succeeded('TEST')
+    displayName: "Prod Approval"
     jobs:
-      - job: CreateRelease
+      - job: WaitForApproval
+        displayName: "Wait for Prod Approval"
+        pool: 'server'
         steps:
-          - task: AzureCLI@2
-            condition: succeeded()
-            displayName: "Release"
+          - task: ManualValidation@0
             inputs:
-              azureSubscription: $(GITHUB_SC_ID)
-              useGlobalConfig: true
-              scriptType: bash
-              scriptLocation: inlineScript
-              inlineScript: |
-                echo $(Build.SourceBranchName)
-                echo $(Build.BuildId)
-                git checkout $(Build.SourceBranchName)
-                TAG_NAME=$(Build.BuildId)
-                git push $(GITHUB_HOST) $TAG_NAME
+              instructions: 'Please approve the deployment to production.'
+              onTimeout: 'reject'
+              timeoutInMinutes: 180
+              notifyUsers: |
+                finn.tann@communities.gov.uk
 
-                gh release create $TAG_NAME \
-                  --title "Release $TAG_NAME" \
-                  --notes "Release created by Azure DevOps pipeline." \
-                  --target $(Build.SourceBranchName) \
-                  --repo $(GITHUB_HOST)
-            
+  - template: templates/prod.yml
+  
+  # - stage: release
+  #   jobs:
+  #     - job: CreateRelease
+  #       steps:
+  #         - script: |
+  #             echo $(Build.SourceBranchName)
+  #             echo $(Build.BuildId)
+  #             git checkout $(Build.SourceBranchName)
+  #             TAG_NAME=$(Build.BuildId)
+  #             git push $(GITHUB_HOST) $TAG_NAME
+
+  #             gh release create $TAG_NAME \
+  #               --title "Release $TAG_NAME" \
+  #               --notes "Release created by Azure DevOps pipeline." \
+  #               --target $(Build.SourceBranchName) \
+  #               --repo $(GITHUB_HOST)
+  #           displayName: "Pipeline Completion"
 
 
-# TODO - tagging release branch
 # TODO - variable passthrough for databricks.yml
-# TODO - add SIT tests
 # TODO - fix unit test run (explore whl / job)
+# TODO - tagging release branch
+# TODO - add SIT tests
 # TODO - investigate email notifications
 # TODO - investigate running only speciic jobs on PR
