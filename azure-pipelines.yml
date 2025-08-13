@@ -11,7 +11,7 @@ stages:
   - stage: DEV
     displayName: "DEV"
     jobs:
-      - job: InstallRequirements
+      - job: DEV
         displayName: "Deploy DEV"
         steps:
           - script: |
@@ -69,10 +69,80 @@ stages:
                 databricks jobs submit --json @unit_test.json --no-wait
 
   
-  - stage: Test
+  - stage: TEST
     displayName: "TEST"
+    dependsOn: DEV
+    condition: succeeded('DEV')
     jobs:
-      - job: DevJob2
-        displayName: "Dev Job 2"
+      - job: targets
+        displayName: "Deploy Test"
         steps:
-          - script: echo "Hello from Dev Job 2"
+          - script: |
+              echo "Installing Databricks CLI"
+              curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
+            displayName: "Install Databricks CLI"
+
+          - task: AzureCLI@2
+            condition: succeeded()
+            displayName: "Deploy Databricks Bundle"
+            inputs:
+              azureSubscription: $(SPN_ID)
+              useGlobalConfig: true
+              scriptType: bash
+              scriptLocation: inlineScript
+              inlineScript: |
+                set -e
+                echo "Deploying Databricks Bundle"
+                databricks bundle deploy --target test
+          
+          # - task: AzureCLI@2
+          #   condition: succeeded()
+          #   displayName: "System Integration Tests"
+          #   inputs:
+          #     azureSubscription: $(SPN_ID)
+          #     useGlobalConfig: true
+          #     scriptType: bash
+          #     scriptLocation: inlineScript
+          #     inlineScript: |
+          #       databricks jobs submit --json @unit_test.json --no-wait
+  
+  - stage: ProdApproval
+    dependsOn: TEST
+    displayName: "Prod Approval"
+    jobs:
+      - job: WaitForApproval
+        displayName: "Wait for Prod Approval"
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - task: ManualValidation@0
+            inputs:
+              instructions: 'Please approve the deployment to production.'
+              onTimeout: 'reject'
+              timeoutInMinutes: 180
+              notifyUsers: |
+                finn.tann@communities.gov.uk
+  
+  - stage: PROD
+    displayName: "PROD"
+    dependsOn: ProdApproval
+    jobs:
+      - job: PROD
+        displayName: "Deploy PROD"
+        steps:
+          - script: |
+              echo "Deploying to PROD"
+            displayName: "Deploying to PROD"
+
+          # - task: AzureCLI@2
+          #   condition: succeeded()
+          #   displayName: "Deploy Databricks Bundle"
+          #   inputs:
+          #     azureSubscription: $(SPN_ID)
+          #     useGlobalConfig: true
+          #     scriptType: bash
+          #     scriptLocation: inlineScript
+          #     inlineScript: |
+          #       set -e
+          #       echo "Deploying Databricks Bundle"
+          #       databricks bundle deploy --target prod
