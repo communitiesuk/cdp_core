@@ -47,7 +47,7 @@ stages:
                 set -e
                 echo "Deploying Databricks Bundle"
                 export DATABRICKS_HOST=$(DATABRICKS_DEV_HOST)
-                databricks bundle deploy --var="deploy_env=development,SPN=$(SPN_ID)"
+                databricks bundle deploy --var="deploy_env=development"
           
           - task: AzureCLI@2
             condition: succeeded()
