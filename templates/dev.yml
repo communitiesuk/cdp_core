@@ -2,17 +2,16 @@ parameters:
   - name: environment
     type: string
 
-variables:
-  - template: templates/variables.yml
-    parameters:
-      environment: ${{ parameters.environment }}
-      
 stages:
   - stage: DEV
     displayName: "DEV"
     jobs:
       - job: DEV
         displayName: "Deploy DEV"
+        variables:
+          - template: templates/variables.yml
+            parameters:
+              environment: ${{ parameters.environment }}
         steps:
           - script: |
               echo "Installing Requirements"
