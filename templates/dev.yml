@@ -8,6 +8,10 @@ stages:
     jobs:
       - job: DEV
         displayName: "Deploy DEV"
+        variables:
+          - template: variables.yml
+            parameters:
+              environment: 'dev'
 
         steps:
           - script: |
