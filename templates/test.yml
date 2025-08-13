@@ -8,6 +8,7 @@ stages:
         displayName: "Deploy Test"
         steps:
           - script: |
+              echo $(DATABRICKS_HOST)
               echo "Installing Databricks CLI"
               curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
             displayName: "Install Databricks CLI"

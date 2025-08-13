@@ -30,7 +30,9 @@ stages:
       environment: 'dev'
 
 
-  # - template: templates/test.yml
+  - template: templates/test.yml
+    parameters:
+      environment: 'test'
 
   # - stage: ProdApproval
   #   dependsOn: TEST

@@ -33,7 +33,7 @@ stages:
                 set -e
                 export DATABRICKS_HOST=$(DATABRICKS_HOST)
                 echo "Validating Databricks Bundle"
-                databricks bundle validate 
+                databricks bundle validate --var="deploy_env=development"
           
           - task: AzureCLI@2
             condition: succeeded()
