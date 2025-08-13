@@ -4,11 +4,12 @@ trigger:
       - main
 
 stages:
-  - template: templates/dev.yml
+  - stage: Dev
     variables:
       - template: templates/variables.yml
         parameters:
           environment: 'dev'
+    template: templates/dev.yml
 
   # - template: templates/test.yml
   #   parameters:
