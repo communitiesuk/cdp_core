@@ -12,7 +12,8 @@ stages:
   - template: templates/test.yml
 
   - stage: ProdApproval
-    dependsOn: DEV
+    dependsOn: TEST
+    condition: succeeded('TEST')
     displayName: "Prod Approval"
     jobs:
       - job: WaitForApproval
