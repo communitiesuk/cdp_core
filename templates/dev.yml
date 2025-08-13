@@ -12,6 +12,7 @@ stages:
           - template: variables.yml
             parameters:
               environment: ${{ parameters.environment }}
+
         steps:
           - script: |
               echo "Installing Requirements"
@@ -33,12 +34,13 @@ stages:
             condition: succeeded()
             displayName: "Validate Databricks Bundle"
             inputs:
-              azureSubscription: $(SPN_ID)
+              azureSubscription: SPN-SP-sub-tst-ctdpslt001databricks-001
               useGlobalConfig: true
               scriptType: bash
               scriptLocation: inlineScript
               inlineScript: |
                 set -e
+                echo $(SPN_ID)
                 export DATABRICKS_HOST=$(DATABRICKS_HOST)
                 echo "Validating Databricks Bundle"
                 databricks bundle validate --var="environment=development"
