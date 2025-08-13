@@ -12,12 +12,12 @@ stages:
           - template: variables.yml
             parameters:
               environment: ${{ parameters.environment }}
-          - name: SPN_ID
-            value: $(SPN_ID)
 
         steps:
           - script: |
               echo "Installing Requirements"
+              echo $(azureSubscription)
+              echo $(AzDoServiceConnectionName)
               curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
               pip install uv pylint yamllint
             displayName: "Install Agent Requirements"
@@ -36,7 +36,7 @@ stages:
             condition: succeeded()
             displayName: "Validate Databricks Bundle"
             inputs:
-              azureSubscription: $(SPN_ID)
+              azureSubscription: $(SPN_ID) # BUG - https://github.com/microsoft/azure-pipelines-tasks/issues/17218
               useGlobalConfig: true
               scriptType: bash
               scriptLocation: inlineScript
