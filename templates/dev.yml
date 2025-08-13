@@ -34,13 +34,12 @@ stages:
             condition: succeeded()
             displayName: "Validate Databricks Bundle"
             inputs:
-              azureSubscription: SPN-SP-sub-tst-ctdpslt001databricks-001
+              azureSubscription: $(SPN_ID)
               useGlobalConfig: true
               scriptType: bash
               scriptLocation: inlineScript
               inlineScript: |
                 set -e
-                echo $(SPN_ID)
                 export DATABRICKS_HOST=$(DATABRICKS_HOST)
                 echo "Validating Databricks Bundle"
                 databricks bundle validate --var="environment=development"
