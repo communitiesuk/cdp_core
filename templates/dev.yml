@@ -12,6 +12,8 @@ stages:
           - template: variables.yml
             parameters:
               environment: ${{ parameters.environment }}
+          - name: SPN_ID
+            value: $(SPN_ID)
 
         steps:
           - script: |
