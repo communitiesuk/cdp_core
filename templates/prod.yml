@@ -1,24 +1,35 @@
+parameters:
+  - name: environment
+    type: string
+
 stages:
   - stage: PROD
     displayName: "PROD"
-    dependsOn: ProdApproval
+    dependsOn: TEST
+    condition: succeeded('TEST')
     jobs:
-      - job: PROD
-        displayName: "Deploy PROD"
+      - job: targets
+        displayName: "Deploy Prod"
+        variables:
+        - template: variables.yml
+          parameters:
+            environment: ${{ parameters.environment }}
         steps:
           - script: |
-              echo "Deploying to PROD"
-            displayName: "Deploying to PROD"
+              echo $(DATABRICKS_HOST)
+              echo "Installing Databricks CLI"
+              curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
+            displayName: "Install Databricks CLI"
 
           # - task: AzureCLI@2
           #   condition: succeeded()
           #   displayName: "Deploy Databricks Bundle"
           #   inputs:
-          #     azureSubscription: $(SPN_ID)
+          #     azureSubscription: $(SPN_PROD_ID)
           #     useGlobalConfig: true
           #     scriptType: bash
           #     scriptLocation: inlineScript
           #     inlineScript: |
           #       set -e
           #       echo "Deploying Databricks Bundle"
-          #       databricks bundle deploy --target prod
+          #       databricks bundle deploy --var="environment=production"

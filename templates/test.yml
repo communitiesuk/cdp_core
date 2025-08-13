@@ -25,14 +25,14 @@ stages:
           #   condition: succeeded()
           #   displayName: "Deploy Databricks Bundle"
           #   inputs:
-          #     azureSubscription: $(SPN_ID)
+          #     azureSubscription: $(SPN_TEST_ID)
           #     useGlobalConfig: true
           #     scriptType: bash
           #     scriptLocation: inlineScript
           #     inlineScript: |
           #       set -e
           #       echo "Deploying Databricks Bundle"
-          #       databricks bundle deploy --target test
+          #       databricks bundle deploy --var="environment=test"
           
           # - task: AzureCLI@2
           #   condition: succeeded()

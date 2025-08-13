@@ -18,8 +18,8 @@ targets:
   ${var.environment}:
     mode: ${var.environment}
     workspace:
-      # host: ${DATABRICKS_HOST}
       root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
+    # host: ${DATABRICKS_HOST}
     # run_as:
     #   service_principal_name: ${var.SPN}
 

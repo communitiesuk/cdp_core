@@ -7,33 +7,40 @@ variables:
   - group: cdp-core-pipeline-global-vars 
 
 stages:
+  ############################## DEV Stage #########################################
   - template: templates/dev.yml
     parameters:
       environment: 'dev'
 
-  # - template: templates/test.yml
-  #   parameters:
-  #     environment: 'test'
+  ############################## TEST Stage #########################################
+  - template: templates/test.yml
+    parameters:
+      environment: 'test'
 
-  # - stage: ProdApproval
-  #   dependsOn: TEST
-  #   condition: succeeded('TEST')
-  #   displayName: "Prod Approval"
-  #   jobs:
-  #     - job: WaitForApproval
-  #       displayName: "Wait for Prod Approval"
-  #       pool: 'server'
-  #       steps:
-  #         - task: ManualValidation@0
-  #           inputs:
-  #             instructions: 'Please approve the deployment to production.'
-  #             onTimeout: 'reject'
-  #             timeoutInMinutes: 180
-  #             notifyUsers: |
-  #               finn.tann@communities.gov.uk
+  ############################## MANUAL Approval Stage ##############################
+  - stage: ProdApproval
+    dependsOn: TEST
+    condition: succeeded('TEST')
+    displayName: "Prod Approval"
+    jobs:
+      - job: WaitForApproval
+        displayName: "Wait for Prod Approval"
+        pool: 'server'
+        steps:
+          - task: ManualValidation@0
+            inputs:
+              instructions: 'Please approve the deployment to production.'
+              onTimeout: 'reject'
+              timeoutInMinutes: 180
+              notifyUsers: |
+                finn.tann@communities.gov.uk
 
-  # - template: templates/prod.yml
+  ############################## PROD Stage #########################################
+  - template: templates/prod.yml
+    parameters:
+      environment: 'prod'
   
+  ############################## RELEASE Stage ######################################
   # - stage: release
   #   jobs:
   #     - job: CreateRelease
@@ -53,7 +60,7 @@ stages:
   #           displayName: "Pipeline Completion"
 
 
-# TODO - variable passthrough for databricks.yml
+
 # TODO - fix unit test run (explore whl / job)
 # TODO - tagging release branch
 # TODO - add SIT tests
