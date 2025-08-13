@@ -34,17 +34,17 @@ stages:
     jobs:
       - job: CreateRelease
         steps:
-          script: |
-            git checkout $(Build.SourceBranchName)
-            TAG_NAME=$(Build.BuildId)
-            git push $(GITHUB HOST) $TAG_NAME
+          - script: |
+              git checkout $(Build.SourceBranchName)
+              TAG_NAME=$(Build.BuildId)
+              git push $(GITHUB HOST) $TAG_NAME
 
-            gh release create $TAG_NAME \
-              --title "Release $TAG_NAME" \
-              --notes "Release created by Azure DevOps pipeline." \
-              --target $(Build.SourceBranchName) \
-              --repo $(GITHUB REPO)
-          displayName: "Pipeline Completion"
+              gh release create $TAG_NAME \
+                --title "Release $TAG_NAME" \
+                --notes "Release created by Azure DevOps pipeline." \
+                --target $(Build.SourceBranchName) \
+                --repo $(GITHUB REPO)
+            displayName: "Pipeline Completion"
 
 
 # TODO - tagging release branch
