@@ -5,8 +5,8 @@ parameters:
 stages:
   - stage: PROD
     displayName: "PROD"
-    dependsOn: TEST
-    condition: succeeded('TEST')
+    dependsOn: ProdApproval
+    condition: succeeded('ProdApproval')
     jobs:
       - job: targets
         displayName: "Deploy Prod"
