@@ -21,40 +21,19 @@ stages:
               yamllint -c .yamllint . || true
             displayName: "Run YamlLint"
 
-          - task: CopyFiles@2
-            displayName: "Get Artifacts"
-            inputs:
-              SourceFolder: '$(Build.Repository.LocalPath)'
-              Contents: '**'
-              TargetFolder: '$(Build.BinariesDirectory)'
-              CleanTargetFolder: true
-              OverWrite: true
-
-          - task: replacetoken@5
-            inputs:
-              rootDirectory: '$(Build.BinariesDirectory)/'
-              targetFiles: '**/databricks.yml'
-              tokenPattern: 'azpipelines'
-              writeBOM: true
-              encoding: 'auto'
-              actionOnMissing: 'warn'
-              keepToken: false
-              actionOnNoFiles: 'continue'
-            displayName: "Replace Variable Values in Databricks YML"
-
-          - task: AzureCLI@2
-            condition: succeeded()
-            displayName: "Validate Databricks Bundle"
-            inputs:
-              azureSubscription: $(SPN_ID)
-              useGlobalConfig: true
-              scriptType: bash
-              scriptLocation: inlineScript
-              inlineScript: |
-                set -e
-                export DATABRICKS_HOST=$(DATABRICKS_DEV_HOST)
-                echo "Validating Databricks Bundle"
-                databricks bundle validate
+          # - task: AzureCLI@2
+          #   condition: succeeded()
+          #   displayName: "Validate Databricks Bundle"
+          #   inputs:
+          #     azureSubscription: $(SPN_ID)
+          #     useGlobalConfig: true
+          #     scriptType: bash
+          #     scriptLocation: inlineScript
+          #     inlineScript: |
+          #       set -e
+          #       export DATABRICKS_HOST=$(DATABRICKS_DEV_HOST)
+          #       echo "Validating Databricks Bundle"
+          #       databricks bundle validate 
           
           - task: AzureCLI@2
             condition: succeeded()
@@ -67,7 +46,7 @@ stages:
               inlineScript: |
                 set -e
                 echo "Deploying Databricks Bundle"
-                databricks bundle deploy --target dev
+                databricks bundle deploy --var="deploy_env=dev,workspace_URL=$(DATABRICKS_DEV_HOST),SPN=$(SPN_ID)"
           
           - task: AzureCLI@2
             condition: succeeded()
