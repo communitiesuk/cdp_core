@@ -69,31 +69,31 @@ stages:
                 databricks jobs submit --json @unit_test.json --no-wait
 
   
-  - stage: TEST
-    displayName: "TEST"
-    dependsOn: DEV
-    condition: succeeded('DEV')
-    jobs:
-      - job: targets
-        displayName: "Deploy Test"
-        steps:
-          - script: |
-              echo "Installing Databricks CLI"
-              curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
-            displayName: "Install Databricks CLI"
+  # - stage: TEST
+  #   displayName: "TEST"
+  #   dependsOn: DEV
+  #   condition: succeeded('DEV')
+  #   jobs:
+  #     - job: targets
+  #       displayName: "Deploy Test"
+  #       steps:
+  #         - script: |
+  #             echo "Installing Databricks CLI"
+  #             curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
+  #           displayName: "Install Databricks CLI"
 
-          - task: AzureCLI@2
-            condition: succeeded()
-            displayName: "Deploy Databricks Bundle"
-            inputs:
-              azureSubscription: $(SPN_ID)
-              useGlobalConfig: true
-              scriptType: bash
-              scriptLocation: inlineScript
-              inlineScript: |
-                set -e
-                echo "Deploying Databricks Bundle"
-                databricks bundle deploy --target test
+  #         - task: AzureCLI@2
+  #           condition: succeeded()
+  #           displayName: "Deploy Databricks Bundle"
+  #           inputs:
+  #             azureSubscription: $(SPN_ID)
+  #             useGlobalConfig: true
+  #             scriptType: bash
+  #             scriptLocation: inlineScript
+  #             inlineScript: |
+  #               set -e
+  #               echo "Deploying Databricks Bundle"
+  #               databricks bundle deploy --target test
           
           # - task: AzureCLI@2
           #   condition: succeeded()
@@ -107,7 +107,7 @@ stages:
           #       databricks jobs submit --json @unit_test.json --no-wait
   
   - stage: ProdApproval
-    dependsOn: TEST
+    dependsOn: DEV
     displayName: "Prod Approval"
     jobs:
       - job: WaitForApproval
