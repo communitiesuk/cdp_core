@@ -9,8 +9,8 @@ include:
 variables:
   deploy_env:
     description: "Environment to deploy the bundle to"
-  workspace_URL:
-    description: "Workspace URL for Deploying the Jobs"
+  # workspace_URL:
+  #   description: "Workspace URL for Deploying the Jobs"
   SPN:
     description: "Service Principal Name for Deploying the bundle"
 
@@ -18,7 +18,7 @@ targets:
   ${var.deploy_env}:
     mode: ${var.deploy_env}
     workspace:
-      host: ${DATABRICKS_HOST}
+      # host: ${DATABRICKS_HOST}
       root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
     run_as:
       service_principal_name: ${var.SPN}
