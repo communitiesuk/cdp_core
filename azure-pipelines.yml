@@ -3,13 +3,13 @@ trigger:
     include:
       - main
 
+variables:
+  - group: cdp-core-pipeline-global-vars 
+
 stages:
-  - stage: Dev
-    variables:
-      - template: templates/variables.yml
-        parameters:
-          environment: 'dev'
-    template: templates/dev.yml
+  - template: templates/dev.yml
+    parameters:
+      environment: 'dev'
 
   # - template: templates/test.yml
   #   parameters:

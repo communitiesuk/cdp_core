@@ -30,7 +30,7 @@ stages:
             condition: succeeded()
             displayName: "Validate Databricks Bundle"
             inputs:
-              azureSubscription: $(SPN_ID) # BUG - https://github.com/microsoft/azure-pipelines-tasks/issues/17218
+              azureSubscription: $(SPN_DEV_ID) # BUG - https://github.com/microsoft/azure-pipelines-tasks/issues/17218
               useGlobalConfig: true
               scriptType: bash
               scriptLocation: inlineScript
@@ -44,7 +44,7 @@ stages:
           #   condition: succeeded()
           #   displayName: "Deploy Databricks Bundle"
           #   inputs:
-          #     azureSubscription: $(SPN_ID)
+          #     azureSubscription: $(SPN_DEV_ID)
           #     useGlobalConfig: true
           #     scriptType: bash
           #     scriptLocation: inlineScript
@@ -58,7 +58,7 @@ stages:
           #   condition: succeeded()
           #   displayName: "Unit Tests"
           #   inputs:
-          #     azureSubscription: $(SPN_ID)
+          #     azureSubscription: $(SPN_DEV_ID)
           #     useGlobalConfig: true
           #     scriptType: bash
           #     scriptLocation: inlineScript
