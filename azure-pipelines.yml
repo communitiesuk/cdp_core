@@ -34,19 +34,27 @@ stages:
     jobs:
       - job: CreateRelease
         steps:
-          - script: |
-              echo $(Build.SourceBranchName)
-              echo $(Build.BuildId)
-              git checkout $(Build.SourceBranchName)
-              TAG_NAME=$(Build.BuildId)
-              git push $(GITHUB_HOST) $TAG_NAME
+          - task: AzureCLI@2
+            condition: succeeded()
+            displayName: "Validate Databricks Bundle"
+            inputs:
+              azureSubscription: $(GITHUB_SC_ID)
+              useGlobalConfig: true
+              scriptType: bash
+              scriptLocation: inlineScript
+              inlineScript: |
+                echo $(Build.SourceBranchName)
+                echo $(Build.BuildId)
+                git checkout $(Build.SourceBranchName)
+                TAG_NAME=$(Build.BuildId)
+                git push $(GITHUB_HOST) $TAG_NAME
 
-              gh release create $TAG_NAME \
-                --title "Release $TAG_NAME" \
-                --notes "Release created by Azure DevOps pipeline." \
-                --target $(Build.SourceBranchName) \
-                --repo $(GITHUB_HOST)
-            displayName: "Pipeline Completion"
+                gh release create $TAG_NAME \
+                  --title "Release $TAG_NAME" \
+                  --notes "Release created by Azure DevOps pipeline." \
+                  --target $(Build.SourceBranchName) \
+                  --repo $(GITHUB_HOST)
+            displayName: "Release"
 
 
 # TODO - tagging release branch
