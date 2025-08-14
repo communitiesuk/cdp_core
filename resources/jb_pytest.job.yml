@@ -1,3 +1,6 @@
+run_as:
+  user_name: suftan@tdigitalcommunities.onmicrosoft.com # TODO - how to give permission to the service principal to checkout git?
+
 resources:
   jobs:
     jb_pytest:
