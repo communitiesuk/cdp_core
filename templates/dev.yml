@@ -70,16 +70,14 @@ stages:
           #       databricks bundle run jb_pytest --var="environment=development"
 
           - script: |
-              pwd
-              ls
-              ls RootPath/resources/*.yml | xargs -n 1 basename | sed 's/\.yml$//' > WellEventLog/resources/bundle_names.txt
+              ls resources/*.yml | xargs -n 1 basename | sed 's/\.yml$//' > bundle_names.txt
             displayName: 'List bundle files'
  
           - script: |
               echo "##[group]Reading bundle names"
               while IFS= read -r line; do
                 echo "Found bundle: $line"
-              done < RootPath/resources/bundle_names.txt
+              done < bundle_names.txt
               echo "##[endgroup]"
             displayName: 'Read bundle names'
         
