@@ -1,11 +1,11 @@
 run_as:
   user_name: suftan@tdigitalcommunities.onmicrosoft.com # TODO - how to give permission to the service principal to checkout git?
-  
+
 # The main job for cdp_dab.
 resources:
   jobs:
-    hello_job:
-      name: hello_job
+    test:
+      name: test
       tasks:
         - task_key: hello
           notebook_task:
