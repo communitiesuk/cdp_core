@@ -58,13 +58,38 @@ stages:
                 export DATABRICKS_HOST=$(DATABRICKS_HOST)
                 databricks bundle deploy --var="environment=development"
           
-          # - task: AzureCLI@2
-          #   condition: succeeded()
-          #   displayName: "Unit Tests"
-          #   inputs:
-          #     azureSubscription: $(SPN_DEV_ID)
-          #     useGlobalConfig: true
-          #     scriptType: bash
-          #     scriptLocation: inlineScript
-          #     inlineScript: |
-          #       databricks jobs submit --json @unit_test.json --no-wait
+          - task: AzureCLI@2
+            condition: succeeded()
+            displayName: "Unit Tests"
+            inputs:
+              azureSubscription: $(SPN_DEV_ID)
+              useGlobalConfig: true
+              scriptType: bash
+              scriptLocation: inlineScript
+              inlineScript: |
+                databricks bundle run jb_pytest --var="environment=development"
+
+          - script: |
+              ls RootPath/resources/*.yml | xargs -n 1 basename | sed 's/\.yml$//' > WellEventLog/resources/bundle_names.txt
+            displayName: 'List bundle files'
+ 
+          - script: |
+              echo "##[group]Reading bundle names"
+              while IFS= read -r line; do
+                echo "Found bundle: $line"
+              done < RootPath/resources/bundle_names.txt
+              echo "##[endgroup]"
+            displayName: 'Read bundle names'
+        
+          - script: |
+              cd WellEventLog/resources
+              for bundle_name in $(cat bundle_names.txt); do
+                if [[ "$bundle_name" == *pytest* ]]; then
+                  echo "Skipping bundle: $bundle_name (contains 'pytest')"
+                  continue
+                fi
+                echo "Running bundle: $bundle_name"
+                databricks bundle run "$bundle_name" --refresh-all &
+              done
+              wait
+            displayName: 'System Integration Tests'
