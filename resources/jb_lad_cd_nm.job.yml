@@ -1,0 +1,58 @@
+resources:
+  jobs:
+    jb_lad_cd_nm:
+      name: jb_lad_cd_nm
+      job_clusters:
+        - job_cluster_key: lad_cluster
+          new_cluster:
+            azure_attributes:
+              availability: SPOT_WITH_FALLBACK_AZURE
+              first_on_demand: 1
+              spot_bid_max_price: 100
+            data_security_mode: SINGLE_USER
+            enable_elastic_disk: true
+            node_type_id: Standard_DS3_v2
+            num_workers: 1
+            policy_id: 00024F3D12FA200A
+            runtime_engine: STANDARD
+            spark_version: 16.4.x-scala2.12
+      tasks:
+        - task_key: bronze_lad
+          job_cluster_key: lad_cluster
+          email_notifications: {}
+          run_if: ALL_SUCCESS
+          spark_python_task:
+            parameters:
+              - --dataset
+              - '{{job.parameters.dataset}}'
+            python_file: src/transform/bronze/bronze_arcgis.py
+            source: GIT
+          webhook_notifications: {}
+        - task_key: silver_lad
+          depends_on:
+            - task_key: bronze_lad
+          job_cluster_key: lad_cluster
+          email_notifications: {}
+          run_if: ALL_SUCCESS
+          spark_python_task:
+            parameters:
+              - --dataset
+              - '{{job.parameters.dataset}}'
+            python_file: src/transform/silver/silver_arcgis_lad_apr_2023_uk_nc.py
+            source: GIT
+          webhook_notifications: {}
+      parameters:
+        - name: dataset
+          default: LAD_APR_2023_UK_NC
+      email_notifications: {}
+      git_source:
+        git_branch: main
+        git_provider: gitHub
+        git_url: https://github.com/communitiesuk/cdp_core.git
+      max_concurrent_runs: 1
+      performance_target: STANDARD
+      queue:
+        enabled: true
+      tags:
+        "ResourceClass": "SingleNode"
+      webhook_notifications: {}
