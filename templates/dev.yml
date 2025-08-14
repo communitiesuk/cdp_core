@@ -80,7 +80,7 @@ stages:
                   continue
                 fi
                 echo "Running bundle: $bundle_name"
-                databricks bundle run "$bundle_name" --refresh-all &
+                databricks bundle run "$bundle_name" --refresh-all --var="environment=development" &
                 pids+=($!)
               done
 
