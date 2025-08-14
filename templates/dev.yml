@@ -69,32 +69,41 @@ stages:
           #     inlineScript: |
           #       databricks bundle run jb_pytest --var="environment=development"
 
-          - script: |
-              ls resources/*.yml | xargs -n 1 basename | sed 's/\.yml$//' > bundle_names.txt
-              declare -a pids
-              declare -a statuses
+          - task: AzureCLI@2
+            condition: succeeded()
+            displayName: "System Integration Tests"
+            inputs:
+              azureSubscription: $(SPN_DEV_ID)
+              useGlobalConfig: true
+              scriptType: bash
+              scriptLocation: inlineScript
+              inlineScript: |
 
-              for bundle_name in $(cat bundle_names.txt); do
-                if [[ "$bundle_name" == *pytest* ]]; then
-                  echo "Skipping bundle: $bundle_name (contains 'pytest')"
-                  continue
-                fi
-                echo "Running bundle: $bundle_name"
-                databricks bundle run "$bundle_name" --refresh-all --var="environment=development" &
-                pids+=($!)
-              done
+                ls resources/*.yml | xargs -n 1 basename | sed 's/\.yml$//' > bundle_names.txt
+                declare -a pids
+                declare -a statuses
 
-              # Wait for all jobs and collect exit codes
-              for pid in "${pids[@]}"; do
-                wait $pid
-                statuses+=($?)
-              done
+                for bundle_name in $(cat bundle_names.txt); do
+                  if [[ "$bundle_name" == *pytest* ]]; then
+                    echo "Skipping bundle: $bundle_name (contains 'pytest')"
+                    continue
+                  fi
+                  echo "Running bundle: $bundle_name"
+                  databricks bundle run "$bundle_name" --refresh-all --var="environment=development"&
+                  pids+=($!)
+                done
 
-              # Check if any job failed
-              for status in "${statuses[@]}"; do
-                if [[ $status -ne 0 ]]; then
-                  echo "One or more bundle runs failed."
-                  exit 1
-                fi
-              done
-            displayName: 'System Integration Tests'
+                # Wait for all jobs and collect exit codes
+                for pid in "${pids[@]}"; do
+                  wait $pid
+                  statuses+=($?)
+                done
+
+                # Check if any job failed
+                for status in "${statuses[@]}"; do
+                  if [[ $status -ne 0 ]]; then
+                    echo "One or more bundle runs failed."
+                    exit 1
+                  fi
+                done
+
