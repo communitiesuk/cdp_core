@@ -56,4 +56,4 @@ stages:
             parameters:
               description: "Unit Tests"
               inlineScript: |
-                databricks bundle validate --var="environment=$(ENVIRONMENT)"
+                databricks bundle run jb_pytest --var="environment=$(ENVIRONMENT)"
