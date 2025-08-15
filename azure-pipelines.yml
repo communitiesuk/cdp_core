@@ -26,7 +26,7 @@ stages:
   - stage: ProdApproval
     dependsOn: TEST
     condition: succeeded('TEST')
-    displayName: "Prod Approval"
+    displayName: "APPROVAL GATE"
     jobs:
       - job: WaitForApproval
         displayName: "Wait for Prod Approval"
@@ -46,7 +46,8 @@ stages:
       environment: 'production'
   
   ############################## RELEASE Stage ######################################
-  - stage: release
+  - stage: TagAndRelease
+    displayName: "TAG & RELEASE"
     jobs:
       - job: TagAndRelease
         displayName: "Tag and Release"
