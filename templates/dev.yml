@@ -24,6 +24,7 @@ stages:
               echo "Setting Environment Variables"
               set -e
               export DATABRICKS_HOST=$(DATABRICKS_HOST)
+              export ENVIRONMENT=$(ENVIRONMENT)
             displayName: "Setting Environment Variables"
 
           - script: |
@@ -46,7 +47,7 @@ stages:
               scriptLocation: inlineScript
               inlineScript: |
                 echo "Validating Databricks Bundle"
-                databricks bundle validate --var="environment=$(environment)"
+                databricks bundle validate --var="environment=$(ENVIRONMENT)"
           
           - task: AzureCLI@2
             condition: succeeded()
@@ -58,7 +59,7 @@ stages:
               scriptLocation: inlineScript
               inlineScript: |
                 echo "Deploying Databricks Bundle"
-                databricks bundle deploy --var="environment=$(environment)"
+                databricks bundle deploy --var="environment=$(ENVIRONMENT)"
           
           - task: AzureCLI@2
             condition: succeeded()
@@ -69,5 +70,5 @@ stages:
               scriptType: bash
               scriptLocation: inlineScript
               inlineScript: |
-                databricks bundle run jb_pytest --var="environment=$(environment)"
+                databricks bundle run jb_pytest --var="environment=$(ENVIRONMENT)"
 
