@@ -37,17 +37,23 @@ stages:
               yamllint -c .yamllint . || true
             displayName: "Run YamlLint"
 
-          - task: AzureCLI@2
-            condition: succeeded()
-            displayName: "Validate Databricks Bundle"
-            inputs:
-              azureSubscription: $(SPN_DEV_ID) # BUG - https://github.com/microsoft/azure-pipelines-tasks/issues/17218
-              useGlobalConfig: true
-              scriptType: bash
-              scriptLocation: inlineScript
+          - template: templates/steps/dev_azure_cli.yml
+            parameters:
               inlineScript: |
                 echo "Validating Databricks Bundle"
                 databricks bundle validate --var="environment=$(ENVIRONMENT)"
+
+          # - task: AzureCLI@2
+          #   condition: succeeded()
+          #   displayName: "Validate Databricks Bundle"
+          #   inputs:
+          #     azureSubscription: $(SPN_DEV_ID) # BUG - https://github.com/microsoft/azure-pipelines-tasks/issues/17218
+          #     useGlobalConfig: true
+          #     scriptType: bash
+          #     scriptLocation: inlineScript
+          #     inlineScript: |
+          #       echo "Validating Databricks Bundle"
+          #       databricks bundle validate --var="environment=$(ENVIRONMENT)"
           
           - task: AzureCLI@2
             condition: succeeded()
