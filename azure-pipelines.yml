@@ -57,7 +57,7 @@ stages:
           
           - task: GitHubRelease@0
             inputs:
-              gitHubConnection: 'GitHubConnection'
+              gitHubConnection: '27d3145f-00fb-4a36-9480-6777f7093687'
               repositoryName: 'communitiesuk/cdp_core'
               tagSource: 'manual'
               target: 'refs/tags/prod-$(date +%Y%m%d%H%M%S)'
