@@ -8,61 +8,68 @@ variables:
 
 stages:
   ############################## DEV Stage #########################################
-  - template: templates/dev.yml
-    parameters:
-      environment: 'development'
+  # - template: templates/dev.yml
+  #   parameters:
+  #     environment: 'development'
 
   ############################## TEST Stage #########################################
-  - template: templates/test.yml
-    parameters:
-      environment: 'test'
+  # - template: templates/test.yml
+  #   parameters:
+  #     environment: 'test'
 
   ############################## MANUAL Approval Stage ##############################
-  - stage: ProdApproval
-    dependsOn: TEST
-    condition: succeeded('TEST')
-    displayName: "Prod Approval"
-    jobs:
-      - job: WaitForApproval
-        displayName: "Wait for Prod Approval"
-        pool: 'server'
-        steps:
-          - task: ManualValidation@0
-            inputs:
-              instructions: 'Please approve the deployment to production.'
-              onTimeout: 'reject'
-              timeoutInMinutes: 180
-              notifyUsers: |
-                finn.tann@communities.gov.uk
+  # - stage: ProdApproval
+  #   dependsOn: TEST
+  #   condition: succeeded('TEST')
+  #   displayName: "Prod Approval"
+  #   jobs:
+  #     - job: WaitForApproval
+  #       displayName: "Wait for Prod Approval"
+  #       pool: 'server'
+  #       steps:
+  #         - task: ManualValidation@0
+  #           inputs:
+  #             instructions: 'Please approve the deployment to production.'
+  #             onTimeout: 'reject'
+  #             timeoutInMinutes: 180
+  #             notifyUsers: |
+  #               finn.tann@communities.gov.uk
 
   ############################## PROD Stage #########################################
-  - template: templates/prod.yml
-    parameters:
-      environment: 'production'
+  # - template: templates/prod.yml
+  #   parameters:
+  #     environment: 'production'
   
   ############################## RELEASE Stage ######################################
-  # - stage: release
-  #   jobs:
-  #     - job: CreateRelease
-  #       steps:
-  #         - script: |
-  #             echo $(Build.SourceBranchName)
-  #             echo $(Build.BuildId)
-  #             git checkout $(Build.SourceBranchName)
-  #             TAG_NAME=$(Build.BuildId)
-  #             git push $(GITHUB_HOST) $TAG_NAME
+  - stage: release
+    jobs:
+      - job: TagAndRelease
+        displayName: "Tag and Release"
+        steps:
+          - checkout: self
+            persistCredentials: true
 
-  #             gh release create $TAG_NAME \
-  #               --title "Release $TAG_NAME" \
-  #               --notes "Release created by Azure DevOps pipeline." \
-  #               --target $(Build.SourceBranchName) \
-  #               --repo $(GITHUB_HOST)
-  #           displayName: "Pipeline Completion"
+          - script: |
+              TAG_NAME="prod-$(date +%Y%m%d%H%M%S)"
+              git tag -a $TAG_NAME -m "Release for production deployment"
+              git push origin $TAG_NAME
+            displayName: "Tag Release"
+          
+          - task: GitHubRelease@0
+            inputs:
+              gitHubConnection: 'GitHubConnection'
+              repositoryName: 'communitiesuk/cdp_core'
+              tagSource: 'manual'
+              target: 'refs/tags/prod-$(date +%Y%m%d%H%M%S)'
+              releaseNotesSource: 'currentBranch'
+              isDraft: false
+              isPrerelease: false
+              # assets: |
+              #   $(Build.ArtifactStagingDirectory)/*.whl
 
 
 
 # TODO - fix unit test run (explore whl / job)
 # TODO - tagging release branch
-# TODO - add SIT tests
 # TODO - investigate email notifications
 # TODO - investigate running only speciic jobs on PR
