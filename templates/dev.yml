@@ -14,67 +14,46 @@ stages:
               environment: ${{ parameters.environment }}
 
         steps:
+          # 1. Install All Requirements
           - script: |
-              echo "Installing Requirements"
               curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
               pip install uv pylint yamllint
             displayName: "Install Agent Requirements"
 
+          # 2. Set Environment Variables
           - script: |
-              echo "Setting Environment Variables"
               set -e
               export DATABRICKS_HOST=$(DATABRICKS_HOST)
               export ENVIRONMENT=$(ENVIRONMENT)
             displayName: "Setting Environment Variables"
 
+          # 3. Run PyLint
           - script: |
-              echo "Running Pylint"
               pylint src/ --rcfile=.pylintrc --exit-zero
             displayName: "Run PyLint"
-      
+          
+          # 4. Run YamlLint
           - script: |
-              echo "Running Yaml Lint"
               yamllint -c .yamllint . || true
             displayName: "Run YamlLint"
 
+          # 5. Validate Databricks Bundle
           - template: steps/dev_azure_cli.yml
             parameters:
+              description: "Validating Databricks Bundle"
               inlineScript: |
-                echo "Validating Databricks Bundle"
                 databricks bundle validate --var="environment=$(ENVIRONMENT)"
 
-          # - task: AzureCLI@2
-          #   condition: succeeded()
-          #   displayName: "Validate Databricks Bundle"
-          #   inputs:
-          #     azureSubscription: $(SPN_DEV_ID) # BUG - https://github.com/microsoft/azure-pipelines-tasks/issues/17218
-          #     useGlobalConfig: true
-          #     scriptType: bash
-          #     scriptLocation: inlineScript
-          #     inlineScript: |
-          #       echo "Validating Databricks Bundle"
-          #       databricks bundle validate --var="environment=$(ENVIRONMENT)"
-          
-          - task: AzureCLI@2
-            condition: succeeded()
-            displayName: "Deploy Databricks Bundle"
-            inputs:
-              azureSubscription: $(SPN_DEV_ID)
-              useGlobalConfig: true
-              scriptType: bash
-              scriptLocation: inlineScript
+          # 6. Deploy Databricks Bundle
+          - template: steps/dev_azure_cli.yml
+            parameters:
+              description: "Deploy Databricks Bundle"
               inlineScript: |
-                echo "Deploying Databricks Bundle"
-                databricks bundle deploy --var="environment=$(ENVIRONMENT)"
+                databricks bundle deploy --var="environment=$(ENVIRONMENT)"          
           
-          - task: AzureCLI@2
-            condition: succeeded()
-            displayName: "Unit Tests"
-            inputs:
-              azureSubscription: $(SPN_DEV_ID)
-              useGlobalConfig: true
-              scriptType: bash
-              scriptLocation: inlineScript
+          # 7. Run Unit Tests
+          - template: steps/dev_azure_cli.yml
+            parameters:
+              description: "Unit Tests"
               inlineScript: |
-                databricks bundle run jb_pytest --var="environment=$(ENVIRONMENT)"
-
+                databricks bundle validate --var="environment=$(ENVIRONMENT)"
