@@ -65,10 +65,13 @@ stages:
             name: setTag  
             displayName: "setTag"
           
+          - script: echo "Release tag is $(setTag.releaseTag)"
+            displayName: "Debug: Show Release Tag
+
           - task: GitHubRelease@1
             displayName: "Create GitHub Release"
             inputs:
-              gitHubConnection: '45647c5b-c060-4630-b3a5-44dfd890ba6d'
+              gitHubConnection: $(GITHUB_ID)
               repositoryName: 'communitiesuk/cdp_core'
               tagSource: 'userSpecifiedTag'
               tag: $(setTag.releaseTag)
