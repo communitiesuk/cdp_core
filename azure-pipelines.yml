@@ -51,19 +51,23 @@ stages:
 
           - script: |
               TAG_NAME="prod-$(date +%Y%m%d%H%M%S)"
+              
+              git config --global user.email "you@example.com"
+              git config --global user.name "Your Name"
+              
               git tag -a $TAG_NAME -m "Release for production deployment"
               git push origin $TAG_NAME
             displayName: "Tag Release"
           
-          - task: GitHubRelease@0
-            inputs:
-              gitHubConnection: '45647c5b-c060-4630-b3a5-44dfd890ba6d'
-              repositoryName: 'communitiesuk/cdp_core'
-              tagSource: 'manual'
-              target: 'refs/tags/prod-$(date +%Y%m%d%H%M%S)'
-              releaseNotesSource: 'currentBranch'
-              isDraft: false
-              isPrerelease: false
+          # - task: GitHubRelease@0
+          #   inputs:
+          #     gitHubConnection: '45647c5b-c060-4630-b3a5-44dfd890ba6d'
+          #     repositoryName: 'communitiesuk/cdp_core'
+          #     tagSource: 'manual'
+          #     target: 'refs/tags/prod-$(date +%Y%m%d%H%M%S)'
+          #     releaseNotesSource: 'currentBranch'
+          #     isDraft: false
+          #     isPrerelease: false
               # assets: |
               #   $(Build.ArtifactStagingDirectory)/*.whl
 
