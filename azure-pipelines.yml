@@ -66,8 +66,10 @@ stages:
               echo "##[task.setvariable variable=releaseTag;isOutput=true]$TAG_NAME"
             name: setTag  
             displayName: "setTag"
+        
+        
           
-          - script: echo "Release tag is $(setTag.releaseTag)"
+          - script: echo "Release tag is $(releaseTag)"
             displayName: "Debug: Show Release Tag"
 
           - task: GitHubRelease@1
