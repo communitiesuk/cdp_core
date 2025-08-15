@@ -3,6 +3,11 @@ trigger:
     include:
       - main
 
+parameters:
+  - name: releaseNotes
+    type: string
+    default: 'Release notes for the production deployment.'
+    
 variables:
   - group: cdp-core-pipeline-global-vars 
 
@@ -67,7 +72,8 @@ stages:
               tagSource: 'userSpecifiedTag'
               tag: $(releaseTag)
               target: 'refs/tags/prod-$(date +%Y%m%d%H%M%S)'
-              releaseNotesSource: 'currentBranch'
+              releaseNotesSource: 'inline'
+              releaseNotes: ${{ parameters.releaseNotes }}
               isDraft: false
               isPrerelease: false
               # assets: |
