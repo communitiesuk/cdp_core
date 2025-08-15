@@ -5,7 +5,9 @@ parameters:
 stages:
   - stage: PROD
     displayName: "PROD"
-    dependsOn: TEST
+    dependsOn: 
+      - TEST
+      - ProdApproval
     condition: succeeded('TEST')
     jobs:
       - job: PROD
