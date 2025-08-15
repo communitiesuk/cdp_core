@@ -69,7 +69,7 @@ stages:
         
         
           
-          - script: echo "Release tag is $(releaseTag)"
+          - script: echo "Release tag is $(setTag.releaseTag)"
             displayName: "Debug: Show Release Tag"
 
           - task: GitHubRelease@1
