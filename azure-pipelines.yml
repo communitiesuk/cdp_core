@@ -5,6 +5,7 @@ trigger:
 
 parameters:
   - name: releaseNotes
+    displayName: 'Release Notes'
     type: string
     default: 'Release notes for the production deployment.'
 
