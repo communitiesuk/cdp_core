@@ -10,7 +10,7 @@ stages:
   ############################## DEV Stage #########################################
   - template: templates/dev.yml
     parameters:
-      environment: 'dev'
+      environment: 'development'
 
   ############################## TEST Stage #########################################
   - template: templates/test.yml
@@ -38,7 +38,7 @@ stages:
   ############################## PROD Stage #########################################
   - template: templates/prod.yml
     parameters:
-      environment: 'prod'
+      environment: 'production'
   
   ############################## RELEASE Stage ######################################
   # - stage: release

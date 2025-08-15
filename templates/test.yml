@@ -21,26 +21,55 @@ stages:
               curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
             displayName: "Install Databricks CLI"
 
-          # - task: AzureCLI@2
-          #   condition: succeeded()
-          #   displayName: "Deploy Databricks Bundle"
-          #   inputs:
-          #     azureSubscription: $(SPN_TEST_ID)
-          #     useGlobalConfig: true
-          #     scriptType: bash
-          #     scriptLocation: inlineScript
-          #     inlineScript: |
-          #       set -e
-          #       echo "Deploying Databricks Bundle"
-          #       databricks bundle deploy --var="environment=test"
-          
-          # - task: AzureCLI@2
-          #   condition: succeeded()
-          #   displayName: "System Integration Tests"
-          #   inputs:
-          #     azureSubscription: $(SPN_ID)
-          #     useGlobalConfig: true
-          #     scriptType: bash
-          #     scriptLocation: inlineScript
-          #     inlineScript: |
-          #       databricks bundle run hello_job
+          - task: AzureCLI@2
+            condition: succeeded()
+            displayName: "Deploy Databricks Bundle"
+            inputs:
+              azureSubscription: $(SPN_DEV_ID) # TODO - Replace on resources are created
+              useGlobalConfig: true
+              scriptType: bash
+              scriptLocation: inlineScript
+              inlineScript: |
+                set -e
+                echo "Deploying Databricks Bundle"
+                databricks bundle deploy --var="environment=development"
+
+          - task: AzureCLI@2
+            condition: succeeded()
+            displayName: "System Integration Tests"
+            inputs:
+              azureSubscription: $(SPN_DEV_ID) # TODO - Replace on resources are created
+              useGlobalConfig: true
+              scriptType: bash
+              scriptLocation: inlineScript
+              inlineScript: |
+
+                ls resources/*.yml | xargs -n 1 basename | sed 's/\.yml$//' > bundle_names.txt
+                declare -a pids
+                declare -a statuses
+                
+
+                for bundle_name in $(cat bundle_names.txt); do
+                  clean_name="${bundle_name%.job}"
+                  if [[ "$clean_name" == *pytest* ]]; then
+                    echo "Skipping bundle: $clean_name (contains 'pytest')"
+                    continue
+                  fi
+                  echo "Running bundle: $clean_name"
+                  databricks bundle run "$clean_name" --refresh-all --var="environment=development"&
+                  pids+=($!)
+                done
+
+                # Wait for all jobs and collect exit codes
+                for pid in "${pids[@]}"; do
+                  wait $pid
+                  statuses+=($?)
+                done
+
+                # Check if any job failed
+                for status in "${statuses[@]}"; do
+                  if [[ $status -ne 0 ]]; then
+                    echo "One or more bundle runs failed."
+                    exit 1
+                  fi
+                done

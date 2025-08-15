@@ -3,9 +3,9 @@ parameters:
     type: string
 
 variables:
-  - ${{ if eq(parameters.environment, 'dev') }}:
+  - ${{ if eq(parameters.environment, 'development') }}:
     - group: cdp-core-pipeline-dev-vars
   - ${{ if eq(parameters.environment, 'test') }}:
     - group: cdp-core-pipeline-test-vars
-  - ${{ if eq(parameters.environment, 'prod') }}:
+  - ${{ if eq(parameters.environment, 'production') }}:
     - group: cdp-core-pipeline-prod-vars
