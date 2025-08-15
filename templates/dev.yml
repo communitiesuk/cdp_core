@@ -37,7 +37,7 @@ stages:
               yamllint -c .yamllint . || true
             displayName: "Run YamlLint"
 
-          - template: templates/steps/dev_azure_cli.yml
+          - template: steps/dev_azure_cli.yml
             parameters:
               inlineScript: |
                 echo "Validating Databricks Bundle"
