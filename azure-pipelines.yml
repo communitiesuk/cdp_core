@@ -71,7 +71,7 @@ stages:
               repositoryName: 'communitiesuk/cdp_core'
               tagSource: 'userSpecifiedTag'
               tag: $(releaseTag)
-              target: 'refs/tags/prod-$(date +%Y%m%d%H%M%S)'
+              # target: 'refs/tags/prod-$(date +%Y%m%d%H%M%S)'
               releaseNotesSource: 'inline'
               releaseNotesInline: ${{ parameters.releaseNotes }}
               isDraft: false
