@@ -9,6 +9,8 @@ stages:
     condition: succeeded('DEV')
     jobs:
       - job: TEST
+        # pool: 
+        #   name: 'vmss-shared'
         displayName: "Deploy Test"
         variables:
         - template: variables.yml
