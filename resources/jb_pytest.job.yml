@@ -1,0 +1,43 @@
+run_as:
+  user_name: suftan@tdigitalcommunities.onmicrosoft.com # TODO - how to give permission to the service principal to checkout git?
+
+resources:
+  jobs:
+    jb_pytest:
+      name: jb_pytest
+      job_clusters:
+        - job_cluster_key: pytest_cluster
+          new_cluster:
+            azure_attributes:
+              availability: SPOT_WITH_FALLBACK_AZURE
+              first_on_demand: 1
+              spot_bid_max_price: 100
+            data_security_mode: SINGLE_USER
+            enable_elastic_disk: true
+            node_type_id: Standard_DS3_v2
+            num_workers: 1
+            policy_id: 00024F3D12FA200A
+            runtime_engine: STANDARD
+            spark_version: 16.4.x-scala2.12
+      tasks:
+        - task_key: pytest
+          job_cluster_key: pytest_cluster
+          email_notifications: {}
+          libraries:
+            - pypi:
+                package: pytest
+          run_if: ALL_SUCCESS
+          spark_python_task:
+            python_file: tests/main_test.py
+            source: GIT
+          webhook_notifications: {}
+      email_notifications: {}
+      git_source:
+        git_branch: main
+        git_provider: gitHub
+        git_url: https://github.com/communitiesuk/cdp_core.git
+      max_concurrent_runs: 1
+      performance_target: STANDARD
+      queue:
+        enabled: true
+      webhook_notifications: {}

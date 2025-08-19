@@ -1,0 +1,59 @@
+parameters:
+  - name: environment
+    type: string
+
+stages:
+  - stage: DEV
+    displayName: "DEV"
+    jobs:
+      - job: DEV
+        displayName: "Deploy DEV"
+        variables:
+          - template: variables.yml
+            parameters:
+              environment: ${{ parameters.environment }}
+
+        steps:
+          # 1. Install All Requirements
+          - script: |
+              curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
+              pip install uv pylint yamllint
+            displayName: "Install Agent Requirements"
+
+          # 2. Set Environment Variables
+          - script: |
+              set -e
+              export DATABRICKS_HOST=$(DATABRICKS_HOST)
+              export ENVIRONMENT=$(ENVIRONMENT)
+            displayName: "Setting Environment Variables"
+
+          # 3. Run PyLint
+          - script: |
+              pylint src/ --rcfile=.pylintrc --exit-zero
+            displayName: "Run PyLint"
+          
+          # 4. Run YamlLint
+          - script: |
+              yamllint -c .yamllint . || true
+            displayName: "Run YamlLint"
+
+          # 5. Validate Databricks Bundle
+          - template: steps/dev_azure_cli.yml
+            parameters:
+              description: "Validating Databricks Bundle"
+              inlineScript: |
+                databricks bundle validate --var="environment=$(ENVIRONMENT)"
+
+          # 6. Deploy Databricks Bundle
+          - template: steps/dev_azure_cli.yml
+            parameters:
+              description: "Deploy Databricks Bundle"
+              inlineScript: |
+                databricks bundle deploy --var="environment=$(ENVIRONMENT)"          
+          
+          # 7. Run Unit Tests
+          - template: steps/dev_azure_cli.yml
+            parameters:
+              description: "Unit Tests"
+              inlineScript: |
+                databricks bundle run jb_pytest --var="environment=$(ENVIRONMENT)"
