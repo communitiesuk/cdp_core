@@ -10,6 +10,13 @@ variables:
   environment:
     description: "Environment to deploy the bundle to"
 
+artifacts:
+  default:
+    type: whl
+    build: python setup.py bdist_wheel --dist-dir packages/
+    files: 
+      - source: packages/*.whl
+
 targets:
   ${var.environment}:
     mode: ${var.environment}

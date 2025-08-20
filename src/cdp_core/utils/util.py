@@ -1,32 +1,20 @@
-from pathlib import Path
 import yaml
-import glob
 from typing import Dict
-from setup.constants import TYPE_MAPPING
+from importlib import resources
+
 from pyspark.sql import DataFrame
 from pyspark.sql import functions as F
 from pyspark.sql.window import Window
 from pyspark.sql.functions import row_number
 
+from cdp_core.setup.constants import TYPE_MAPPING
+
 def config_reader(dataset: str) -> Dict:
     """
     Reads a YAML configuration file for the specified dataset.
     """
-    config_dir = Path(__file__).resolve().parents[1] / "configs"
-
-    config_files = glob.glob(str(config_dir / "*"))
-
-    matching_files = [file for file in config_files if dataset in file]
-    if not matching_files:
-        raise FileNotFoundError(f"No configuration file found for dataset: {dataset}")
-
-    config_path = Path(matching_files[0])
-
-    with config_path.open("r", encoding="utf-8") as file:
-        try:
-            return yaml.safe_load(file)
-        except yaml.YAMLError as e:
-            raise yaml.YAMLError(f"Error parsing YAML file: {config_path}") from e
+    with resources.files("cdp_core.configs").joinpath(f"{dataset}.yml").open("r") as file:
+        return yaml.safe_load(file)
 
 
 def de_dupe(df: DataFrame, primary_key: str, de_dupe_col: str, de_dupe_asc: bool = True) -> DataFrame:

@@ -1,37 +1,33 @@
-from pyspark.dbutils import DBUtils
-from pyspark.sql import DataFrame, SparkSession
-import argparse
-
-spark = SparkSession.builder.getOrCreate()
-dbutils = DBUtils(spark)
-
 import sys
-user_email = dbutils.notebook.entry_point.getDbutils().notebook().getContext().tags().apply('user')
-sys.path.append(f"/Workspace/Users/{user_email}/cdp_core/src")
 from typing import Dict
 
+from pyspark.dbutils import DBUtils
 from pyspark.sql import functions as F
-from pyspark.sql import DataFrame
+from pyspark.sql import DataFrame, SparkSession
 
-from utils.writers import delta_writer, add_tags, add_descriptions
-from utils.readers import read_table
-from utils.util import cast_columns, config_reader, de_dupe, rename_columns
-from setup.constants import *
- 
-# column renaming
-# type casting
-# filtering
-# normalisation
-# deduplication
-# enrichment?
-# validation?
-# partitioning?
+spark = SparkSession.getActiveSession()
+user_email = DBUtils(spark).notebook.entry_point.getDbutils().notebook().getContext().tags().apply('user')
+sys.path.append(f"/Workspace/Users/{user_email}/cdp_core/src")
+
+from cdp_core.setup.constants import *
+from cdp_core.utils.readers import read_table
+from cdp_core.utils.writers import delta_writer, add_tags, add_descriptions
+from cdp_core.utils.util import cast_columns, config_reader, de_dupe, rename_columns
 
 
 def extract(config: dict) -> DataFrame:
     return read_table(CATALOG_SLT1_DEV, SCHEMA_BRONZE, config['dataset'])
 
 def transform(df: DataFrame, config: Dict) -> DataFrame:
+    # column renaming
+    # type casting
+    # filtering
+    # normalisation
+    # deduplication
+    # enrichment?
+    # validation?
+    # partitioning?
+
     # drop duplicates
     df = df.dropDuplicates()
 
@@ -51,14 +47,11 @@ def load(df: DataFrame, config: Dict) -> None:
     add_tags(CATALOG_SLT1_DEV, SCHEMA_SILVER, config["dataset"], config)
     add_descriptions(CATALOG_SLT1_DEV, SCHEMA_SILVER, config["dataset"], config)
 
-if __name__ == "__main__":
-    # dataset = dbutils.widgets.get("dataset")
-    parser = argparse.ArgumentParser(description="ETL process")
-    parser.add_argument("--dataset", required=True, help="Dataset name")
-    args = parser.parse_args()
-
-    config = config_reader(args.dataset)
-    
+def execute(dataset: str) -> None:
+    config = config_reader(dataset)
     df = extract(config)
     df = transform(df, config)
     load(df, config)
+    
+
+
