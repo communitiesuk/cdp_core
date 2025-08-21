@@ -7,7 +7,7 @@ parameters:
 steps:
   - task: AzureCLI@2
     env:
-      BUILD_VERSION: $(BUILD_VERSION)
+      BUILD_VERSION: "0.0.1"
     condition: succeeded()
     displayName: ${{ parameters.description }}
     inputs:

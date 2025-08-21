@@ -15,8 +15,6 @@ parameters:
     default: 'Release notes for the production deployment.'
 
 variables:
-  - name: BUILD_VERSION
-    value: '$(Build.sourceBranchName)-$(Build.BuildId)'
   - group: cdp-core-pipeline-global-vars 
 
 stages:
