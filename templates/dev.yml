@@ -62,10 +62,7 @@ stages:
           - template: steps/dev_azure_cli.yml
             parameters:
               description: "Copying whl file to shared area"
-              inlineScript: |    
-                databricks workspace list
-                databricks workspace cp /Workspace/Users/$(SPN_ID)/.bundle/cdp_core/$(ENVIRONMENT)/artifacts/.internal/cdp_core-0.2.7-py3-none-any.whl /Shared/artifacts/
-                echo $(SPN_ID)
-                databricks fs ls ..
-                # databricks fs cp /Workspace/Users/$(SPN_ID)/.bundle/cdp_core/$(ENVIRONMENT)/artifacts/.internal/cdp_core-0.2.7-py3-none-any.whl /Shared/artifacts/
-                databricks fs cp /Workspace/Users/6f4aedc5-6ff3-48f3-8d6a-e4c03148e42f/.bundle/cdp_core/development/artifacts/.internal/cdp_core-0.2.7-py3-none-any.whl /Shared/artifacts/
+              inlineScript: |
+                pwd
+                databricks workspace import packages/cdp_core-0.2.7-py3-none-any.whl /Shared/artifacts/
+                
