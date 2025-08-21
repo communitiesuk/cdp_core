@@ -63,7 +63,7 @@ stages:
             parameters:
               description: "Copying whl file to shared area"
               inlineScript: |
-                ls
+                ls packages/
                 databricks fs cp packages/cdp_core-0.2.7.py3-none-any.whl dbfs:artifacts/
                 # databricks workspace import /Shared/artifacts/ --file packages/cdp_core-0.2.7-py3-none-any.whl --format SOURCE
                 
