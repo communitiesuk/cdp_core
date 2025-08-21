@@ -1,10 +1,11 @@
 from setuptools import setup, find_packages
+import os 
 
-import src
+version = os.getenv('BUILD_VERSION', '0.0.1')
 
 setup(
   name = "cdp_core",
-  version = "0.2.7",
+  version = version,
   author = "<my-author-name>",
   url = "https://<my-url>",
   author_email = "<my-author-name>@<my-organization>",
