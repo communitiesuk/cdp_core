@@ -9,7 +9,7 @@ steps:
     condition: succeeded()
     displayName: ${{ parameters.description }}
     inputs:
-      azureSubscription: $(SPN_DEV_ID) # BUG - https://github.com/microsoft/azure-pipelines-tasks/issues/17218
+      azureSubscription: $(SPN_DEV_NAME) # BUG - https://github.com/microsoft/azure-pipelines-tasks/issues/17218
       useGlobalConfig: true
       scriptType: bash
       scriptLocation: inlineScript
