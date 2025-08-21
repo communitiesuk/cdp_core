@@ -24,64 +24,64 @@ stages:
       environment: 'development'
 
   ############################## TEST Stage #########################################
-  - template: templates/test.yml
-    parameters:
-      environment: 'test'
+  # - template: templates/test.yml
+  #   parameters:
+  #     environment: 'test'
 
   ############################## MANUAL Approval Stage ##############################
-  - stage: ProdApproval
-    dependsOn: TEST
-    condition: succeeded('TEST')
-    displayName: "APPROVAL GATE"
-    jobs:
-      - job: WaitForApproval
-        displayName: "Wait for Prod Approval"
-        pool: 'server'
-        steps:
-          - task: ManualValidation@0
-            inputs:
-              instructions: 'Please approve the deployment to production.'
-              onTimeout: 'reject'
-              timeoutInMinutes: 180
-              notifyUsers: |
-                finn.tann@communities.gov.uk
+  # - stage: ProdApproval
+  #   dependsOn: TEST
+  #   condition: succeeded('TEST')
+  #   displayName: "APPROVAL GATE"
+  #   jobs:
+  #     - job: WaitForApproval
+  #       displayName: "Wait for Prod Approval"
+  #       pool: 'server'
+  #       steps:
+  #         - task: ManualValidation@0
+  #           inputs:
+  #             instructions: 'Please approve the deployment to production.'
+  #             onTimeout: 'reject'
+  #             timeoutInMinutes: 180
+  #             notifyUsers: |
+  #               finn.tann@communities.gov.uk
 
   ############################## PROD Stage #########################################
-  - template: templates/prod.yml
-    parameters:
-      environment: 'production'
+  # - template: templates/prod.yml
+  #   parameters:
+  #     environment: 'production'
   
   ############################## RELEASE Stage ######################################
-  - stage: TagAndRelease
-    displayName: "TAG & RELEASE"
-    jobs:
-      - job: TagAndRelease
-        displayName: "Tag and Release"
-        steps:
-          - checkout: self
-            persistCredentials: true
+  # - stage: TagAndRelease
+  #   displayName: "TAG & RELEASE"
+  #   jobs:
+  #     - job: TagAndRelease
+  #       displayName: "Tag and Release"
+  #       steps:
+  #         - checkout: self
+  #           persistCredentials: true
 
-          - script: |
-              TAG_NAME="prod-$(date +%Y%m%d%H%M%S)"
+  #         - script: |
+  #             TAG_NAME="prod-$(date +%Y%m%d%H%M%S)"
               
-              git config --global user.email "you@example.com"
-              git config --global user.name "Your Name"
+  #             git config --global user.email "you@example.com"
+  #             git config --global user.name "Your Name"
               
-              git tag -a $TAG_NAME -m "Release for production deployment"
-              git push origin $TAG_NAME
-              echo $TAG_NAME
-              echo "##vso[task.setvariable variable=releaseTag;isOutput=true]$TAG_NAME"
-            name: setTag  
-            displayName: "setTag"
+  #             git tag -a $TAG_NAME -m "Release for production deployment"
+  #             git push origin $TAG_NAME
+  #             echo $TAG_NAME
+  #             echo "##vso[task.setvariable variable=releaseTag;isOutput=true]$TAG_NAME"
+  #           name: setTag  
+  #           displayName: "setTag"
         
-          - task: GitHubRelease@1
-            displayName: "Create GitHub Release"
-            inputs:
-              gitHubConnection: $(GITHUB_ID)
-              repositoryName: $(REPOSITORY_NAME)
-              tagSource: 'userSpecifiedTag'
-              tag: $(setTag.releaseTag)
-              releaseNotesSource: 'inline'
-              releaseNotesInline: ${{ parameters.releaseNotes }}
-              isDraft: false
-              isPrerelease: false
+  #         - task: GitHubRelease@1
+  #           displayName: "Create GitHub Release"
+  #           inputs:
+  #             gitHubConnection: $(GITHUB_ID)
+  #             repositoryName: $(REPOSITORY_NAME)
+  #             tagSource: 'userSpecifiedTag'
+  #             tag: $(setTag.releaseTag)
+  #             releaseNotesSource: 'inline'
+  #             releaseNotesInline: ${{ parameters.releaseNotes }}
+  #             isDraft: false
+  #             isPrerelease: false
