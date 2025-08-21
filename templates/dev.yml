@@ -63,4 +63,4 @@ stages:
             parameters:
               description: "Copying whl file to shared area"
               inlineScript: |               
-                databricks fs cp /Users/$(SPN_ID)/.bundle/cdp_core/$(ENVIRONMENT)/artifacts/.internal/cdp_core-0.2.7-py3-none-any.whl /Shared/artifacts/
+                databricks fs cp /Workspace/Users/$(SPN_ID)/.bundle/cdp_core/$(ENVIRONMENT)/artifacts/.internal/cdp_core-0.2.7-py3-none-any.whl /Shared/artifacts/
