@@ -58,12 +58,13 @@ stages:
           #     inlineScript: |
           #       databricks bundle run jb_pytest --var="environment=$(ENVIRONMENT)"
           
-          # 8. Copy whl file to shared area
+          # 8. Copy whl file to gold volume
           - template: steps/dev_azure_cli.yml
             parameters:
-              description: "Copying whl file to shared area"
+              description: "Copying whl file to Gold volume"
               inlineScript: |
-                databricks fs mkdir dbfs:/artifacts
-                databricks fs cp packages/cdp_core-0.2.7-py3-none-any.whl dbfs:/artifacts/cdp_core-0.2.7-py3-none-any.whl
+                # databricks fs mkdir dbfs:/artifacts
+                databricks fs cp packages/cdp_core-0.2.7-py3-none-any.whl dbfs:/Volumes/catalog-sbx-uks-corecdp-001/schema-sbx-uks-corecdp-analyse-001/volume-sbx-uks-corecdp-analyse-001/artifacts/cdp_core-0.2.7-py3-none-any.whl
+                # databricks fs cp packages/cdp_core-0.2.7-py3-none-any.whl dbfs:/artifacts/cdp_core-0.2.7-py3-none-any.whl
                 # databricks workspace import /Shared/artifacts/ --file packages/cdp_core-0.2.7-py3-none-any.whl --format SOURCE
                 
