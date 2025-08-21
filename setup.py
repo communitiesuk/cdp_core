@@ -10,8 +10,8 @@ setup(
   url = "https://<my-url>",
   author_email = "<my-author-name>@<my-organization>",
   description = "<my-package-description>",
-  packages=find_packages(where="src/cdp_core"),
-  package_dir={'': 'src/cdp_core'},
+  packages=find_packages(where="src"),
+  package_dir={'': 'src'},
   package_data={'cdp_core': ['configs/*.yml']},
   entry_points={
     "console_scripts": ['run=cdp_core.main:main']
