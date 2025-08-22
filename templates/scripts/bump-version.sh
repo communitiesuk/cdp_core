@@ -32,7 +32,7 @@ new_tag="$major.$minor.$patch"
  
 # Output the new tag
 echo "New tag: $new_tag"
-export BUILD_VERSION=$(new_tag) 
+export BUILD_VERSION=$new_tag 
 # Optional: create and push the tag
 # git tag "$new_tag"
 # git push origin "$new_tag"
