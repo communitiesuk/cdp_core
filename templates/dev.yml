@@ -45,7 +45,10 @@ stages:
           #       databricks bundle validate --var="environment=$(ENVIRONMENT)"
 
           # TODO - Generate version number (major / minor) 
-
+          # Retrieve latest tag
+          - script: |
+              git tag --sort=-v:refname | head -n 1
+              
           # 6. Deploy Databricks Bundle
           - template: steps/dev_azure_cli.yml
             parameters:
