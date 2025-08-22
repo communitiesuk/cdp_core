@@ -1,4 +1,6 @@
 parameters:
+  - name: build_version
+    type: string
   - name: description
     type: string
   - name: inlineScript
@@ -7,7 +9,7 @@ parameters:
 steps:
   - task: AzureCLI@2
     env:
-      BUILD_VERSION: $(BUILD_VERSION)
+      BUILD_VERSION: ${{ parameters.build_version }}
     condition: succeeded()
     displayName: ${{ parameters.description }}
     inputs:
