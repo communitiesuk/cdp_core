@@ -68,5 +68,7 @@ stages:
             parameters:
               description: "Copying whl file to Gold volume"
               inlineScript: |
-                databricks fs mkdir dbfs:/Volumes/catalog-sbx-uks-corecdp-001/schema-sbx-uks-corecdp-analyse-001/volume-sbx-uks-corecdp-analyse-001/artifacts
-                databricks fs cp packages/cdp_core-$(BUILD_VERSION)-py3-none-any.whl dbfs:/Volumes/catalog-sbx-uks-corecdp-001/schema-sbx-uks-corecdp-analyse-001/volume-sbx-uks-corecdp-analyse-001/artifacts/cdp_core-$(BUILD_VERSION)-py3-none-any.whl --overwrite
+                databricks workspace mkdirs /Shared/artifacts
+                databricks workspace import --overwrite --format "AUTO" --file packages/cdp_core-$(BUILD_VERSION)-py3-none-any.whl /Shared/artifacts/cdp_core-py3-none-any.whl
+                # databricks fs mkdir dbfs:/Volumes/catalog-sbx-uks-corecdp-001/schema-sbx-uks-corecdp-analyse-001/volume-sbx-uks-corecdp-analyse-001/artifacts
+                # databricks fs cp packages/cdp_core-$(BUILD_VERSION)-py3-none-any.whl dbfs:/Volumes/catalog-sbx-uks-corecdp-001/schema-sbx-uks-corecdp-analyse-001/volume-sbx-uks-corecdp-analyse-001/artifacts/cdp_core-$(BUILD_VERSION)-py3-none-any.whl --overwrite
