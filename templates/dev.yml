@@ -20,56 +20,53 @@ stages:
               pip install uv pylint yamllint
             displayName: "Install Agent Requirements"
 
-          # 2. Set Environment Variables
+          # 2. Set Environment Variables & Allow Executables
           - script: |
               set -e
               export DATABRICKS_HOST=$(DATABRICKS_HOST)
               export ENVIRONMENT=$(ENVIRONMENT)
               chmod +x ./templates/scripts/bump-version.sh
-            displayName: "Setting Environment Variables"
+            displayName: "Setting Environment Variables & Allowing Executables"
 
           # 3. Run PyLint
-          # - script: |
-          #     pylint src/ --rcfile=.pylintrc --exit-zero
-          #   displayName: "Run PyLint"
+          - script: |
+              pylint src/ --rcfile=.pylintrc --exit-zero
+            displayName: "Run PyLint"
           
           # 4. Run YamlLint
-          # - script: |
-          #     yamllint -c .yamllint . || true
-          #   displayName: "Run YamlLint"
+          - script: |
+              yamllint -c .yamllint . || true
+            displayName: "Run YamlLint"
 
           # 5. Validate Databricks Bundle
-          # - template: steps/dev_azure_cli.yml
-          #   parameters:
-          #     description: "Validating Databricks Bundle"
-          #     inlineScript: |
-          #       databricks bundle validate --var="environment=$(ENVIRONMENT)"
+          - template: steps/dev_azure_cli.yml
+            parameters:
+              description: "Validating Databricks Bundle"
+              inlineScript: |
+                databricks bundle validate --var="environment=$(ENVIRONMENT)"
 
-          # TODO - Generate version number (major / minor) 
-          # Retrieve latest tag
+          # 6. Get and Increment Tag
           - script: templates/scripts/bump-version.sh
             displayName: "Get and Increment Tag"
 
-          # 6. Deploy Databricks Bundle
+          # 7. Deploy Databricks Bundle
           - template: steps/dev_azure_cli.yml
             parameters:
               description: "Deploy Databricks Bundle"
               inlineScript: |
                 databricks bundle deploy --var="environment=$(ENVIRONMENT)"
           
-          # 7. Run Unit Tests
-          # - template: steps/dev_azure_cli.yml
-          #   parameters:
-          #     description: "Unit Tests"
-          #     inlineScript: |
-          #       databricks bundle run jb_pytest --var="environment=$(ENVIRONMENT)"
+          # 8. Run Unit Tests
+          - template: steps/dev_azure_cli.yml
+            parameters:
+              description: "Unit Tests"
+              inlineScript: |
+                databricks bundle run jb_pytest --var="environment=$(ENVIRONMENT)"
           
-          
-          # 8. Copy whl file to gold volume
+          # 9. Copy whl file to gold volume
           - template: steps/dev_azure_cli.yml
             parameters:
               description: "Copying whl file to Gold volume"
               inlineScript: |
                 databricks fs mkdir dbfs:/Volumes/catalog-sbx-uks-corecdp-001/schema-sbx-uks-corecdp-analyse-001/volume-sbx-uks-corecdp-analyse-001/artifacts
-                # databricks fs cp packages/cdp_core-0.0.1-py3-none-any.whl dbfs:/Volumes/catalog-sbx-uks-corecdp-001/schema-sbx-uks-corecdp-analyse-001/volume-sbx-uks-corecdp-analyse-001/artifacts/cdp_core-0.0.1-py3-none-any.whl --overwrite
                 databricks fs cp packages/cdp_core-$(BUILD_VERSION)-py3-none-any.whl dbfs:/Volumes/catalog-sbx-uks-corecdp-001/schema-sbx-uks-corecdp-analyse-001/volume-sbx-uks-corecdp-analyse-001/artifacts/cdp_core-$(BUILD_VERSION)-py3-none-any.whl --overwrite

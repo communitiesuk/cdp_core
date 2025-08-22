@@ -24,12 +24,13 @@ stages:
               curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
             displayName: "Install Databricks CLI"
 
-          # 2. Set Environment Variables
+          # 2. Set Environment Variables & Allow Executables
           - script: |
               set -e
               export DATABRICKS_HOST=$(DATABRICKS_HOST)
               export ENVIRONMENT=$(ENVIRONMENT)
-            displayName: "Setting Environment Variables"
+              chmod +x ./templates/scripts/bump-version.sh
+            displayName: "Setting Environment Variables & Allowing Executables"
 
           # 3. Validate Databricks Bundle
           - template: steps/test_azure_cli.yml
@@ -38,14 +39,18 @@ stages:
               inlineScript: |
                 databricks bundle validate --var="environment=$(ENVIRONMENT)"
 
-          # 4. Deploy Databricks Bundle
+          # 4. Get and Increment Tag
+          - script: templates/scripts/bump-version.sh
+            displayName: "Get and Increment Tag"
+          
+          # 5. Deploy Databricks Bundle
           - template: steps/test_azure_cli.yml
             parameters:
               description: "Deploy Databricks Bundle"
               inlineScript: |
                 databricks bundle deploy --var="environment=$(ENVIRONMENT)"
 
-          # 5. Run System Integration Tests
+          # 6. Run System Integration Tests
           - template: steps/test_azure_cli.yml
             parameters:
               description: "Run System Integration Tests"
