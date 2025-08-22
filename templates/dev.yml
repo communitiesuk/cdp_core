@@ -55,7 +55,6 @@ stages:
             parameters:
               description: "Deploy Databricks Bundle"
               inlineScript: |
-                echo $(BUILD_VERSION)
                 databricks bundle deploy --var="environment=$(ENVIRONMENT)"
           
           # 7. Run Unit Tests
@@ -72,5 +71,5 @@ stages:
               description: "Copying whl file to Gold volume"
               inlineScript: |
                 databricks fs mkdir dbfs:/Volumes/catalog-sbx-uks-corecdp-001/schema-sbx-uks-corecdp-analyse-001/volume-sbx-uks-corecdp-analyse-001/artifacts
-                databricks fs cp packages/cdp_core-0.0.1-py3-none-any.whl dbfs:/Volumes/catalog-sbx-uks-corecdp-001/schema-sbx-uks-corecdp-analyse-001/volume-sbx-uks-corecdp-analyse-001/artifacts/cdp_core-0.0.1-py3-none-any.whl --overwrite
-                
+                # databricks fs cp packages/cdp_core-0.0.1-py3-none-any.whl dbfs:/Volumes/catalog-sbx-uks-corecdp-001/schema-sbx-uks-corecdp-analyse-001/volume-sbx-uks-corecdp-analyse-001/artifacts/cdp_core-0.0.1-py3-none-any.whl --overwrite
+                databricks fs cp packages/cdp_core-$(BUILD_VERSION)-py3-none-any.whl dbfs:/Volumes/catalog-sbx-uks-corecdp-001/schema-sbx-uks-corecdp-analyse-001/volume-sbx-uks-corecdp-analyse-001/artifacts/cdp_core-$(BUILD_VERSION)-py3-none-any.whl --overwrite
