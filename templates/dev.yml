@@ -25,6 +25,7 @@ stages:
               set -e
               export DATABRICKS_HOST=$(DATABRICKS_HOST)
               export ENVIRONMENT=$(ENVIRONMENT)
+              chmod +x ./templates/scripts/bump-version.sh
             displayName: "Setting Environment Variables"
 
           # 3. Run PyLint
