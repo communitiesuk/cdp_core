@@ -52,36 +52,37 @@ stages:
   #     environment: 'production'
   
   ############################## RELEASE Stage ######################################
-  # - stage: TagAndRelease
-  #   displayName: "TAG & RELEASE"
-  #   jobs:
-  #     - job: TagAndRelease
-  #       displayName: "Tag and Release"
-  #       steps:
-  #         - checkout: self
-  #           persistCredentials: true
+  - stage: TagAndRelease
+    displayName: "TAG & RELEASE"
+    jobs:
+      - job: TagAndRelease
+        displayName: "Tag and Release"
+        steps:
+          - checkout: self
+            persistCredentials: true
 
-  #         - script: |
-  #             TAG_NAME="prod-$(date +%Y%m%d%H%M%S)"
+          - script: |
+              # TAG_NAME="prod-$(date +%Y%m%d%H%M%S)"
+              TAG_NAME="1.0.0"
+
+              git config --global user.email "you@example.com"
+              git config --global user.name "Your Name"
               
-  #             git config --global user.email "you@example.com"
-  #             git config --global user.name "Your Name"
-              
-  #             git tag -a $TAG_NAME -m "Release for production deployment"
-  #             git push origin $TAG_NAME
-  #             echo $TAG_NAME
-  #             echo "##vso[task.setvariable variable=releaseTag;isOutput=true]$TAG_NAME"
-  #           name: setTag  
-  #           displayName: "setTag"
+              git tag -a $TAG_NAME -m "Release for production deployment"
+              git push origin $TAG_NAME
+              echo $TAG_NAME
+              echo "##vso[task.setvariable variable=releaseTag;isOutput=true]$TAG_NAME"
+            name: setTag  
+            displayName: "setTag"
         
-  #         - task: GitHubRelease@1
-  #           displayName: "Create GitHub Release"
-  #           inputs:
-  #             gitHubConnection: $(GITHUB_ID)
-  #             repositoryName: $(REPOSITORY_NAME)
-  #             tagSource: 'userSpecifiedTag'
-  #             tag: $(setTag.releaseTag)
-  #             releaseNotesSource: 'inline'
-  #             releaseNotesInline: ${{ parameters.releaseNotes }}
-  #             isDraft: false
-  #             isPrerelease: false
+          - task: GitHubRelease@1
+            displayName: "Create GitHub Release"
+            inputs:
+              gitHubConnection: $(GITHUB_ID)
+              repositoryName: $(REPOSITORY_NAME)
+              tagSource: 'userSpecifiedTag'
+              tag: $(setTag.releaseTag)
+              releaseNotesSource: 'inline'
+              releaseNotesInline: ${{ parameters.releaseNotes }}
+              isDraft: false
+              isPrerelease: false
