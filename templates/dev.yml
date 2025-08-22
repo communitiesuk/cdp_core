@@ -55,7 +55,7 @@ stages:
             parameters:
               description: "Deploy Databricks Bundle"
               inlineScript: |
-                export BUILD_VERSION=$(BUILD_VERSION)
+                echo $(BUILD_VERSION)
                 databricks bundle deploy --var="environment=$(ENVIRONMENT)"
           
           # 7. Run Unit Tests
