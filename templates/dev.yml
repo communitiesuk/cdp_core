@@ -69,6 +69,7 @@ stages:
           # 8. Copy whl file to gold volume
           - template: steps/dev_azure_cli.yml
             parameters:
+              build_version: "$(BUILD_VERSION)"
               description: "Copying whl file to Gold volume"
               inlineScript: |
                 databricks fs mkdir dbfs:/Volumes/catalog-sbx-uks-corecdp-001/schema-sbx-uks-corecdp-analyse-001/volume-sbx-uks-corecdp-analyse-001/artifacts
