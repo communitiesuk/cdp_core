@@ -21,7 +21,8 @@ resources:
           job_cluster_key: cl_arcgis
           email_notifications: {}
           libraries:
-            - whl: /Volumes/catalog-sbx-uks-corecdp-001/schema-sbx-uks-corecdp-analyse-001/volume-sbx-uks-corecdp-analyse-001/artifacts/cdp_core-2.0.0-py3-none-any.whl
+            - whl: $(var.whl_path)
+            # - whl: /Volumes/catalog-sbx-uks-corecdp-001/schema-sbx-uks-corecdp-analyse-001/volume-sbx-uks-corecdp-analyse-001/artifacts/cdp_core-2.0.0-py3-none-any.whl
           python_wheel_task:
             entry_point: run
             package_name: cdp_core
@@ -36,7 +37,8 @@ resources:
           job_cluster_key: cl_arcgis
           email_notifications: {}
           libraries:
-            - whl: /Volumes/catalog-sbx-uks-corecdp-001/schema-sbx-uks-corecdp-analyse-001/volume-sbx-uks-corecdp-analyse-001/artifacts/cdp_core-2.0.0-py3-none-any.whl
+            - whl: $(var.whl_path)
+            # - whl: /Volumes/catalog-sbx-uks-corecdp-001/schema-sbx-uks-corecdp-analyse-001/volume-sbx-uks-corecdp-analyse-001/artifacts/cdp_core-2.0.0-py3-none-any.whl
           python_wheel_task:
             entry_point: run
             package_name: cdp_core

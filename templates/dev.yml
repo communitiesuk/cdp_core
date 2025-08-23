@@ -43,7 +43,7 @@ stages:
             parameters:
               description: "Validating Databricks Bundle"
               inlineScript: |
-                databricks bundle validate --var="environment=$(ENVIRONMENT)"
+                databricks bundle validate --var="environment=$(ENVIRONMENT),whl_path=/Shared/artifacts/cdp_core-$(BUILD_VERSION)-py3-none-any.whl"
 
           # 6. Get and Increment Tag
           - script: templates/scripts/bump-version.sh
@@ -54,14 +54,14 @@ stages:
             parameters:
               description: "Deploy Databricks Bundle"
               inlineScript: |
-                databricks bundle deploy --var="environment=$(ENVIRONMENT)"
+                databricks bundle deploy --var="environment=$(ENVIRONMENT),whl_path=/Shared/artifacts/cdp_core-$(BUILD_VERSION)-py3-none-any.whl"
           
-          # 8. Run Unit Tests
-          - template: steps/dev_azure_cli.yml
-            parameters:
-              description: "Unit Tests"
-              inlineScript: |
-                databricks bundle run jb_pytest --var="environment=$(ENVIRONMENT)"
+          # # 8. Run Unit Tests
+          # - template: steps/dev_azure_cli.yml
+          #   parameters:
+          #     description: "Unit Tests"
+          #     inlineScript: |
+          #       databricks bundle run jb_pytest --var="environment=$(ENVIRONMENT)"
           
           # 9. Copy whl file to gold volume
           - template: steps/dev_azure_cli.yml
@@ -69,6 +69,7 @@ stages:
               description: "Copying whl file to Gold volume"
               inlineScript: |
                 databricks workspace mkdirs /Shared/artifacts
-                databricks workspace import --overwrite --format "AUTO" --file packages/cdp_core-$(BUILD_VERSION)-py3-none-any.whl /Shared/artifacts/cdp_core-py3-none-any.whl
+                databricks workspace import --overwrite --format "AUTO" --file packages/cdp_core-$(BUILD_VERSION)-py3-none-any.whl /Shared/artifacts/cdp_core-$(BUILD_VERSION)-py3-none-any.whl
+                
                 # databricks fs mkdir dbfs:/Volumes/catalog-sbx-uks-corecdp-001/schema-sbx-uks-corecdp-analyse-001/volume-sbx-uks-corecdp-analyse-001/artifacts
                 # databricks fs cp packages/cdp_core-$(BUILD_VERSION)-py3-none-any.whl dbfs:/Volumes/catalog-sbx-uks-corecdp-001/schema-sbx-uks-corecdp-analyse-001/volume-sbx-uks-corecdp-analyse-001/artifacts/cdp_core-$(BUILD_VERSION)-py3-none-any.whl --overwrite

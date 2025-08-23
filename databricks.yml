@@ -9,6 +9,8 @@ include:
 variables:
   environment:
     description: "Environment to deploy the bundle to"
+  whl_path: 
+    description: "Path to the wheel file in the Databricks workspace"
 
 artifacts:
   default:
