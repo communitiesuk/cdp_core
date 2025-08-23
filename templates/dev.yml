@@ -38,22 +38,24 @@ stages:
               yamllint -c .yamllint . || true
             displayName: "Run YamlLint"
 
-          # 5. Validate Databricks Bundle
+          # 5. Get and Increment Tag
+          - script: templates/scripts/bump-version.sh
+            displayName: "Get and Increment Tag"
+
+          # 6. Validate Databricks Bundle
           - template: steps/dev_azure_cli.yml
             parameters:
               description: "Validating Databricks Bundle"
               inlineScript: |
                 databricks bundle validate --var="environment=$(ENVIRONMENT),whl_path=/Shared/artifacts/cdp_core-$(BUILD_VERSION)-py3-none-any.whl"
 
-          # 6. Get and Increment Tag
-          - script: templates/scripts/bump-version.sh
-            displayName: "Get and Increment Tag"
 
           # 7. Deploy Databricks Bundle
           - template: steps/dev_azure_cli.yml
             parameters:
               description: "Deploy Databricks Bundle"
               inlineScript: |
+                echo $(BUILD_VERSION)
                 databricks bundle deploy --var="environment=$(ENVIRONMENT),whl_path=/Shared/artifacts/cdp_core-$(BUILD_VERSION)-py3-none-any.whl"
           
           # # 8. Run Unit Tests
