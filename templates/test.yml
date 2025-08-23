@@ -41,14 +41,14 @@ stages:
             parameters:
               description: "Validating Databricks Bundle"
               inlineScript: |
-                databricks bundle validate --var="environment=$(ENVIRONMENT),whl_path=/Shared/artifacts/cdp_core-$(BUILD_VERSION)-py3-none-any.whl"
+                databricks bundle validate --var="environment=$(ENVIRONMENT),whl_path=/Workspace/Shared/artifacts/cdp_core-$(BUILD_VERSION)-py3-none-any.whl"
           
           # 5. Deploy Databricks Bundle
           - template: steps/test_azure_cli.yml
             parameters:
               description: "Deploy Databricks Bundle"
               inlineScript: |
-                databricks bundle deploy --var="environment=$(ENVIRONMENT),whl_path=/Shared/artifacts/cdp_core-$(BUILD_VERSION)-py3-none-any.whl"
+                databricks bundle deploy --var="environment=$(ENVIRONMENT),whl_path=/Workspace/Shared/artifacts/cdp_core-$(BUILD_VERSION)-py3-none-any.whl"
 
           # 6. Run System Integration Tests
           - template: steps/test_azure_cli.yml
@@ -66,7 +66,7 @@ stages:
                     continue
                   fi
                   echo "Running bundle: $clean_name"
-                  databricks bundle run "$clean_name" --refresh-all --var="environment=$(ENVIRONMENT),whl_path=/Shared/artifacts/cdp_core-$(BUILD_VERSION)-py3-none-any.whl"&
+                  databricks bundle run "$clean_name" --refresh-all --var="environment=$(ENVIRONMENT),whl_path=/Workspace/Shared/artifacts/cdp_core-$(BUILD_VERSION)-py3-none-any.whl"&
                   pids+=($!)
                 done
 

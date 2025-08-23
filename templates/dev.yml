@@ -47,7 +47,7 @@ stages:
             parameters:
               description: "Validating Databricks Bundle"
               inlineScript: |
-                databricks bundle validate --var="environment=$(ENVIRONMENT),whl_path=/Shared/artifacts/cdp_core-$(BUILD_VERSION)-py3-none-any.whl"
+                databricks bundle validate --var="environment=$(ENVIRONMENT),whl_path=/Workspace/Shared/artifacts/cdp_core-$(BUILD_VERSION)-py3-none-any.whl"
 
 
           # 7. Deploy Databricks Bundle
@@ -55,8 +55,7 @@ stages:
             parameters:
               description: "Deploy Databricks Bundle"
               inlineScript: |
-                echo $(BUILD_VERSION)
-                databricks bundle deploy --var="environment=$(ENVIRONMENT),whl_path=/Shared/artifacts/cdp_core-$(BUILD_VERSION)-py3-none-any.whl"
+                databricks bundle deploy --var="environment=$(ENVIRONMENT),whl_path=/Workspace/Shared/artifacts/cdp_core-$(BUILD_VERSION)-py3-none-any.whl"
           
           # # 8. Run Unit Tests
           # - template: steps/dev_azure_cli.yml
