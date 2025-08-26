@@ -8,8 +8,7 @@ resources:
       tasks:
         - task_key: bronze_lad
           spark_python_task:
-            python_file: /Workspace/Users/${var.SPN_ID}/.bundle/cdp_core/${var.environment}/src/cdp_core/transform/bronze/bronze_arcgis.py
-            # python_file: /Workspace/Users/suftan@tdigitalcommunities.onmicrosoft.com/cdp_core/src/cdp_core/transform/bronze/bronze_arcgis.py
+            python_file: /Workspace/Users/${var.SPN_ID}/.bundle/cdp_core/${var.environment}/files/src/cdp_core/transform/bronze/bronze_arcgis.py
             parameters:
               - --dataset
               - "{{job.parameters.dataset}}"
@@ -18,8 +17,7 @@ resources:
           depends_on:
             - task_key: bronze_lad
           spark_python_task:
-            python_file: /Workspace/Users/${var.SPN_ID}/.bundle/cdp_core/${var.environment}/src/cdp_core/transform/silver/silver_arcgis_lad_apr_2023_uk_nc.py
-            # python_file: /Workspace/Users/suftan@tdigitalcommunities.onmicrosoft.com/cdp_core/src/cdp_core/transform/silver/silver_arcgis_lad_apr_2023_uk_nc.py
+            python_file: /Workspace/Users/${var.SPN_ID}/.bundle/cdp_core/${var.environment}/files/src/cdp_core/transform/silver/silver_arcgis_lad_apr_2023_uk_nc.py
             parameters:
               - --dataset
               - "{{job.parameters.dataset}}"
@@ -39,10 +37,6 @@ resources:
             data_security_mode: SINGLE_USER
             runtime_engine: STANDARD
             num_workers: 1
-      git_source:
-        git_url: https://github.com/communitiesuk/cdp_core.git
-        git_provider: gitHub
-        git_branch: main
       tags:
         ResourceClass: SingleNode
       queue:
