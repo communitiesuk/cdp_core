@@ -37,6 +37,8 @@ stages:
               export SOURCE_PATH=packages/$(WHL_FILE)
               export TARGET_PATH=/Workspace/Shared/artifacts/$(WHL_FILE)
               export BUNDLE_VAR="environment=$(ENVIRONMENT),whl_path=/Workspace/Shared/artifacts/$(WHL_FILE),SPN_ID=$(SPN_ID)"
+              echo $WHL_FILE
+              echo $SOURCE_PATH
               echo $BUNDLE_VAR
             displayName: "Setting Environment Variables"
 
