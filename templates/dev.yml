@@ -17,63 +17,68 @@ stages:
           # 1. Install All Requirements
           - script: |
               curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
-              pip install uv pylint yamllint
+              pip install pylint yamllint
             displayName: "Install Agent Requirements"
+          
+          # 2. Get and Increment Tag
+          - script: templates/scripts/bump-version.sh
+            name: setTag
+            displayName: "Get and Increment Tag"
 
-          # 2. Set Environment Variables & Allow Executables
+          # 3. Set Environment Variables & Allow Executables
           - script: |
               set -e
-              export DATABRICKS_HOST=$(DATABRICKS_HOST)
-              export ENVIRONMENT=$(ENVIRONMENT)
+              # variables from AzDevOps Variable Group
               export SPN_ID=$(SPN_ID)
+              export ENVIRONMENT=$(ENVIRONMENT)
+              export DATABRICKS_HOST=$(DATABRICKS_HOST)
+
+              # variable dependent from the previous step
+              export BUILD_VERSION=$(setTag.BUILD_VERSION)
+              export SOURCE_PATH=packages/cdp_core-$(BUILD_VERSION)-py3-none-any.whl
+              export TARGET_PATH=/Workspace/Shared/artifacts/cdp_core-$(BUILD_VERSION)-py3-none-any.whl
+              export BUNDLE_VAR="environment=$(ENVIRONMENT),whl_path=/Workspace/Shared/artifacts/cdp_core-$(BUILD_VERSION)-py3-none-any.whl,SPN_ID=$(SPN_ID)"
+
+              # Allow the bump-version script to be executable
               chmod +x ./templates/scripts/bump-version.sh
             displayName: "Setting Environment Variables & Allowing Executables"
 
-          # 3. Run PyLint
+          # 4. Run PyLint
           - script: |
               pylint src/ --rcfile=.pylintrc --exit-zero
             displayName: "Run PyLint"
           
-          # 4. Run YamlLint
+          # 5. Run YamlLint
           - script: |
               yamllint -c .yamllint . || true
             displayName: "Run YamlLint"
-
-          # 5. Get and Increment Tag
-          - script: templates/scripts/bump-version.sh
-            name: setTag
-            displayName: "Get and Increment Tag"
 
           # 6. Validate Databricks Bundle
           - template: steps/dev_azure_cli.yml
             parameters:
               description: "Validating Databricks Bundle"
               inlineScript: |
-                TAG_NAME=$(setTag.BUILD_VERSION)
-                echo $TAG_NAME
-                databricks bundle validate --var="environment=$(ENVIRONMENT),whl_path=/Workspace/Shared/artifacts/cdp_core-$(BUILD_VERSION)-py3-none-any.whl,SPN_ID=$(SPN_ID)"
+                databricks bundle validate --var=$(BUNDLE_VAR)
 
           # 7. Deploy Databricks Bundle
           - template: steps/dev_azure_cli.yml
             parameters:
               description: "Deploy Databricks Bundle"
               inlineScript: |
-                databricks bundle deploy --var="environment=$(ENVIRONMENT),whl_path=/Workspace/Shared/artifacts/cdp_core-$(BUILD_VERSION)-py3-none-any.whl,SPN_ID=$(SPN_ID)"
+                databricks bundle deploy --var=$(BUNDLE_VAR)
           
           # # 8. Run Unit Tests
           # - template: steps/dev_azure_cli.yml
           #   parameters:
           #     description: "Unit Tests"
           #     inlineScript: |
-          #       databricks bundle run jb_pytest --var="environment=$(ENVIRONMENT),whl_path=/Workspace/Shared/artifacts/cdp_core-$(BUILD_VERSION)-py3-none-any.whl,SPN_ID=$(SPN_ID)"
+          #       databricks bundle run jb_pytest --var="environment=$(BUNDLE_VAR)
           
           # 9. Copy whl file to gold volume
           - template: steps/dev_azure_cli.yml
             parameters:
-              description: "Copying whl file to Gold volume"
+              description: "Copying whl file to Shared Area"
               inlineScript: |
                 databricks workspace mkdirs /Shared/artifacts
-                databricks workspace import --overwrite --format "AUTO" --file packages/cdp_core-$(BUILD_VERSION)-py3-none-any.whl /Shared/artifacts/cdp_core-$(BUILD_VERSION)-py3-none-any.whl
+                databricks workspace import --overwrite --format "AUTO" --file $(SOURCE_PATH) $(TARGET_PATH)
                 
-                # databricks fs mkdir dbfs:/Volumes/catalog-sbx-uks-corecdp-001/schema-sbx-uks-corecdp-analyse-001/volume-sbx-uks-corecdp-analyse-001/artifacts
-                # databricks fs cp packages/cdp_core-$(BUILD_VERSION)-py3-none-any.whl dbfs:/Volumes/catalog-sbx-uks-corecdp-001/schema-sbx-uks-corecdp-analyse-001/volume-sbx-uks-corecdp-analyse-001/artifacts/cdp_core-$(BUILD_VERSION)-py3-none-any.whl --overwrite
