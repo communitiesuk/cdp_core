@@ -48,7 +48,7 @@ stages:
             parameters:
               description: "Validating Databricks Bundle"
               inlineScript: |
-                TAG_NAME=$ {{ setTag.releaseTag }}
+                TAG_NAME=$(setTag.releaseTag)
                 echo $TAG_NAME
                 databricks bundle validate --var="environment=$(ENVIRONMENT),whl_path=/Workspace/Shared/artifacts/cdp_core-$(BUILD_VERSION)-py3-none-any.whl,SPN_ID=$(SPN_ID)"
 
