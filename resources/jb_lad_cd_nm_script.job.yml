@@ -12,7 +12,7 @@ resources:
             parameters:
               - --dataset
               - "{{job.parameters.dataset}}"
-          job_cluster_key: dev-small-cluster
+          job_cluster_key: small-cluster
         - task_key: silver_lad
           depends_on:
             - task_key: bronze_lad
@@ -21,23 +21,23 @@ resources:
             parameters:
               - --dataset
               - "{{job.parameters.dataset}}"
-          job_cluster_key: dev-small-cluster
+          job_cluster_key: small-cluster
       job_clusters:
-        - job_cluster_key: dev-small-cluster
-          cluster_resource_id: dev-small-cluster
-          # new_cluster:
-          #   cluster_name: ""
-          #   spark_version: 16.4.x-scala2.12
-          #   azure_attributes:
-          #     first_on_demand: 1
-          #     availability: SPOT_WITH_FALLBACK_AZURE
-          #     spot_bid_max_price: 100
-          #   node_type_id: Standard_DS3_v2
-          #   enable_elastic_disk: true
-          #   policy_id: 00024F3D12FA200A
-          #   data_security_mode: SINGLE_USER
-          #   runtime_engine: STANDARD
-          #   num_workers: 1
+        - job_cluster_key: small-cluster
+          cluster_resource_id: small-cluster
+          new_cluster:
+            cluster_name: ""
+            spark_version: 16.4.x-scala2.12
+            azure_attributes:
+              first_on_demand: 1
+              availability: SPOT_WITH_FALLBACK_AZURE
+              spot_bid_max_price: 100
+            node_type_id: Standard_DS3_v2
+            enable_elastic_disk: true
+            policy_id: 00024F3D12FA200A
+            data_security_mode: SINGLE_USER
+            runtime_engine: STANDARD
+            num_workers: 1
       tags:
         ResourceClass: SingleNode
       queue:

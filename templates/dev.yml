@@ -58,12 +58,12 @@ stages:
               inlineScript: |
                 databricks bundle deploy --var="environment=$(ENVIRONMENT),whl_path=/Workspace/Shared/artifacts/cdp_core-$(BUILD_VERSION)-py3-none-any.whl,SPN_ID=$(SPN_ID)"
           
-          # # 8. Run Unit Tests
-          # - template: steps/dev_azure_cli.yml
-          #   parameters:
-          #     description: "Unit Tests"
-          #     inlineScript: |
-          #       databricks bundle run jb_pytest --var="environment=$(ENVIRONMENT)"
+          # 8. Run Unit Tests
+          - template: steps/dev_azure_cli.yml
+            parameters:
+              description: "Unit Tests"
+              inlineScript: |
+                databricks bundle run jb_pytest --var="environment=$(ENVIRONMENT)"
           
           # 9. Copy whl file to gold volume
           - template: steps/dev_azure_cli.yml

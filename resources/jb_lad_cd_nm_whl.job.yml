@@ -3,27 +3,26 @@ resources:
     jb_lad_cd_nm_whl:
       name: jb_lad_cd_nm_whl
       job_clusters:
-        - job_cluster_key: dev-small-cluster
-          cluster_resource_id: dev-small-cluster
-          # new_cluster:
-          #   azure_attributes:
-          #     availability: SPOT_WITH_FALLBACK_AZURE
-          #     first_on_demand: 1
-          #     spot_bid_max_price: 100
-          #   data_security_mode: SINGLE_USER
-          #   enable_elastic_disk: true
-          #   node_type_id: Standard_DS3_v2
-          #   num_workers: 1
-          #   policy_id: 00024F3D12FA200A
-          #   runtime_engine: STANDARD
-          #   spark_version: 16.4.x-scala2.12
+        - job_cluster_key: small-cluster
+          cluster_resource_id: small-cluster
+          new_cluster:
+            azure_attributes:
+              availability: SPOT_WITH_FALLBACK_AZURE
+              first_on_demand: 1
+              spot_bid_max_price: 100
+            data_security_mode: SINGLE_USER
+            enable_elastic_disk: true
+            node_type_id: Standard_DS3_v2
+            num_workers: 1
+            policy_id: 00024F3D12FA200A
+            runtime_engine: STANDARD
+            spark_version: 16.4.x-scala2.12
       tasks:
         - task_key: bronze_arcgis
-          job_cluster_key: dev-small-cluster
+          job_cluster_key: small-cluster
           email_notifications: {}
           libraries:
             - whl: ${var.whl_path}
-            # - whl: /Volumes/catalog-sbx-uks-corecdp-001/schema-sbx-uks-corecdp-analyse-001/volume-sbx-uks-corecdp-analyse-001/artifacts/cdp_core-2.0.0-py3-none-any.whl
           python_wheel_task:
             entry_point: run
             package_name: cdp_core
@@ -35,11 +34,10 @@ resources:
         - task_key: silver
           depends_on:
             - task_key: bronze_arcgis
-          job_cluster_key: dev-small-cluster
+          job_cluster_key: small-cluster
           email_notifications: {}
           libraries:
             - whl: ${var.whl_path}
-            # - whl: /Volumes/catalog-sbx-uks-corecdp-001/schema-sbx-uks-corecdp-analyse-001/volume-sbx-uks-corecdp-analyse-001/artifacts/cdp_core-2.0.0-py3-none-any.whl
           python_wheel_task:
             entry_point: run
             package_name: cdp_core
