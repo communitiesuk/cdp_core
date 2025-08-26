@@ -31,23 +31,12 @@ stages:
 
           # 3. Set Environment Variables
           - script: |
-              set -e
-              # variable dependent from the previous step             
+              set -e          
               export WHL_FILE=cdp_core-$(setTag.BUILD_VERSION)-py3-none-any.whl
               export SOURCE_PATH=packages/${WHL_FILE}
-              export TARGET_PATH=/Workspace/Shared/artifacts/$(WHL_FILE)
-              export BUNDLE_VAR="environment=$(ENVIRONMENT),whl_path=/Workspace/Shared/artifacts/$(WHL_FILE),SPN_ID=$(SPN_ID)"
-              echo $WHL_FILE
-              echo $SOURCE_PATH
-              echo $BUNDLE_VAR
+              export TARGET_PATH=/Workspace/Shared/artifacts/${WHL_FILE}
+              export BUNDLE_VAR="environment=$(ENVIRONMENT),whl_path=/Workspace/Shared/artifacts/${WHL_FILE},SPN_ID=$(SPN_ID)"
             displayName: "Setting Environment Variables"
-
-          # - script: |
-          #     export SOURCE_PATH=packages/$(WHL_FILE)
-          #     export TARGET_PATH=/Workspace/Shared/artifacts/$(WHL_FILE)
-          #     export BUNDLE_VAR="environment=$(ENVIRONMENT),whl_path=/Workspace/Shared/artifacts/$(WHL_FILE),SPN_ID=$(SPN_ID)"
-          #     echo $BUNDLE_VAR
-          #   displayName: "Setting Source & Target Paths and Bundle Vars "
 
           # 4. Run PyLint
           - script: |
