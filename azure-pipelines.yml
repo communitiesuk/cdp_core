@@ -84,7 +84,7 @@ stages:
               gitHubConnection: $(GITHUB_ID)
               repositoryName: $(REPOSITORY_NAME)
               tagSource: 'userSpecifiedTag'
-              tag: $ {{ variables.TAG_NAME }}
+              tag: ${{ variables.TAG_NAME }}
               releaseNotesSource: 'inline'
               releaseNotesInline: ${{ parameters.releaseNotes }}
               isDraft: false
