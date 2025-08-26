@@ -52,7 +52,7 @@ stages:
             parameters:
               description: "Validating Databricks Bundle"
               inlineScript: |
-                databricks bundle validate --var="environment=$(setEnvVars.BUNDLE_VAR)
+                databricks bundle validate --var=$(setEnvVars.BUNDLE_VAR)
 
           # 5. Deploy Databricks Bundle
           - template: steps/prod_azure_cli.yml
