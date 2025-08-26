@@ -37,15 +37,16 @@ stages:
               export ENVIRONMENT=$(ENVIRONMENT)
               export DATABRICKS_HOST=$(DATABRICKS_HOST)
 
-              # variable dependent from the previous step
-              export BUILD_VERSION=$(setTag.BUILD_VERSION)
-              echo $BUILD_VERSION
-              export WHL_FILE=cdp_core-$(BUILD_VERSION)-py3-none-any.whl
+              # variable dependent from the previous step             
+              export WHL_FILE=cdp_core-$(setTag.BUILD_VERSION)-py3-none-any.whl
+              export BUNDLE_VAR="environment=$(ENVIRONMENT),whl_path=/Workspace/Shared/artifacts/$(WHL_FILE),SPN_ID=$(SPN_ID)"
+            displayName: "Setting Environment Variables"
+
+          - script: |
               export SOURCE_PATH=packages/$(WHL_FILE)
               export TARGET_PATH=/Workspace/Shared/artifacts/$(WHL_FILE)
               export BUNDLE_VAR="environment=$(ENVIRONMENT),whl_path=/Workspace/Shared/artifacts/$(WHL_FILE),SPN_ID=$(SPN_ID)"
-            
-            displayName: "Setting Environment Variables "
+            displayName: "Setting Source & Target Paths and Bundle Vars "
 
           # 4. Run PyLint
           - script: |
@@ -83,6 +84,8 @@ stages:
             parameters:
               description: "Copying whl file to Shared Area"
               inlineScript: |
+
+
                 databricks workspace mkdirs /Shared/artifacts
                 databricks workspace import --overwrite --format "AUTO" --file $(SOURCE_PATH) $(TARGET_PATH)
                 
