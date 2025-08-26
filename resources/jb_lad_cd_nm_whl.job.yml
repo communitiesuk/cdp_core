@@ -4,7 +4,6 @@ resources:
       name: jb_lad_cd_nm_whl
       job_clusters:
         - job_cluster_key: small-cluster
-          cluster_resource_id: small-cluster
           new_cluster:
             azure_attributes:
               availability: SPOT_WITH_FALLBACK_AZURE

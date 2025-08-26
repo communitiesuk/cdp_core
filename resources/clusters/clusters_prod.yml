@@ -1,7 +1,7 @@
 resources:
   clusters:
-    dev-small-cluster:
-      cluster_name: "dev-small-cluster"
+    prod-small-cluster:
+      cluster_name: "prod-small-cluster"
       spark_version: "16.4.x-scala2.12"
       node_type_id: "Standard_DS3_v2"
       num_workers: 1
