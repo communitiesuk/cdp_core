@@ -63,6 +63,12 @@ stages:
           - checkout: self
             persistCredentials: true
 
+          # 2. Allowing Executables
+          - script: |
+              # Allow the bump-version script to be executable
+              chmod +x ./templates/scripts/bump-version.sh
+            displayName: "Allowing Executables"
+
           # 2. Get and Increment Tag
           - script: templates/scripts/bump-version.sh
             name: setTag
