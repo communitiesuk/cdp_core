@@ -57,16 +57,20 @@ stages:
     jobs:
       - job: TagAndRelease
         displayName: "Tag and Release"
-        variables:
-          - name: TAG_NAME
-            value: $[ stageDependencies.PROD.PROD.outputs['TagIncrement.BUILD_VERSION'] ]
 
         steps:
+          # 1. Checkout and persist git credentials
           - checkout: self
             persistCredentials: true
 
+          # 2. Get and Increment Tag
+          - script: templates/scripts/bump-version.sh
+            name: setTag
+            displayName: "Get and Increment Tag"
+          
+          # 3. Set Git Tag and Push
           - script: |
-              TAG_NAME=$ {{ variables.TAG_NAME }}
+              TAG_NAME=$(setTag.BUILD_VERSION)
 
               git config --global user.email "you@example.com"
               git config --global user.name "Your Name"
@@ -77,6 +81,7 @@ stages:
             name: setTag  
             displayName: "setTag"
         
+        # 4. Create GitHub Release
           - task: GitHubRelease@1
             displayName: "Create GitHub Release"
             inputs:
