@@ -20,37 +20,44 @@ stages:
             environment: ${{ parameters.environment }}
 
         steps:
-          # 1. Install All Requirements
+          # 1. Install All Requirements & Allowing Executables
           - script: |
-              echo $(DATABRICKS_HOST)
               curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
-            displayName: "Install Databricks CLI"
 
-          # 2. Set Environment Variables & Allow Executables
-          - script: |
-              set -e
-              export DATABRICKS_HOST=$(DATABRICKS_HOST)
-              export ENVIRONMENT=$(ENVIRONMENT)
-              export SPN_ID=$(SPN_ID)
+              # Allow the bump-version script to be executable
               chmod +x ./templates/scripts/bump-version.sh
-            displayName: "Setting Environment Variables & Allowing Executables"
-
-          # 3. Get and Increment Tag
+            displayName: "Install Databricks CLI"
+          
+          # 2. Get and Increment Tag
           - script: templates/scripts/bump-version.sh
-            name: TagIncrement
+            name: setTag
             displayName: "Get and Increment Tag"
+
+          # 3. Set Environment Variables
+          - script: |
+              set -e          
+              export WHL_FILE=cdp_core-$(setTag.BUILD_VERSION)-py3-none-any.whl
+              export SOURCE_PATH=packages/${WHL_FILE}
+              export TARGET_PATH=/Workspace/Shared/artifacts/${WHL_FILE}
+              export BUNDLE_VAR="environment=$(ENVIRONMENT),whl_path=/Workspace/Shared/artifacts/${WHL_FILE},SPN_ID=$(SPN_ID)"
+
+              echo "##vso[task.setvariable variable=SOURCE_PATH;isOutput=true]$SOURCE_PATH";
+              echo "##vso[task.setvariable variable=TARGET_PATH;isOutput=true]$TARGET_PATH";
+              echo "##vso[task.setvariable variable=BUNDLE_VAR;isOutput=true]$BUNDLE_VAR";
+            name: setEnvVars
+            displayName: "Setting Environment Variables"
 
           # 4. Validate Databricks Bundle
           - template: steps/prod_azure_cli.yml
             parameters:
               description: "Validating Databricks Bundle"
               inlineScript: |
-                databricks bundle validate --var="environment=$(ENVIRONMENT),whl_path=/Workspace/Shared/artifacts/cdp_core-$(BUILD_VERSION)-py3-none-any.whl,SPN_ID=$(SPN_ID)"
+                databricks bundle validate --var="environment=$(setEnvVars.BUNDLE_VAR)
 
-          # 4. Deploy Databricks Bundle
+          # 5. Deploy Databricks Bundle
           - template: steps/prod_azure_cli.yml
             parameters:
               description: "Deploy Databricks Bundle"
               inlineScript: |
-                databricks bundle deploy --var="environment=$(ENVIRONMENT),whl_path=/Workspace/Shared/artifacts/cdp_core-$(BUILD_VERSION)-py3-none-any.whl,SPN_ID=$(SPN_ID)"
-
+                export BUILD_VERSION=$(setTag.BUILD_VERSION)
+                databricks bundle deploy --var=$(setEnvVars.BUNDLE_VAR)
