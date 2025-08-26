@@ -73,9 +73,9 @@ stages:
               
               git tag -a $TAG_NAME -m "Release for production deployment"
               git push origin $TAG_NAME
-              # echo $TAG_NAME
-              # echo "##vso[task.setvariable variable=releaseTag;isOutput=true]$TAG_NAME"
-            # name: setTag  
+
+              echo "##vso[task.setvariable variable=releaseTag;isOutput=true]$TAG_NAME"
+            name: setTag  
             displayName: "setTag"
         
           - task: GitHubRelease@1
@@ -84,7 +84,7 @@ stages:
               gitHubConnection: $(GITHUB_ID)
               repositoryName: $(REPOSITORY_NAME)
               tagSource: 'userSpecifiedTag'
-              tag: ${{ variables.TAG_NAME }}
+              tag: ${{ setTag.releaseTag }}
               releaseNotesSource: 'inline'
               releaseNotesInline: ${{ parameters.releaseNotes }}
               isDraft: false
