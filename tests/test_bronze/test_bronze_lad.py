@@ -2,9 +2,9 @@ import pytest
 from pyspark.sql.types import StructType, StructField, StringType
 from pyspark.sql import DataFrame
 
-from setup.constants import *
-from utils.util import config_reader
-from transform.bronze.bronze_arcgis import *
+from cdp_core.setup.constants import *
+from cdp_core.utils.util import config_reader
+from cdp_core.transform.bronze.bronze_arcgis import *
 from tests.utils import *
 
 

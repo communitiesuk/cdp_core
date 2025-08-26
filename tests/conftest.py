@@ -3,7 +3,7 @@ import sys
 import pytest
 from pyspark.sql import SparkSession
 
-from setup.constants import *
+from cdp_core.setup.constants import *
 
 
 @pytest.fixture(scope="session")

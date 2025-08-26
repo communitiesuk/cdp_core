@@ -2,9 +2,9 @@ import pytest
 from pyspark.sql.types import StructType, StructField, StringType
 from pyspark.sql import DataFrame
 
-from setup.constants import *
-from utils.util import config_reader
-from transform.silver.silver_arcgis_lad_apr_2023_uk_nc import *
+from cdp_core.setup.constants import *
+from cdp_core.utils.util import config_reader
+from cdp_core.transform.silver.silver_arcgis_lad_apr_2023_uk_nc import *
 from tests.utils import *
 
 
