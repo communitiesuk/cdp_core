@@ -59,7 +59,7 @@ stages:
         displayName: "Tag and Release"
         variables:
           - name: TAG_NAME
-            value: $[ stageDependencies.Build.BuildJob.outputs['BUILD_VERSION'] ]
+            value: $[ stageDependencies.PROD.PROD.outputs['BUILD_VERSION'] ]
 
         steps:
           - checkout: self
