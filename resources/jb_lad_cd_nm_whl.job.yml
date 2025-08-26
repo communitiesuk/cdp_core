@@ -3,22 +3,24 @@ resources:
     jb_lad_cd_nm_whl:
       name: jb_lad_cd_nm_whl
       job_clusters:
-        - job_cluster_key: cl_arcgis
-          new_cluster:
-            azure_attributes:
-              availability: SPOT_WITH_FALLBACK_AZURE
-              first_on_demand: 1
-              spot_bid_max_price: 100
-            data_security_mode: SINGLE_USER
-            enable_elastic_disk: true
-            node_type_id: Standard_DS3_v2
-            num_workers: 1
-            policy_id: 00024F3D12FA200A
-            runtime_engine: STANDARD
-            spark_version: 16.4.x-scala2.12
+        - job_cluster_key: dev-small-cluster
+          cluster:
+            resource: "dev-small-cluster"
+          # new_cluster:
+          #   azure_attributes:
+          #     availability: SPOT_WITH_FALLBACK_AZURE
+          #     first_on_demand: 1
+          #     spot_bid_max_price: 100
+          #   data_security_mode: SINGLE_USER
+          #   enable_elastic_disk: true
+          #   node_type_id: Standard_DS3_v2
+          #   num_workers: 1
+          #   policy_id: 00024F3D12FA200A
+          #   runtime_engine: STANDARD
+          #   spark_version: 16.4.x-scala2.12
       tasks:
         - task_key: bronze_arcgis
-          job_cluster_key: cl_arcgis
+          job_cluster_key: dev-small-cluster
           email_notifications: {}
           libraries:
             - whl: ${var.whl_path}
@@ -34,7 +36,7 @@ resources:
         - task_key: silver
           depends_on:
             - task_key: bronze_arcgis
-          job_cluster_key: cl_arcgis
+          job_cluster_key: dev-small-cluster
           email_notifications: {}
           libraries:
             - whl: ${var.whl_path}

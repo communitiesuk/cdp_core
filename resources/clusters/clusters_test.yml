@@ -1,0 +1,16 @@
+resources:
+  clusters:
+    dev-small-cluster:
+      cluster_name: "dev-small-cluster"
+      spark_version: "16.4.x-scala2.12"
+      node_type_id: "Standard_DS3_v2"
+      num_workers: 1
+      enable_elastic_disk: true
+      azure_attributes:
+        first_on_demand: 1
+        availability: SPOT_WITH_FALLBACK_AZURE
+        spot_bid_max_price: 100
+      data_security_mode: SINGLE_USER
+      policy_id: "00024F3D12FA200A"
+      runtime_engine: STANDARD
+      auto_termination_minutes: 30
