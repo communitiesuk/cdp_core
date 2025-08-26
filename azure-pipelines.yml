@@ -67,9 +67,10 @@ stages:
 
           - script: |
               # TAG_NAME="prod-$(date +%Y%m%d%H%M%S)"
-              TAG_NAME=$(TAG_NAME)
+              TAG_NAME=$ {{ variables.TAG_NAME }}
               echo $(TAG_NAME)
               echo test
+              echo $ {{ variables.TAG_NAME }}
 
               git config --global user.email "you@example.com"
               git config --global user.name "Your Name"
