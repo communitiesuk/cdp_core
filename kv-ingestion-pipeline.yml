@@ -1,0 +1,61 @@
+trigger: none
+pool:
+  name: 'vmss-shared'
+variables:
+- group: kv-tst-core-cdp-vars
+ 
+stages:
+  - stage: AddSecretsToKeyVault
+    displayName: 'Add secrets to Key Vault'
+    jobs:
+      - job: AddSecretsToKeyVault
+        displayName: 'Add secrets to Key Vault'
+        continueOnError: false
+        steps:
+          - task: AzureCLI@2
+            displayName: 'Add secrets to Key Vault'
+            env:
+              AZURE_DEVOPS_EXT_PAT: $(System.AccessToken)
+            inputs:
+              azureSubscription: 'SPN-SP-sub-tst-ctdpslt001-001'
+              useGlobalConfig: true
+              scriptType: pscore
+              scriptLocation: inlineScript
+              workingDirectory: '$(System.DefaultWorkingDirectory)'
+              inlineScript: |
+                $group_id = "$(az pipelines variable-group list --organization "$(System.CollectionUri)" --project "$(System.TeamProject)" --group-name "kv-tst-core-cdp-vars" --query '[0].id' -o json)"
+                $ado_vars = "$(az pipelines variable-group variable list --organization "$(System.CollectionUri)" --project "$(System.TeamProject)" --group-id $group_id)"
+                $map = $ado_vars | ConvertFrom-Json
+
+                $i = 1
+                $pairs = foreach ($prop in $map.PSObject.Properties) {
+                    $varName     = ('var_{0:d3}' -f $i)
+                    $keyName     = [string]$prop.Name
+                    $valueString = '$(' + $keyName + ')'
+
+                    # Create the variable in the current script scope:
+                    Set-Variable -Scope Script -Name $varName -Value $valueString
+
+                    # Keep the pair so we can iterate for az
+                    [PSCustomObject]@{
+                        VarName     = $varName
+                        Key         = $keyName
+                        ValueString = $valueString
+                        IsSecret    = [bool]($prop.Value.isSecret)
+                    }
+
+                    $i++
+                }
+
+                foreach ($p in $pairs) {
+                    Write-Host "------ name = $($p.Key)"
+                    Write-Host "------ value = $($p.Key)"
+
+                    az keyvault secret set `
+                      --vault-name "$(key_vault_name)" `
+                      --name $($p.Key -replace '_','-') `
+                      --value $($p.Key) `
+                      --output none
+                }
+
+          
