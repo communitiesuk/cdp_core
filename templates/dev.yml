@@ -79,6 +79,7 @@ stages:
             parameters:
               description: "Copying whl file to Shared Area"
               inlineScript: |
+                ls packages/
                 databricks workspace mkdirs /Shared/artifacts
                 databricks workspace import --overwrite --format "AUTO" --file $(setEnvVars.SOURCE_PATH) $(setEnvVars.TARGET_PATH)
                 
