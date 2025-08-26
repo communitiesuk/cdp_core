@@ -33,6 +33,7 @@ stages:
           - script: |
               set -e
               # variables from AzDevOps Variable Group
+              echo $SPN_ID
               export SPN_ID=$(SPN_ID)
               export ENVIRONMENT=$(ENVIRONMENT)
               export DATABRICKS_HOST=$(DATABRICKS_HOST)
