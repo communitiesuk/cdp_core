@@ -19,32 +19,32 @@ variables:
 
 stages:
   ############################## DEV Stage #########################################
-  - template: templates/dev.yml
-    parameters:
-      environment: 'development'
+  # - template: templates/dev.yml
+  #   parameters:
+  #     environment: 'development'
 
   ############################## TEST Stage #########################################
-  - template: templates/test.yml
-    parameters:
-      environment: 'test'
+  # - template: templates/test.yml
+  #   parameters:
+  #     environment: 'test'
 
   ############################## MANUAL Approval Stage ##############################
-  - stage: ProdApproval
-    dependsOn: TEST
-    condition: succeeded('TEST')
-    displayName: "APPROVAL GATE"
-    jobs:
-      - job: WaitForApproval
-        displayName: "Wait for Prod Approval"
-        pool: 'server'
-        steps:
-          - task: ManualValidation@0
-            inputs:
-              instructions: 'Please approve the deployment to production.'
-              onTimeout: 'reject'
-              timeoutInMinutes: 180
-              notifyUsers: |
-                finn.tann@communities.gov.uk
+  # - stage: ProdApproval
+  #   dependsOn: TEST
+  #   condition: succeeded('TEST')
+  #   displayName: "APPROVAL GATE"
+  #   jobs:
+  #     - job: WaitForApproval
+  #       displayName: "Wait for Prod Approval"
+  #       pool: 'server'
+  #       steps:
+  #         - task: ManualValidation@0
+  #           inputs:
+  #             instructions: 'Please approve the deployment to production.'
+  #             onTimeout: 'reject'
+  #             timeoutInMinutes: 180
+  #             notifyUsers: |
+  #               finn.tann@communities.gov.uk
 
   ############################## PROD Stage #########################################
   - template: templates/prod.yml
@@ -57,13 +57,15 @@ stages:
     jobs:
       - job: TagAndRelease
         displayName: "Tag and Release"
+        variables:
+          TAG_NAME: $[ stageDependencies.Build.BuildJob.outputs['BUILD_VERSION'] ]
         steps:
           - checkout: self
             persistCredentials: true
 
           - script: |
               # TAG_NAME="prod-$(date +%Y%m%d%H%M%S)"
-              TAG_NAME="1.0.0"
+              TAG_NAME=$(TAG_NAME)
 
               git config --global user.email "you@example.com"
               git config --global user.name "Your Name"
