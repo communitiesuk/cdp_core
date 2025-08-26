@@ -24,8 +24,7 @@ resources:
           job_cluster_key: dev-small-cluster
       job_clusters:
         - job_cluster_key: dev-small-cluster
-          cluster:
-            resource: dev-small-cluster
+          cluster_resource_id: dev-small-cluster
           # new_cluster:
           #   cluster_name: ""
           #   spark_version: 16.4.x-scala2.12
