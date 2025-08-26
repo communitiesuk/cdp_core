@@ -5,10 +5,10 @@ parameters:
 stages:
   - stage: PROD
     displayName: "PROD"
-    dependsOn: 
-      - TEST
-      - ProdApproval
-    condition: succeeded('TEST')
+    # dependsOn: 
+    #   - TEST
+    #   - ProdApproval
+    # condition: succeeded('TEST')
     jobs:
       - job: PROD
         # pool: 
