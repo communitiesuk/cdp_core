@@ -31,7 +31,7 @@ stages:
                 $pairs = foreach ($prop in $map.PSObject.Properties) {
                     $varName     = ('var_{0:d3}' -f $i)
                     $keyName     = [string]$prop.Name
-                    $valueString = '$(' + $keyName + ')'
+                    $valueString = '"$(' + $keyName + ')"'
 
                     # Create the variable in the current script scope:
                     Set-Variable -Scope Script -Name $varName -Value $valueString
