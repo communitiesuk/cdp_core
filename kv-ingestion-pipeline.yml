@@ -48,13 +48,12 @@ stages:
                 }
 
                 foreach ($p in $pairs) {
-                    Write-Host "------ name = $($p.Key)"
-                    Write-Host "------ value = $($p.Key)"
+                    Write-Host "Wriring variable $($p.Key) to $(key_vault_name)"
 
                     az keyvault secret set `
                       --vault-name "$(key_vault_name)" `
                       --name $($p.Key -replace '_','-') `
-                      --value $($p.Key) `
+                      --value $($p.ValueString) `
                       --output none
                 }
 
