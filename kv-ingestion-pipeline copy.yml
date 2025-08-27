@@ -27,19 +27,34 @@ stages:
                 $ado_vars = "$(az pipelines variable-group variable list --organization "$(System.CollectionUri)" --project "$(System.TeamProject)" --group-id $group_id)"
                 $map = $ado_vars | ConvertFrom-Json
 
-                foreach ($prop in $map.PSObject.Properties) {
+                $i = 1
+                $pairs = foreach ($prop in $map.PSObject.Properties) {
+                    $varName     = ('var_{0:d3}' -f $i)
+                    $keyName     = [string]$prop.Name
+                    $valueString = '"$(' + $keyName + ')"'
 
-                    $adoName     = [string]$prop.Name
-                    $envName     = ($adoName -replace '[^A-Za-z0-9]','_').ToUpper()
-                    $value       = (Get-Item -Path "Env:$envName" -ErrorAction SilentlyContinue).Value
-                    $secretName  = ($adoName -replace '_','-')
+                    # Create the variable in the current script scope:
+                    Set-Variable -Scope Script -Name $varName -Value $valueString
 
-                    Write-Host "Writing variable $secretName to $(key_vault_name) with value $value"
+                    # Keep the pair so we can iterate for az
+                    [PSCustomObject]@{
+                        VarName     = $varName
+                        Key         = $keyName
+                        ValueString = $valueString
+                        IsSecret    = [bool]($prop.Value.isSecret)
+                    }
+
+                    $i++
+                }
+
+                foreach ($p in $pairs) {
+                    Write-Host "Wriring variable $($p.Key) to $(key_vault_name)"
 
                     az keyvault secret set `
                       --vault-name "$(key_vault_name)" `
-                      --name $secretName `
-                      --value $value `
+                      --name $($p.Key -replace '_','-') `
+                      --value "$($p.Key)" `
                       --output none
                 }
+
           
