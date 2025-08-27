@@ -31,8 +31,15 @@ stages:
 
                     $adoName     = [string]$prop.Name
                     $envName     = ($adoName -replace '[^A-Za-z0-9]','_').ToUpper()
-                    $value       = (Get-Item -Path "Env:$envName" -ErrorAction SilentlyContinue).Value
+                    $envItem     = Get-Item -Path "Env:$envName" -ErrorAction SilentlyContinue
                     $secretName  = ($adoName -replace '_','-')
+
+                    if (-not $envItem) {
+                      Write-Warning "No value found for '$adoName' (expected Env:$envName). Is the variable group imported at this step/stage, and is the variable in scope?"
+                      continue
+                    }
+
+                    $value = $envItem.Value
 
                     Write-Host "Writing variable $secretName to $(key_vault_name) with value $value"
 
