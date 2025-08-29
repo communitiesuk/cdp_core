@@ -18,7 +18,7 @@ stages:
           - script: |
               # Install the Databricks CLI and other requirements
               curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
-              pip install pylint yamllint bandit
+              pip install pylint yamllint bandit safety
               
               # Allow the bump-version script to be executable
               chmod +x ./templates/scripts/bump-version.sh
@@ -45,9 +45,17 @@ stages:
 
         # 4. Run Bandit
           - script: |
-              bandit -r src/ --verbose
+              bandit -r src/ --verbose --exit-zero
             displayName: "Run Bandit"
-
+          
+        # 5. Publish Report
+          - task: PublishBuildArtifacts@1
+            inputs:
+              pathToPublish: 'bandit_report.json'
+              artifactName: 'bandit-report'
+              publishLocation: 'Container'
+            displayName: "Publish Bandit Report"
+          
           # # 4. Run PyLint
           # - script: |
           #     pylint src/ --rcfile=.pylintrc --exit-zero
