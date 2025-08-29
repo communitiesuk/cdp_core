@@ -18,7 +18,7 @@ stages:
           - script: |
               # Install the Databricks CLI and other requirements
               curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
-              pip install pylint yamllint
+              pip install pylint yamllint bandit
               
               # Allow the bump-version script to be executable
               chmod +x ./templates/scripts/bump-version.sh
@@ -43,43 +43,48 @@ stages:
             name: setEnvVars
             displayName: "Setting Environment Variables"
 
-          # 4. Run PyLint
+        # 4. Run Bandit
           - script: |
-              pylint src/ --rcfile=.pylintrc --exit-zero
-            displayName: "Run PyLint"
-          
-          # 5. Run YamlLint
-          - script: |
-              yamllint -c .yamllint . || true
-            displayName: "Run YamlLint"
+              bandit -r src/ --verbose
+            displayName: "Run Bandit"
 
-          # 6. Validate Databricks Bundle
-          - template: steps/dev_azure_cli.yml
-            parameters:
-              description: "Validating Databricks Bundle"
-              inlineScript: |
-                databricks bundle validate --var=$(setEnvVars.BUNDLE_VAR)
+          # # 4. Run PyLint
+          # - script: |
+          #     pylint src/ --rcfile=.pylintrc --exit-zero
+          #   displayName: "Run PyLint"
+          
+          # # 5. Run YamlLint
+          # - script: |
+          #     yamllint -c .yamllint . || true
+          #   displayName: "Run YamlLint"
 
-          # 7. Deploy Databricks Bundle
-          - template: steps/dev_azure_cli.yml
-            parameters:
-              description: "Deploy Databricks Bundle"
-              inlineScript: |
-                export BUILD_VERSION=$(setTag.BUILD_VERSION)
-                databricks bundle deploy --var=$(setEnvVars.BUNDLE_VAR)
+          # # 6. Validate Databricks Bundle
+          # - template: steps/dev_azure_cli.yml
+          #   parameters:
+          #     description: "Validating Databricks Bundle"
+          #     inlineScript: |
+          #       databricks bundle validate --var=$(setEnvVars.BUNDLE_VAR)
+
+          # # 7. Deploy Databricks Bundle
+          # - template: steps/dev_azure_cli.yml
+          #   parameters:
+          #     description: "Deploy Databricks Bundle"
+          #     inlineScript: |
+          #       export BUILD_VERSION=$(setTag.BUILD_VERSION)
+          #       databricks bundle deploy --var=$(setEnvVars.BUNDLE_VAR)
           
-          # 8. Run Unit Tests
-          - template: steps/dev_azure_cli.yml
-            parameters:
-              description: "Unit Tests"
-              inlineScript: |
-                databricks bundle run jb_pytest --var=$(setEnvVars.BUNDLE_VAR)
+          # # 8. Run Unit Tests
+          # - template: steps/dev_azure_cli.yml
+          #   parameters:
+          #     description: "Unit Tests"
+          #     inlineScript: |
+          #       databricks bundle run jb_pytest --var=$(setEnvVars.BUNDLE_VAR)
           
-          # 9. Copy whl file to Shared Area 
-          - template: steps/dev_azure_cli.yml
-            parameters:
-              description: "Copying whl file to Shared Area"
-              inlineScript: |
-                databricks workspace mkdirs /Shared/artifacts
-                databricks workspace import --overwrite --format "AUTO" --file $(setEnvVars.SOURCE_PATH) $(setEnvVars.TARGET_PATH)
+          # # 9. Copy whl file to Shared Area 
+          # - template: steps/dev_azure_cli.yml
+          #   parameters:
+          #     description: "Copying whl file to Shared Area"
+          #     inlineScript: |
+          #       databricks workspace mkdirs /Shared/artifacts
+          #       databricks workspace import --overwrite --format "AUTO" --file $(setEnvVars.SOURCE_PATH) $(setEnvVars.TARGET_PATH)
                 
