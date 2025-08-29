@@ -62,7 +62,8 @@ stages:
               source venv/bin/activate
               pip install safety
               pip install packages/*.whl
-              safety --key $(SAFETY_API_KEY) scan 
+              safety --key $(SAFETY_API_KEY) scan --output json > safety_report.json
+            displayName: "Run Safety Scan"
             env:
               SAFETY_API_KEY: $(SAFETY_API_KEY)
               SAFETY_CLI_DISABLE_LOCAL_CONFIG: "1"
