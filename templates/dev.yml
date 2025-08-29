@@ -45,7 +45,7 @@ stages:
 
         # 4. Run Bandit
           - script: |
-              bandit -r src/ --verbose --exit-zero
+              bandit -r src/ -f json -o bandit_report.json --verbose --exit-zero
             displayName: "Run Bandit"
           
         # 5. Publish Report
