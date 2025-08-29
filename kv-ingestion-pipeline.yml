@@ -19,7 +19,7 @@ parameters:
 
 - name: kvName
   type: string
-  default: 'kvingestion27494'    # Your Key Vault name
+  default: 'kvcorecdp4143'    # Your Key Vault name
 
 # --- Stage 1: Discover (only when parameter is empty) ---
 stages:
