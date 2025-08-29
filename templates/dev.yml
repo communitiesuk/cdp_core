@@ -40,33 +40,35 @@ stages:
               echo "##vso[task.setvariable variable=SOURCE_PATH;isOutput=true]$SOURCE_PATH";
               echo "##vso[task.setvariable variable=TARGET_PATH;isOutput=true]$TARGET_PATH";
               echo "##vso[task.setvariable variable=BUNDLE_VAR;isOutput=true]$BUNDLE_VAR";
+
+              mkdir security_reports
             name: setEnvVars
             displayName: "Setting Environment Variables"
 
         # 4. Run Bandit
           - script: |
-              bandit -r src/ -f json -o bandit_report.json --verbose --exit-zero
+              bandit -r src/ -f json -o security_reports/bandit_report.json --verbose --exit-zero
             displayName: "Run Bandit"
           
-        # 5. Publish Report
-          - task: PublishBuildArtifacts@1
-            inputs:
-              pathToPublish: 'bandit_report.json'
-              artifactName: 'bandit-report'
-              publishLocation: 'Container'
-            displayName: "Publish Bandit Report"
-
           - script: |
               python setup.py bdist_wheel --dist-dir packages/
               python -m venv venv
               source venv/bin/activate
               pip install safety
               pip install packages/*.whl
-              safety --key $(SAFETY_API_KEY) scan --output json > safety_report.json
+              safety --key $(SAFETY_API_KEY) scan --output json > security_safety_report.json
             displayName: "Run Safety Scan"
             env:
               SAFETY_API_KEY: $(SAFETY_API_KEY)
               SAFETY_CLI_DISABLE_LOCAL_CONFIG: "1"
+
+        # 5. Publish Report
+          - task: PublishBuildArtifacts@1
+            inputs:
+              pathToPublish: 'security_reports'
+              artifactName: 'bandit-report'
+              publishLocation: 'Container'
+            displayName: "Publish Reports"
 
 
           # # 4. Run PyLint
