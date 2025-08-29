@@ -55,7 +55,19 @@ stages:
               artifactName: 'bandit-report'
               publishLocation: 'Container'
             displayName: "Publish Bandit Report"
-          
+
+          - script: |
+              python setup.py bdist_wheel --dist-dir packages/
+              python -m venv venv
+              source venv/bin/activate
+              pip install safety
+              pip install packages/*.whl
+              safety --key $(SAFETY_API_KEY) scan 
+            env:
+              SAFETY_API_KEY: $(SAFETY_API_KEY)
+              SAFETY_CLI_DISABLE_LOCAL_CONFIG: "1"
+
+
           # # 4. Run PyLint
           # - script: |
           #     pylint src/ --rcfile=.pylintrc --exit-zero
