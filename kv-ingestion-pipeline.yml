@@ -71,7 +71,7 @@ stages:
 
           # Queue THIS pipeline again, passing the names as a parameter
           $pipelineId = $(System.DefinitionId)
-          az pipelines run --id $pipelineId --parameters secretNamesJson="$json" vgName="${{ parameters.vgName }}" kvName="$(key_vault_name)"
+          az pipelines run --id $pipelineId --parameters secretNamesJson="$json" vgName="${{ parameters.vgName }}" kvName="${{ parameters.kvName }}"
 
 # --- Stage 2: Expand (only when parameter is populated) ---
 - stage: Expand
@@ -82,7 +82,7 @@ stages:
 
   jobs:
   - job: PushToKeyVault
-    displayName: "Write secrets to $(key_vault_name)"
+    displayName: "Write secrets to ${{ parameters.kvName }}"
     steps:
     - checkout: none
 
@@ -91,12 +91,12 @@ stages:
       - task: AzureCLI@2
         displayName: "Push ${{ s }} to Key Vault"
         inputs:
-          azureSubscription: 'SPN-SP-sub-tst-ctdpslt001-001'
+          azureSubscription: 'SP-CDX23'
           scriptType: pscore
           scriptLocation: inlineScript
           inlineScript: |
             az keyvault secret set `
-              --vault-name "$(key_vault_name)" `
+              --vault-name '${{ parameters.kvName }}' `
               --name "${{ replace(s, '_', '-') }}" `
               --value '$(${{ s }})' `
               --output none
