@@ -15,7 +15,7 @@ parameters:
 
 - name: vgName
   type: string
-  default: 'cdx23_vars'           # Your variable group name
+  default: 'kv-tst-core-cdp-vars'           # Your variable group name
 
 - name: kvName
   type: string
