@@ -1,23 +1,25 @@
 parameters:
+  - name: scanType
+    type: string
   - name: severity
     type: string
   - name: inlineScript
     type: string
 
 steps:
-  - script: ${{ parameters.inlineScript }} 
-    displayName: "Run Bandit - Source Code Scanner"
+  - script: |
+      fullCommand="${ parameters.inlineScript } --exit-zero"
+      eval $fullCommand
+    displayName: "Run $ { parameters.scanType }"
 
   - task: PublishBuildArtifacts@1
     inputs:
       pathToPublish: 'security_reports'
       artifactName: 'security-reports'
       publishLocation: 'Container'
-    displayName: "Publish Bandit Scan Report"
+    displayName: "Publish $ { parameters.scanType } Scan Report"
 
   - script: |
       fullCommand="${ parameters.inlineScript } --severity-level ${{ parameters.severity }}"
-      eval $fullCommand
-
-  
-    displayName: "Run Bandit - Fail on Severity Level"
+      eval $fullCommand  
+    displayName: "Run $ { parameters.scanType } - Fail on Severity Level"
