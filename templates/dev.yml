@@ -77,13 +77,13 @@ stages:
         #       SAFETY_API_KEY: $(SAFETY_API_KEY)
         #       SAFETY_CLI_DISABLE_LOCAL_CONFIG: "1"
 
-        # # 5. Publish All Security Reports
-        #   - task: PublishBuildArtifacts@1
-        #     inputs:
-        #       pathToPublish: 'security_reports'
-        #       artifactName: 'security-reports'
-        #       publishLocation: 'Container'
-        #     displayName: "Publish Reports"
+        # 5. Publish All Security Reports
+          - task: PublishBuildArtifacts@1
+            inputs:
+              pathToPublish: 'security_reports'
+              artifactName: 'security-reports'
+              publishLocation: 'Container'
+            displayName: "Publish Reports"
 
 
           # # 4. Run PyLint
