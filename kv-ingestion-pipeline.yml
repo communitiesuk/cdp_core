@@ -32,7 +32,6 @@ stages:
     steps:
     - checkout: self
 
-    # IMPORTANT: enable "Allow scripts to access the OAuth token" in the pipeline settings
     - task: AzureCLI@2
       displayName: "List secret names and queue this pipeline again"
       env:
