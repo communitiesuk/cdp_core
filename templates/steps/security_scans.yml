@@ -6,6 +6,8 @@ parameters:
 
 steps:
   - script: |
+   
+      echo ${{ parameters.inlineScript }}
       ${{ parameters.inlineScript }} --severity-level none
     displayName: "Run Bandit - Source Code Scanner"
 
