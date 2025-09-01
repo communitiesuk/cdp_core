@@ -9,6 +9,7 @@ parameters:
 
 steps:
   - script: |
+      source venv/bin/activate
       fullCommand="${{ parameters.inlineScript }}"
 
       if [ "${{ parameters.scanType}}" = "bandit" ]; then
@@ -26,6 +27,7 @@ steps:
     displayName: "Publish ${{ parameters.scanType }} Scan Report"
 
   - script: |
+      source venv/bin/activate
       fullCommand="${{ parameters.inlineScript }} --severity-level ${{ parameters.severity }}"
 
       if [ "${{ parameters.scanType}}" = "pip-audit" ]; then
