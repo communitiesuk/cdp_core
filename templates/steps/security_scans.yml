@@ -31,7 +31,8 @@ steps:
       fullCommand="${{ parameters.inlineScript }} --severity-level ${{ parameters.severity }}"
 
       if [ "${{ parameters.scanType}}" = "pip-audit" ]; then
-        fullCommand="${{ parameters.inlineScript }} --strict"
+        # temp remove the --strict flag as cdp-core is not part of PYPI
+        fullCommand="${{ parameters.inlineScript }}"
       fi
 
       eval $fullCommand  
