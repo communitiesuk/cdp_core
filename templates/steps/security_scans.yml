@@ -11,6 +11,7 @@ steps:
       fullCommand="${{ parameters.inlineScript }} --exit-zero"
       eval $fullCommand
       ls security_reports/
+      ls templates/steps/
     displayName: "Run ${{ parameters.scanType }}"
 
   - task: PublishBuildArtifacts@1
