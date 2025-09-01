@@ -14,15 +14,20 @@ stages:
               environment: ${{ parameters.environment }}
 
         steps:
-          # 1. Install All Requirements & Allowing Executables
+          # 1. Install Agent Requirements, Allowing Executables & Create Security Reports Directory
           - script: |
-              # Install the Databricks CLI and other requirements
+              # Install the Databricks CLI
               curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
-              pip install pylint yamllint bandit safety
               
-              # Allow the bump-version script to be executable
-              chmod +x ./templates/scripts/bump-version.sh
-            displayName: "Install Agent Requirements & Allowing Executables"
+              # Install linters and security scanners
+              pip install pylint yamllint bandit
+              
+              # Enable all scripts to be executable within scripts folder
+              chmod +x ./templates/scripts/*
+              
+              # Create directories for security reports
+              mkdir security_reports
+            displayName: "Install Agent Requirements, Allowing Executables & Create Security Reports Directory"
           
           # 2. Get and Increment Tag
           - script: templates/scripts/bump-version.sh
@@ -40,29 +45,36 @@ stages:
               echo "##vso[task.setvariable variable=SOURCE_PATH;isOutput=true]$SOURCE_PATH";
               echo "##vso[task.setvariable variable=TARGET_PATH;isOutput=true]$TARGET_PATH";
               echo "##vso[task.setvariable variable=BUNDLE_VAR;isOutput=true]$BUNDLE_VAR";
-
-              mkdir security_reports
             name: setEnvVars
             displayName: "Setting Environment Variables"
 
-        # 4. Run Bandit
+        # 4. Run Bandit - Source Code Scanner
           - script: |
+              # recursively (-r) scan all the Python files in the src/ directory and its subdirectories
               bandit -r src/ -f json -o security_reports/bandit_report.json --verbose --exit-zero
-            displayName: "Run Bandit"
+            displayName: "Run Bandit - Source Code Scanner"
           
+        # 5. Run Safety - Dependency Scanner         
           - script: |
+              # Create the cdp-core whl in the packages directory
               python setup.py bdist_wheel --dist-dir packages/
+              
+              # Create and activate virtual environment
               python -m venv venv
               source venv/bin/activate
-              pip install safety
+
+              # Install Safety and cdp_core
+              pip install safety==3.6.0
               pip install packages/*.whl
+
+              # Scan the dependencies
               safety --key $(SAFETY_API_KEY) scan --output json > security_reports/safety_report.json
-            displayName: "Run Safety Scan"
+            displayName: "Run Safety Scan - Dependency Scanner"
             env:
               SAFETY_API_KEY: $(SAFETY_API_KEY)
               SAFETY_CLI_DISABLE_LOCAL_CONFIG: "1"
 
-        # 5. Publish Report
+        # 5. Publish All Security Reports
           - task: PublishBuildArtifacts@1
             inputs:
               pathToPublish: 'security_reports'
