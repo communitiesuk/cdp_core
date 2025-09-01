@@ -3,16 +3,14 @@ parameters:
     type: string
   - name: severity
     type: string
+    default: ''
   - name: inlineScript
     type: string
 
 steps:
   - script: |
       fullCommand="${{ parameters.inlineScript }} --exit-zero"
-      echo $fullCommand
       eval $fullCommand
-      ls security_reports/
-      ls templates/steps/
     displayName: "Run ${{ parameters.scanType }}"
 
   - task: PublishBuildArtifacts@1
@@ -24,5 +22,9 @@ steps:
 
   - script: |
       fullCommand="${{ parameters.inlineScript }} --severity-level ${{ parameters.severity }}"
+
+      if [ "${{ parameters.scanType}}" = "pip-audit" ]; then
+        fullCommand="${{ parameters.inlineScript }} --strict"
+
       eval $fullCommand  
     displayName: "Run ${{ parameters.scanType }} - Fail on Severity Level"
