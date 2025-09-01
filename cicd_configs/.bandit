@@ -1,0 +1,6 @@
+# FILE: .bandit
+[bandit]
+exclude = tests,scratch,src/cdp_core/address_matcher
+recursive = True
+# tests = B201,B202
+# skips = B101,B102
