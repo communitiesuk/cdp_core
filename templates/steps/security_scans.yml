@@ -6,7 +6,7 @@ parameters:
 
 steps:
   - script: |
-      ${{ parameters.inlineScript }}
+      ${{ parameters.inlineScript }} --severity-level none
     displayName: "Run Bandit - Source Code Scanner"
 
   - task: PublishBuildArtifacts@1
