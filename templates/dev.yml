@@ -58,7 +58,7 @@ stages:
         
         # 5. Run Pip Audit - Dependency Scanner
           - template: steps/security_scans.yml
-            paramaters:
+            parameters:
               scanType: "pip-audit"
               inlineScript: |
                 python -m venv venv
