@@ -5,13 +5,17 @@ parameters:
     type: string
 
 steps:
-  - script: ${{ parameters.inlineScript }} --exit-zero 
+  - script: |
+      ${{ parameters.inlineScript }} --exit-zero
+    displayName: "Run Bandit - Source Code Scanner"
 
   - task: PublishBuildArtifacts@1
     inputs:
       pathToPublish: 'security_reports'
       artifactName: 'security-reports'
       publishLocation: 'Container'
-    displayName: "Publish Reports"
+    displayName: "Publish Bandit Scan Report"
 
-  - script: ${{ parameters.inlineScript }} --severity-level ${{ parameters.severity }}
+  - script: |
+     ${{ parameters.inlineScript }} --severity-level ${{ parameters.severity }}
+    displayName: "Run Bandit - Fail on Severity Level"
