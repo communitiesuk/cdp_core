@@ -8,18 +8,18 @@ parameters:
 
 steps:
   - script: |
-      fullCommand="${ parameters.inlineScript } --exit-zero"
+      fullCommand="${{ parameters.inlineScript }} --exit-zero"
       eval $fullCommand
-    displayName: "Run $ { parameters.scanType }"
+    displayName: "Run ${{ parameters.scanType }}"
 
   - task: PublishBuildArtifacts@1
     inputs:
       pathToPublish: 'security_reports'
       artifactName: 'security-reports'
       publishLocation: 'Container'
-    displayName: "Publish $ { parameters.scanType } Scan Report"
+    displayName: "Publish ${{ parameters.scanType }} Scan Report"
 
   - script: |
-      fullCommand="${ parameters.inlineScript } --severity-level ${{ parameters.severity }}"
+      fullCommand="${{ parameters.inlineScript }} --severity-level ${{ parameters.severity }}"
       eval $fullCommand  
-    displayName: "Run $ { parameters.scanType } - Fail on Severity Level"
+    displayName: "Run ${{ parameters.scanType }} - Fail on Severity Level"
