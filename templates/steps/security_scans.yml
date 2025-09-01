@@ -6,7 +6,7 @@ parameters:
 
 steps:
   - script: |
-      ${{ parameters.inlineScript }} --exit-zero
+      ${{ parameters.inlineScript }}
     displayName: "Run Bandit - Source Code Scanner"
 
   - task: PublishBuildArtifacts@1
