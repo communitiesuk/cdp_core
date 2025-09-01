@@ -20,7 +20,7 @@ stages:
               curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
               
               # Install linters and security scanners
-              pip install setuptools pylint yamllint bandit safety==2.3.5 pip-audit
+              pip install pylint yamllint bandit safety==2.3.5 pip-audit
               
               # Enable all scripts to be executable within scripts folder
               chmod +x ./templates/scripts/*
@@ -60,9 +60,11 @@ stages:
           - script: |
               python -m venv venv
               source venv/bin/activate
+
+              pip install setuptools pip-audit
               python setup.py bdist_wheel --dist-dir packages/
               pip install packages/*.whl
-              pip install pip-audit
+              
               pip-audit -f json -o security_reports/pip_audit_report.json
 
           
