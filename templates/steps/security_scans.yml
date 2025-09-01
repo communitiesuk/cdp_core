@@ -15,5 +15,9 @@ steps:
       publishLocation: 'Container'
     displayName: "Publish Bandit Scan Report"
 
-  - script: ${{ parameters.inlineScript }} --severity-level ${{ parameters.severity }}
+  - script: |
+      fullCommand="${ parameters.inlineScript } --severity-level ${{ parameters.severity }}"
+      eval $fullCommand
+
+  
     displayName: "Run Bandit - Fail on Severity Level"
