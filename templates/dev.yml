@@ -57,15 +57,18 @@ stages:
                 bandit --ini cicd_configs/security/.bandit -r src/ -f json -o security_reports/bandit_report.json
         
         # 5. Run Pip Audit - Dependency Scanner
-          - script: |
-              python -m venv venv
-              source venv/bin/activate
+          - template: steps/security_scans.yml
+            paramaters:
+              scanType: "pip-audit"
+              inlineScript: |
+                python -m venv venv
+                source venv/bin/activate
 
-              pip install setuptools pip-audit
-              python setup.py bdist_wheel --dist-dir packages/
-              pip install packages/*.whl
-              
-              pip-audit -f json -o security_reports/pip_audit_report.json
+                pip install setuptools pip-audit
+                python setup.py bdist_wheel --dist-dir packages/
+                pip install packages/*.whl
+                
+                pip-audit -f json -o security_reports/pip_audit_report.json
 
           
         # 5. Run Safety - Dependency Scanner         
