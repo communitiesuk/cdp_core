@@ -10,7 +10,7 @@ steps:
   - script: |
       fullCommand="${{ parameters.inlineScript }} --exit-zero"
       eval $fullCommand
-      ls
+      ls security_reports/
     displayName: "Run ${{ parameters.scanType }}"
 
   - task: PublishBuildArtifacts@1
