@@ -6,17 +6,14 @@ version = os.getenv('BUILD_VERSION', '0.0.1')
 setup(
   name = "cdp_core",
   version = version,
-  author = "<my-author-name>",
-  url = "https://<my-url>",
-  author_email = "<my-author-name>@<my-organization>",
-  description = "<my-package-description>",
   packages=find_packages(where="src"),
   package_dir={'': 'src'},
   package_data={'cdp_core': ['configs/*.yml']},
   entry_points={
     "console_scripts": ['run=cdp_core.main:main']
   },
-  install_requires=[
-    "setuptools"
-  ]
+  # to prevent version mismatch, we exclude any packages that are already installed in the cluster
+  # to identify which dependencies are already installed in the chosen cluster runtime, visit the following page
+  # https://docs.databricks.com/aws/en/release-notes/runtime
+  install_requires=[]
 )
