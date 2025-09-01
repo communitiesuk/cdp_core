@@ -49,11 +49,16 @@ stages:
             displayName: "Setting Environment Variables"
 
         # 4. Run Bandit - Source Code Scanner
-          - script: |
-              # recursively (-r) scan all the Python files in the src/ directory and its subdirectories
-              bandit --ini cicd_configs/.bandit -r src/ -f json -o security_reports/bandit_report.json --severity-level medium
-              # bandit -r src/ -f json -o security_reports/bandit_report.json --verbose --exit-zero
-            displayName: "Run Bandit - Source Code Scanner"
+          - template: steps/security_scans.yml
+            parameters:
+              severity: "medium"
+              inlineScript: |
+                # recursively scan all the Python files in the src/ directory and its subdirectories
+                bandit --ini cicd_configs/security/.bandit -r src/ -f json -o security_reports/bandit_report.json
+          # - script: |
+          #     # recursively scan all the Python files in the src/ directory and its subdirectories
+          #     bandit --ini cicd_configs/security/.bandit -r src/ -f json -o security_reports/bandit_report.json --severity-level medium
+          #   displayName: "Run Bandit - Source Code Scanner"
           
         # # 5. Run Safety - Dependency Scanner         
         #   - script: |
