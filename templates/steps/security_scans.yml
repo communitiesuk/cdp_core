@@ -9,7 +9,12 @@ parameters:
 
 steps:
   - script: |
-      fullCommand="${{ parameters.inlineScript }} --exit-zero"
+      fullCommand="${{ parameters.inlineScript }}"
+
+      if [ "${{ parameters.scanType}}" = "bandit" ]; then
+        fullCommand="${{ parameters.inlineScript }} --exit-zero"
+      fi
+
       eval $fullCommand
     displayName: "Run ${{ parameters.scanType }}"
 
@@ -26,6 +31,6 @@ steps:
       if [ "${{ parameters.scanType}}" = "pip-audit" ]; then
         fullCommand="${{ parameters.inlineScript }} --strict"
       fi
-      
+
       eval $fullCommand  
     displayName: "Run ${{ parameters.scanType }} - Fail on Severity Level"

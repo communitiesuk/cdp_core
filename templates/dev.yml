@@ -16,11 +16,15 @@ stages:
         steps:
           # 1. Install Agent Requirements, Allowing Executables & Create Security Reports Directory
           - script: |
+              # Activate python virtual environment
+              python -m venv venv
+              source venv/bin/activate
+              
               # Install the Databricks CLI
               curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
-              
-              # Install linters and security scanners
-              pip install pylint yamllint bandit safety==2.3.5 pip-audit
+              pip install setuptools pylint yamllint bandit pip-audit
+              python setup.py bdist_wheel --dist-dir packages/
+              pip install packages/*.whl 
               
               # Enable all scripts to be executable within scripts folder
               chmod +x ./templates/scripts/*
@@ -61,13 +65,6 @@ stages:
             parameters:
               scanType: "pip-audit"
               inlineScript: |
-                python -m venv venv
-                source venv/bin/activate
-
-                pip install setuptools pip-audit
-                python setup.py bdist_wheel --dist-dir packages/
-                pip install packages/*.whl
-                
                 pip-audit -f json -o security_reports/pip_audit_report.json
 
           
