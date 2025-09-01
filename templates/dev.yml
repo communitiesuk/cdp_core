@@ -64,9 +64,8 @@ stages:
               source venv/bin/activate
 
               # Install Safety and cdp_core
-              pip install safety==3.6.0
+              pip install safety==2.3.5
               pip install packages/*.whl
-              pip install --upgrade typer
               pip freeze > security_reports/requirements.txt
 
               # Scan the dependencies
