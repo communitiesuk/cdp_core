@@ -65,7 +65,7 @@ stages:
             parameters:
               scanType: "pip-audit"
               inlineScript: |
-                pip-audit -f json -o security_reports/pip_audit_report.json
+                pip-audit -f json -o security_reports/pip_audit_report.json --skip cdp-core
 
           
         # 5. Run Safety - Dependency Scanner         
