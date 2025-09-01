@@ -1,16 +1,17 @@
 parameters:
-  - name: description
+  - name: severity
     type: string
   - name: inlineScript
     type: string
 
 steps:
-  - task: AzureCLI@2
-    condition: succeeded()
-    displayName: ${{ parameters.description }}
+  - script: ${{ parameters.inlineScript }} --exit-zero 
+
+  - task: PublishBuildArtifacts@1
     inputs:
-      azureSubscription: $(SPN_DEV_NAME) # BUG - https://github.com/microsoft/azure-pipelines-tasks/issues/17218
-      useGlobalConfig: true
-      scriptType: bash
-      scriptLocation: inlineScript
-      inlineScript: ${{ parameters.inlineScript }}
+      pathToPublish: 'security_reports'
+      artifactName: 'security-reports'
+      publishLocation: 'Container'
+    displayName: "Publish Reports"
+
+  - script: ${{ parameters.inlineScript }} --severity-level ${{ parameters.severity }}
