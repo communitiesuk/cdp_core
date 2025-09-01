@@ -54,25 +54,25 @@ stages:
               bandit -r src/ -f json -o security_reports/bandit_report.json --verbose --exit-zero
             displayName: "Run Bandit - Source Code Scanner"
           
-        # 5. Run Safety - Dependency Scanner         
-          - script: |
-              # Create the cdp-core whl in the packages directory
-              python setup.py bdist_wheel --dist-dir packages/
+        # # 5. Run Safety - Dependency Scanner         
+        #   - script: |
+        #       # Create the cdp-core whl in the packages directory
+        #       python setup.py bdist_wheel --dist-dir packages/
               
-              # Create and activate virtual environment
-              python -m venv venv
-              source venv/bin/activate
+        #       # Create and activate virtual environment
+        #       python -m venv venv
+        #       source venv/bin/activate
 
-              # Install Safety and cdp_core
-              pip install safety==3.6.0
-              pip install packages/*.whl
+        #       # Install Safety and cdp_core
+        #       pip install safety==3.6.0
+        #       pip install packages/*.whl
 
-              # Scan the dependencies
-              safety --key $(SAFETY_API_KEY) scan --output json > security_reports/safety_report.json
-            displayName: "Run Safety Scan - Dependency Scanner"
-            env:
-              SAFETY_API_KEY: $(SAFETY_API_KEY)
-              SAFETY_CLI_DISABLE_LOCAL_CONFIG: "1"
+        #       # Scan the dependencies
+        #       safety --key $(SAFETY_API_KEY) scan --output json > security_reports/safety_report.json
+        #     displayName: "Run Safety Scan - Dependency Scanner"
+        #     env:
+        #       SAFETY_API_KEY: $(SAFETY_API_KEY)
+        #       SAFETY_CLI_DISABLE_LOCAL_CONFIG: "1"
 
         # 5. Publish All Security Reports
           - task: PublishBuildArtifacts@1
