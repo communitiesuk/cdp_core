@@ -51,7 +51,7 @@ stages:
         # 4. Run Bandit - Source Code Scanner
           - script: |
               # recursively (-r) scan all the Python files in the src/ directory and its subdirectories
-              bandit --ini cicd_configs/.bandit -f json -o security_reports/bandit_report.json --verbose --exit-zero
+              bandit --ini cicd_configs/.bandit -r src/ -f json -o security_reports/bandit_report.json --verbose --exit-zero
               # bandit -r src/ -f json -o security_reports/bandit_report.json --verbose --exit-zero
             displayName: "Run Bandit - Source Code Scanner"
           
