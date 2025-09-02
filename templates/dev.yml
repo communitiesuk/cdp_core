@@ -6,8 +6,8 @@ stages:
   - stage: DEV
     displayName: "DEV"
     jobs:
-      - job: DEV
-        displayName: "Deploy DEV"
+      - job: Security Checks
+        displayName: "Security Checks"
         variables:
           - template: variables.yml
             parameters:
@@ -15,33 +15,17 @@ stages:
 
         steps:
           # 1. Install Agent Requirements & Allowing Executables
-          - script: |             
+          - script: |   
+              # Exit immediately if any command fails
+              set -e
+
               # Install the Databricks CLI
               curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
-              pip install pylint yamllint bandit pip-audit safety pipreqs
+              pip install pylint yamllint bandit pip-audit safety
               
               # Enable all scripts to be executable within scripts folder
               chmod +x ./templates/scripts/*
             displayName: "Install Agent Requirements & Allowing Executables"
-          
-          # 2. Get and Increment Tag
-          - script: templates/scripts/bump-version.sh
-            name: setTag
-            displayName: "Get and Increment Tag"
-
-          # 3. Set Environment Variables
-          - script: |
-              set -e          
-              export WHL_FILE=cdp_core-$(setTag.BUILD_VERSION)-py3-none-any.whl
-              export SOURCE_PATH=packages/${WHL_FILE}
-              export TARGET_PATH=/Workspace/Shared/artifacts/${WHL_FILE}
-              export BUNDLE_VAR="environment=$(ENVIRONMENT),whl_path=/Workspace/Shared/artifacts/${WHL_FILE},SPN_ID=$(SPN_ID)"
-
-              echo "##vso[task.setvariable variable=SOURCE_PATH;isOutput=true]$SOURCE_PATH";
-              echo "##vso[task.setvariable variable=TARGET_PATH;isOutput=true]$TARGET_PATH";
-              echo "##vso[task.setvariable variable=BUNDLE_VAR;isOutput=true]$BUNDLE_VAR";
-            name: setEnvVars
-            displayName: "Setting Environment Variables"
 
         # 4. Pre Security Check Tasks
           - script: |
@@ -51,22 +35,22 @@ stages:
               # Create a common directory for security reports
               mkdir security_reports
 
-              # initiate new python environment
+              # Initiate new python environment
               python -m venv venv
               source venv/bin/activate
               pip install pipreqs
               
-              # retrieve top level imports
+              # Retrieve top level imports
               pipreqs ./src --force --savepath security_reports/requirements.txt
 
-              # install direct requirements and sub-dependencies in the isolated environment
+              # Install direct requirements and sub-dependencies
               pip install -r security_reports/requirements.txt
 
-              # retrieve full dependencies
+              # Retrieve full dependencies
               pip freeze > security_reports/full_requirements.txt
             displayName: "Pre-Security Check Tasks"
 
-        # 4. Run Bandit - Source Code Scanner
+        # 5. Run Bandit - Source Code Scanner
           - template: steps/security_scans.yml
             parameters:
               scanType: "bandit"
@@ -74,30 +58,33 @@ stages:
               inlineScript: |
                 bandit --ini cicd_configs/security/.bandit -r src/ -f json -o security_reports/bandit_report.json
         
-        # 5. Run Pip Audit - Dependency Scanner (1)
+        # 6. Run Pip Audit - Dependency Scanner (1)
           - template: steps/security_scans.yml
             parameters:
               scanType: "pip-audit"
               inlineScript: |
                 pip-audit -r security_reports/full_requirements.txt -f json -o security_reports/pip_audit_report.json
         
-        # 6. Run Safety Check - Dependency Scanner (2)
+        # 7. Run Safety Check - Dependency Scanner (2)
           - template: steps/security_scans.yml
             parameters:
               scanType: "safety"
               inlineScript: | 
-                safety --key $(SAFETY_API_KEY) check -r security_reports/full_requirements.txt --save-json security_reports/safety_results.json
-
-
-          # # 4. Run PyLint
-          # - script: |
-          #     pylint src/ --rcfile=.pylintrc --exit-zero
-          #   displayName: "Run PyLint"
+                safety --key $(SAFETY_API_KEY) check -r security_reports/full_requirements.txt --save-json security_reports/safety_report.json
+      
+      
+      - job: "Linting" 
+        displayName: "Security Checks"
+        steps: 
+          # 4. Run PyLint
+          - script: |
+              pylint src/ --rcfile=.pylintrc --exit-zero
+            displayName: "Run PyLint"
           
-          # # 5. Run YamlLint
-          # - script: |
-          #     yamllint -c .yamllint . || true
-          #   displayName: "Run YamlLint"
+          # 5. Run YamlLint
+          - script: |
+              yamllint -c .yamllint . || true
+            displayName: "Run YamlLint"
 
           # # 6. Validate Databricks Bundle
           # - template: steps/dev_azure_cli.yml
@@ -105,6 +92,30 @@ stages:
           #     description: "Validating Databricks Bundle"
           #     inlineScript: |
           #       databricks bundle validate --var=$(setEnvVars.BUNDLE_VAR)
+
+
+                    # # 2. Get and Increment Semantic Version Tag
+          # - script: templates/scripts/bump-version.sh
+          #   name: setTag
+          #   displayName: "Get and Increment Tag"
+
+          # # 3. Generate Environment Variables
+          # - script: |
+          #     # Exit immediately if any command fails
+          #     set -e    
+
+          #     # Generate all required variables      
+          #     export WHL_FILE=cdp_core-$(setTag.BUILD_VERSION)-py3-none-any.whl
+          #     export SOURCE_PATH=packages/${WHL_FILE}
+          #     export TARGET_PATH=/Workspace/Shared/artifacts/${WHL_FILE}
+          #     export BUNDLE_VAR="environment=$(ENVIRONMENT),whl_path=/Workspace/Shared/artifacts/${WHL_FILE},SPN_ID=$(SPN_ID)"
+
+          #     # Persist variables 
+          #     echo "##vso[task.setvariable variable=SOURCE_PATH;isOutput=true]$SOURCE_PATH";
+          #     echo "##vso[task.setvariable variable=TARGET_PATH;isOutput=true]$TARGET_PATH";
+          #     echo "##vso[task.setvariable variable=BUNDLE_VAR;isOutput=true]$BUNDLE_VAR";
+          #   name: setEnvVars
+          #   displayName: "Setting Environment Variables"
 
           # # 7. Deploy Databricks Bundle
           # - template: steps/dev_azure_cli.yml
