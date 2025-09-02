@@ -7,7 +7,7 @@ stages:
     displayName: "DEV"
     jobs:
       - job: SecurityChecks
-        displayName: "Security Checks"
+        displayName: "Source Code and Dependencies Security Checks"
         variables:
           - template: variables.yml
             parameters:
@@ -74,14 +74,23 @@ stages:
       
 
       - job: "Linting" 
-        displayName: "Security Checks"
+        displayName: "Python and Yaml Lint"
         steps: 
-          # 4. Run PyLint
+          # 1. Install Agent Requirements
+          - script: |   
+              # Exit immediately if any command fails
+              set -e
+          
+              # Install lint requirements 
+              pip install pylint yamllint 
+            displayName: "Install Agent Requirements"
+
+          # 2. Run PyLint
           - script: |
               pylint src/ --rcfile=.pylintrc --exit-zero
             displayName: "Run PyLint"
           
-          # 5. Run YamlLint
+          # 3. Run YamlLint
           - script: |
               yamllint -c .yamllint . || true
             displayName: "Run YamlLint"
