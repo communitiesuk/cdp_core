@@ -6,13 +6,9 @@ stages:
   - stage: DEV
     displayName: "DEV"
     jobs:
+
       - job: SecurityChecks
         displayName: "Source Code and Dependencies Security Checks"
-        variables:
-          - template: variables.yml
-            parameters:
-              environment: ${{ parameters.environment }}
-
         steps:
           # 1. Install Agent Requirements & Allowing Executables
           - script: |   
@@ -165,14 +161,24 @@ stages:
         dependsOn: 
           - ValidateAndDeploy
         variables:
+          - BUNDLE_VAR: $[ dependencies.ValidateAndDeploy.outputs['setEnvVars.BUNDLE_VAR'] ]
           - template: variables.yml
             parameters:
               environment: ${{ parameters.environment }}
         steps:
+          - script: |   
+              # Exit immediately if any command fails
+              set -e
+
+              # Install the Databricks CLI
+              curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
+              
+            displayName: "Install Agent Requirements"
+          
           # 1. Run Unit Tests
           - template: steps/dev_azure_cli.yml
             parameters:
               description: "Unit Tests"
               inlineScript: |
-                databricks bundle run jb_pytest --var=$(setEnvVars.BUNDLE_VAR)
+                databricks bundle run jb_pytest --var=$(BUNDLE_VAR)
              
