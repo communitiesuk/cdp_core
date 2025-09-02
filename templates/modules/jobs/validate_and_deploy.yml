@@ -54,7 +54,7 @@ jobs:
       # 6. Validate Databricks Bundle
       - template: ../databricks_azure_cli.yml
         parameters:
-          servicePrincipal: ${{ parameters.environment }}
+          servicePrincipal: ${{ parameters.servicePrincipal }}
           description: "Validating Databricks Bundle"
           inlineScript: |
             databricks bundle validate --var=$(setEnvVars.BUNDLE_VAR)
@@ -62,7 +62,7 @@ jobs:
       # 7. Deploy Databricks Bundle
       - template: ../databricks_azure_cli.yml
         parameters:
-          servicePrincipal: ${{ parameters.environment }}
+          servicePrincipal: ${{ parameters.servicePrincipal }}
           description: "Deploy Databricks Bundle"
           inlineScript: |
             export BUILD_VERSION=$(setTag.BUILD_VERSION)
