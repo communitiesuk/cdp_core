@@ -1,3 +1,9 @@
+parameters: 
+  - name: servicePrincipal
+    type: string
+  - name: environment
+    type: string
+    
 jobs: 
   - job: Lint
     displayName: "Unit Tests"
@@ -6,7 +12,7 @@ jobs:
     variables:
       - name: BUNDLE_VAR
         value: $[ dependencies.ValidateAndDeploy.outputs['setEnvVars.BUNDLE_VAR'] ]
-      - template: variables.yml
+      - template: ../..variables.yml
         parameters:
           environment: ${{ parameters.environment }}
     steps:
@@ -16,13 +22,12 @@ jobs:
 
           # Install the Databricks CLI
           curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
-          
         displayName: "Install Agent Requirements"
       
       # 1. Run Unit Tests
       - template: modules/databricks_azure_cli.yml
         parameters:
-          servicePrincipal: $(SPN_DEV_NAME)
+          servicePrincipal: ${{ parameters.environment }}
           description: "Unit Tests"
           inlineScript: |
             databricks bundle run jb_pytest --var=$(BUNDLE_VAR)

@@ -1,3 +1,9 @@
+parameters: 
+  - name: servicePrincipal
+    type: string
+  - name: environment
+    type: string
+
 jobs: 
   - job: ValidateAndDeploy
     displayName: "Validate and Deploy Bundle"
@@ -19,11 +25,11 @@ jobs:
           curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
           
           # Enable all scripts to be executable within scripts folder
-          chmod +x ./templates/scripts/*
+          chmod +x ../../scripts/*
         displayName: "Install Agent Requirements & Allowing Executables"
 
       # 2. Get and Increment Semantic Version Tag
-      - script: ../scripts/bump-version.sh
+      - script: ../../scripts/bump-version.sh
         name: setTag
         displayName: "Get and Increment Tag"
       
@@ -48,7 +54,7 @@ jobs:
       # 6. Validate Databricks Bundle
       - template: ../databricks_azure_cli.yml
         parameters:
-          servicePrincipal: $(SPN_DEV_NAME)
+          servicePrincipal: ${{ parameters.environment }}
           description: "Validating Databricks Bundle"
           inlineScript: |
             databricks bundle validate --var=$(setEnvVars.BUNDLE_VAR)
@@ -56,7 +62,7 @@ jobs:
       # 7. Deploy Databricks Bundle
       - template: ../databricks_azure_cli.yml
         parameters:
-          servicePrincipal: $(SPN_DEV_NAME)
+          servicePrincipal: ${{ parameters.environment }}
           description: "Deploy Databricks Bundle"
           inlineScript: |
             export BUILD_VERSION=$(setTag.BUILD_VERSION)
