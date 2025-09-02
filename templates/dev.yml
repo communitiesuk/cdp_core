@@ -51,13 +51,13 @@ stages:
               # Create a common directory for security reports
               mkdir security_reports
 
-              # retrieve top level imports
-              pip show PyYAML
-              pipreqs ./src --force --savepath security_reports/requirements.txt --clean
-
               # initiate new python environment
               python -m venv venv
               source venv/bin/activate
+              pip install pipreqs
+              
+              # retrieve top level imports
+              pipreqs ./src --force --savepath security_reports/requirements.txt
 
               # install direct requirements and sub-dependencies in the isolated environment
               pip install -r security_reports/requirements.txt
