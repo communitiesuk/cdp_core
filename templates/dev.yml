@@ -161,7 +161,8 @@ stages:
         dependsOn: 
           - ValidateAndDeploy
         variables:
-          - BUNDLE_VAR: $[ dependencies.ValidateAndDeploy.outputs['setEnvVars.BUNDLE_VAR'] ]
+          - name: BUNDLE_VAR
+            value: $[ dependencies.ValidateAndDeploy.outputs['setEnvVars.BUNDLE_VAR'] ]
           - template: variables.yml
             parameters:
               environment: ${{ parameters.environment }}
