@@ -69,6 +69,7 @@ stages:
         
         # 6. Run Safety Scan - Dependency Scanner (2)
           - script: |
+              source venv/bin/activate
               pipreqs ./src --force --savepath security_reports/requirements.txt
 
               python -m venv safety
