@@ -5,7 +5,7 @@ jobs:
       - SecurityChecks
       - Linting
     variables:
-      - template: variables.yml
+      - template: ../../variables.yml
         parameters:
           environment: ${{ parameters.environment }}
     
@@ -23,7 +23,7 @@ jobs:
         displayName: "Install Agent Requirements & Allowing Executables"
 
       # 2. Get and Increment Semantic Version Tag
-      - script: templates/scripts/bump-version.sh
+      - script: ../templates/scripts/bump-version.sh
         name: setTag
         displayName: "Get and Increment Tag"
       
@@ -46,7 +46,7 @@ jobs:
         displayName: "Setting Environment Variables"
 
       # 6. Validate Databricks Bundle
-      - template: modules/databricks_azure_cli.yml
+      - template: ../modules/databricks_azure_cli.yml
         parameters:
           servicePrincipal: $(SPN_DEV_NAME)
           description: "Validating Databricks Bundle"
@@ -54,7 +54,7 @@ jobs:
             databricks bundle validate --var=$(setEnvVars.BUNDLE_VAR)
 
       # 7. Deploy Databricks Bundle
-      - template: modules/databricks_azure_cli.yml
+      - template: ../modules/databricks_azure_cli.yml
         parameters:
           servicePrincipal: $(SPN_DEV_NAME)
           description: "Deploy Databricks Bundle"
