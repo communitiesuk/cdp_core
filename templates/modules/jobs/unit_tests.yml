@@ -3,7 +3,7 @@ parameters:
     type: string
   - name: environment
     type: string
-    
+
 jobs: 
   - job: Lint
     displayName: "Unit Tests"
@@ -12,7 +12,7 @@ jobs:
     variables:
       - name: BUNDLE_VAR
         value: $[ dependencies.ValidateAndDeploy.outputs['setEnvVars.BUNDLE_VAR'] ]
-      - template: ../..variables.yml
+      - template: ../../variables.yml
         parameters:
           environment: ${{ parameters.environment }}
     steps:
