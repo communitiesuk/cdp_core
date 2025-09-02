@@ -25,7 +25,7 @@ jobs:
         displayName: "Install Agent Requirements"
       
       # 1. Run Unit Tests
-      - template: modules/databricks_azure_cli.yml
+      - template: ../databricks_azure_cli.yml
         parameters:
           servicePrincipal: ${{ parameters.environment }}
           description: "Unit Tests"
