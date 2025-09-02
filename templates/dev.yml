@@ -51,7 +51,8 @@ stages:
               # Create a common directory for security reports
               mkdir security_reports
 
-              # retrieve top level imports 
+              # retrieve top level imports
+              pip show PyYAML
               pipreqs ./src --force --savepath security_reports/requirements.txt --clean
 
               # initiate new python environment
