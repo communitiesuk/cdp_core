@@ -35,7 +35,7 @@ jobs:
         displayName: "Pre-Security Check Tasks"
 
       # 5. Run Bandit - Source Code Scanner
-      - template: security_scans.yml
+      - template: scans.yml
         parameters:
           scanType: "bandit"
           severity: "high"
@@ -43,14 +43,14 @@ jobs:
             bandit --ini cicd_configs/security/.bandit -r src/ -f json -o security_reports/bandit_report.json
     
       # 6. Run Pip Audit - Dependency Scanner (1)
-      - template: security_scans.yml
+      - template: scans.yml
         parameters:
           scanType: "pip-audit"
           inlineScript: |
             pip-audit -r security_reports/full_requirements.txt -f json -o security_reports/pip_audit_report.json
     
       # 7. Run Safety Check - Dependency Scanner (2)
-      - template: security_scans.yml
+      - template: scans.yml
         parameters:
           scanType: "safety"
           inlineScript: | 
