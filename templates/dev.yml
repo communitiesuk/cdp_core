@@ -87,12 +87,12 @@ stages:
 
           # 2. Run PyLint
           - script: |
-              pylint src/ --rcfile=.pylintrc --exit-zero
+              pylint src/ --rcfile=cicd_configs/lint/.pylintrc --exit-zero
             displayName: "Run PyLint"
           
           # 3. Run YamlLint
           - script: |
-              yamllint -c .yamllint . || true
+              yamllint -c cicd_configs/lint/.yamllint . || true
             displayName: "Run YamlLint"
 
           # # 6. Validate Databricks Bundle
