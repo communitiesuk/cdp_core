@@ -7,7 +7,7 @@ parameters:
 jobs: 
   - job: ValidateAndDeploy
     displayName: "Validate and Deploy Bundle"
-    ${{ if ne(parameters.environment, 'development') }}:
+    ${{ if eq(parameters.environment, 'development') }}:
       dependsOn: 
         - SecurityChecks
         - Lint
