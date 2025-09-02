@@ -9,9 +9,6 @@ parameters:
 
 steps:
   - script: |
-      # activate environment - new step starts a new shell session, so previous activation is no longer active
-      source venv/bin/activate
-
       # 
       fullCommand="${{ parameters.inlineScript }}"
 
@@ -20,7 +17,7 @@ steps:
       fi
 
       eval $fullCommand
-    displayName: "Run ${{ parameters.scanType }}"
+    displayName: "Run ${{ parameters.scanType }} Scan"
 
   - task: PublishBuildArtifacts@1
     inputs:

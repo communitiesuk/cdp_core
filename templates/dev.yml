@@ -15,22 +15,13 @@ stages:
 
         steps:
           # 1. Install Agent Requirements, Allowing Executables & Create Security Reports Directory
-          - script: |
-              # Activate python virtual environment
-              python -m venv venv
-              source venv/bin/activate
-              
+          - script: |             
               # Install the Databricks CLI
               curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
-              pip install setuptools pylint yamllint bandit pip-audit safety pipreqs
-              python setup.py bdist_wheel --dist-dir packages/
-              pip install packages/*.whl 
+              pip install pylint yamllint bandit pip-audit safety pipreqs
               
               # Enable all scripts to be executable within scripts folder
               chmod +x ./templates/scripts/*
-              
-              # Create directories for security reports
-              mkdir security_reports
             displayName: "Install Agent Requirements, Allowing Executables & Create Security Reports Directory"
           
           # 2. Get and Increment Tag
@@ -52,71 +43,46 @@ stages:
             name: setEnvVars
             displayName: "Setting Environment Variables"
 
-        # # 4. Run Bandit - Source Code Scanner
-        #   - template: steps/security_scans.yml
-        #     parameters:
-        #       scanType: "bandit"
-        #       severity: "high"
-        #       inlineScript: |
-        #         bandit --ini cicd_configs/security/.bandit -r src/ -f json -o security_reports/bandit_report.json
-        
-        # # 5. Run Pip Audit - Dependency Scanner (1)
-        #   - template: steps/security_scans.yml
-        #     parameters:
-        #       scanType: "pip-audit"
-        #       inlineScript: |
-        #         pip-audit -f json -o security_reports/pip_audit_report.json
-        
-        # 6. Run Safety Scan - Dependency Scanner (2)
+        # 4. Pre Security Check Tasks
           - script: |
-              source venv/bin/activate
+              # Create a common directory for security reports
+              mkdir security_reports
+
+              # retrieve top level imports 
               pipreqs ./src --force --savepath security_reports/requirements.txt
 
-              python -m venv safety
-              source safety/bin/activate
-
-              pip install -r security_reports/requirements.txt
-              pip freeze > security_reports/full_requirements.txt
-
+              # initiate new python environment
+              python -m venv venv
               source venv/bin/activate
-              safety --key $(SAFETY_API_KEY) check -r security_reports/full_requirements.txt --save-json security_reports/results.json
 
-          # - template: steps/security_scans.yml
-          #   parameters:
-          #     scanType: "safety"
-          #     inlineScript: |
-          #       safety scan src/ --key $(SAFETY_API_KEY) --save-as json results.json
+              # install direct requirements and sub-dependencies in the isolated environment
+              pip install -r security_reports/requirements.txt
 
-          
-        # 5. Run Safety - Dependency Scanner         
-        #   - script: |
-        #       # Create the cdp-core whl in the packages directory
-        #       python setup.py bdist_wheel --dist-dir packages/
-              
-        #       # Create and activate virtual environment
-        #       python -m venv venv
-        #       source venv/bin/activate
+              # retrieve full dependencies
+              pip freeze > security_reports/full_requirements.txt
+            displayName: "Pre-Security Check Tasks"
 
-        #       # Install Safety and cdp_core
-        #       pip install safety==2.3.5
-        #       pip install packages/*.whl
-        #       pip freeze > security_reports/requirements.txt
-
-        #       # Scan the dependencies
-        #       safety check --key $(SAFETY_API_KEY) --file security_reports/requirements.txt --json > security_reports/safety_report.json
-        #       # safety --key $(SAFETY_API_KEY) scan --output json > security_reports/safety_report.json
-        #     displayName: "Run Safety Scan - Dependency Scanner"
-        #     env:
-        #       SAFETY_API_KEY: $(SAFETY_API_KEY)
-        #       SAFETY_CLI_DISABLE_LOCAL_CONFIG: "1"
-
-        # 5. Publish All Security Reports
-          - task: PublishBuildArtifacts@1
-            inputs:
-              pathToPublish: 'security_reports'
-              artifactName: 'security-reports'
-              publishLocation: 'Container'
-            displayName: "Publish Reports"
+        # 4. Run Bandit - Source Code Scanner
+          - template: steps/security_scans.yml
+            parameters:
+              scanType: "bandit"
+              severity: "high"
+              inlineScript: |
+                bandit --ini cicd_configs/security/.bandit -r src/ -f json -o security_reports/bandit_report.json
+        
+        # 5. Run Pip Audit - Dependency Scanner (1)
+          - template: steps/security_scans.yml
+            parameters:
+              scanType: "pip-audit"
+              inlineScript: |
+                pip-audit -f json -o security_reports/pip_audit_report.json
+        
+        # 6. Run Safety Check - Dependency Scanner (2)
+          - template: steps/security_scans.yml
+            parameters:
+              scanType: "safety"
+              inlineScript: | 
+                safety --key $(SAFETY_API_KEY) check -r security_reports/full_requirements.txt --save-json security_reports/safety_results.json
 
 
           # # 4. Run PyLint
