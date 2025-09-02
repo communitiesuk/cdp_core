@@ -69,10 +69,15 @@ stages:
         
         # 6. Run Safety Scan - Dependency Scanner (2)
           - script: |
-              source venv/bin/activate
-
               pipreqs ./src --force --savepath security_reports/requirements.txt
-              safety --key $(SAFETY_API_KEY) scan src/ --save-as json security_reports/results.json
+
+              python -m venv safety
+              source safety/bin/activate
+
+              pip install -r security_reports/requirements.txt
+              pip freeze > security_reports/full_requirements.txt
+
+              safety --key $(SAFETY_API_KEY) check -r security_reports/full_requirements.txt --save-as json security_reports/results.json
 
           # - template: steps/security_scans.yml
           #   parameters:
