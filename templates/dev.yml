@@ -7,7 +7,7 @@ stages:
     displayName: "DEV"
     jobs:
       # 1. Run Security Scans
-      - template: modules/jobs/security_scans.yml
+      - template: modules/jobs/security.yml
         
       - job: "Linting" 
         displayName: "Python and Yaml Lint"
