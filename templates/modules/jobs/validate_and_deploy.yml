@@ -46,7 +46,7 @@ jobs:
         displayName: "Setting Environment Variables"
 
       # 6. Validate Databricks Bundle
-      - template: ../modules/databricks_azure_cli.yml
+      - template: modules/databricks_azure_cli.yml
         parameters:
           servicePrincipal: $(SPN_DEV_NAME)
           description: "Validating Databricks Bundle"
@@ -54,7 +54,7 @@ jobs:
             databricks bundle validate --var=$(setEnvVars.BUNDLE_VAR)
 
       # 7. Deploy Databricks Bundle
-      - template: ../modules/databricks_azure_cli.yml
+      - template: modules/databricks_azure_cli.yml
         parameters:
           servicePrincipal: $(SPN_DEV_NAME)
           description: "Deploy Databricks Bundle"
