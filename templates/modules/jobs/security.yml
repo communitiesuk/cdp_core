@@ -11,7 +11,7 @@ jobs:
           pip install bandit pip-audit safety
         displayName: "Install Security Packages"
 
-    # 2. Pre Security Check Tasks
+      # 2. Pre Security Check Tasks
       - script: |
           # Exit immediately if any command fails
           set -e
@@ -34,7 +34,7 @@ jobs:
           pip freeze > security_reports/full_requirements.txt
         displayName: "Pre-Security Check Tasks"
 
-    # 5. Run Bandit - Source Code Scanner
+      # 5. Run Bandit - Source Code Scanner
       - template: security_scans.yml
         parameters:
           scanType: "bandit"
@@ -42,14 +42,14 @@ jobs:
           inlineScript: |
             bandit --ini cicd_configs/security/.bandit -r src/ -f json -o security_reports/bandit_report.json
     
-    # 6. Run Pip Audit - Dependency Scanner (1)
+      # 6. Run Pip Audit - Dependency Scanner (1)
       - template: security_scans.yml
         parameters:
           scanType: "pip-audit"
           inlineScript: |
             pip-audit -r security_reports/full_requirements.txt -f json -o security_reports/pip_audit_report.json
     
-    # 7. Run Safety Check - Dependency Scanner (2)
+      # 7. Run Safety Check - Dependency Scanner (2)
       - template: security_scans.yml
         parameters:
           scanType: "safety"
