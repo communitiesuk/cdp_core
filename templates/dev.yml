@@ -6,11 +6,11 @@ stages:
   - stage: DEV
     displayName: "DEV"
     jobs:
-      # # 1. Run Security Scans
-      # - template: modules/jobs/security.yml
+      # 1. Run Security Scans
+      - template: modules/jobs/security.yml
 
-      # # 2. Run Lint Scans
-      # - template: modules/jobs/lint.yml
+      # 2. Run Lint Scans
+      - template: modules/jobs/lint.yml
 
       # 3. Validate and Deploy Bundle
       - template: modules/jobs/validate_and_deploy.yml
