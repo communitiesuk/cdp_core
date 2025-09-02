@@ -140,6 +140,7 @@ stages:
           # 6. Validate Databricks Bundle
           - template: steps/dev_azure_cli.yml
             parameters:
+              servicePrincipal: $(SPN_DEV_NAME)
               description: "Validating Databricks Bundle"
               inlineScript: |
                 databricks bundle validate --var=$(setEnvVars.BUNDLE_VAR)
@@ -147,6 +148,7 @@ stages:
           # 7. Deploy Databricks Bundle
           - template: steps/dev_azure_cli.yml
             parameters:
+              servicePrincipal: $(SPN_DEV_NAME)
               description: "Deploy Databricks Bundle"
               inlineScript: |
                 export BUILD_VERSION=$(setTag.BUILD_VERSION)
@@ -179,6 +181,7 @@ stages:
           # 1. Run Unit Tests
           - template: steps/dev_azure_cli.yml
             parameters:
+              servicePrincipal: $(SPN_DEV_NAME)
               description: "Unit Tests"
               inlineScript: |
                 databricks bundle run jb_pytest --var=$(BUNDLE_VAR)
