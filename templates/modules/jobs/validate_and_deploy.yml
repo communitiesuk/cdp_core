@@ -9,7 +9,7 @@ jobs:
     displayName: "Validate and Deploy Bundle"
     dependsOn: 
       - SecurityChecks
-      - Linting
+      - Lint
     variables:
       - template: ../../variables.yml
         parameters:
