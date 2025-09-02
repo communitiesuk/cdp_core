@@ -1,15 +1,18 @@
 parameters:
   - name: scanType
     type: string
+  - name: inlineScript
+    type: string
   - name: severity
     type: string
     default: ''
-  - name: inlineScript
-    type: string
 
 steps:
   - script: |
+      # activate environment - new step starts a new shell session, so previous activation is no longer active
       source venv/bin/activate
+
+      # 
       fullCommand="${{ parameters.inlineScript }}"
 
       if [ "${{ parameters.scanType}}" = "bandit" ]; then

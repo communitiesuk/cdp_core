@@ -22,7 +22,7 @@ stages:
               
               # Install the Databricks CLI
               curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
-              pip install setuptools pylint yamllint bandit pip-audit
+              pip install setuptools pylint yamllint bandit pip-audit safety
               python setup.py bdist_wheel --dist-dir packages/
               pip install packages/*.whl 
               
@@ -52,20 +52,31 @@ stages:
             name: setEnvVars
             displayName: "Setting Environment Variables"
 
-        # 4. Run Bandit - Source Code Scanner
-          - template: steps/security_scans.yml
-            parameters:
-              scanType: "bandit"
-              severity: "high"
-              inlineScript: |
-                bandit --ini cicd_configs/security/.bandit -r src/ -f json -o security_reports/bandit_report.json
+        # # 4. Run Bandit - Source Code Scanner
+        #   - template: steps/security_scans.yml
+        #     parameters:
+        #       scanType: "bandit"
+        #       severity: "high"
+        #       inlineScript: |
+        #         bandit --ini cicd_configs/security/.bandit -r src/ -f json -o security_reports/bandit_report.json
         
-        # 5. Run Pip Audit - Dependency Scanner
+        # # 5. Run Pip Audit - Dependency Scanner (1)
+        #   - template: steps/security_scans.yml
+        #     parameters:
+        #       scanType: "pip-audit"
+        #       inlineScript: |
+        #         pip-audit -f json -o security_reports/pip_audit_report.json
+        
+        # 6. Run Safety Scan - Dependency Scanner (2)
+          - script: |
+              source venv/bin/activate
+              safety scan src/ --key $(SAFETY_API_KEY) --save-as json security_reports/results.json
+
           - template: steps/security_scans.yml
             parameters:
-              scanType: "pip-audit"
+              scanType: "safety"
               inlineScript: |
-                pip-audit -f json -o security_reports/pip_audit_report.json
+                safety scan src/ --key $(SAFETY_API_KEY) --save-as json results.json
 
           
         # 5. Run Safety - Dependency Scanner         
