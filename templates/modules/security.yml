@@ -1,0 +1,57 @@
+jobs: 
+  - job: SecurityChecks
+    displayName: "Source Code and Dependencies Security Checks"
+    steps:
+      # 1. Install Security Packages
+      - script: |   
+          # Exit immediately if any command fails
+          set -e
+
+          # Install security packages
+          pip install bandit pip-audit safety
+        displayName: "Install Security Packages"
+
+    # 2. Pre Security Check Tasks
+      - script: |
+          # Exit immediately if any command fails
+          set -e
+          
+          # Create a common directory for security reports
+          mkdir security_reports
+
+          # Initiate new python environment
+          python -m venv venv
+          source venv/bin/activate
+          pip install pipreqs
+          
+          # Retrieve top level imports
+          pipreqs ./src --force --savepath security_reports/requirements.txt
+
+          # Install direct requirements and sub-dependencies
+          pip install -r security_reports/requirements.txt
+
+          # Retrieve full dependencies
+          pip freeze > security_reports/full_requirements.txt
+        displayName: "Pre-Security Check Tasks"
+
+    # 5. Run Bandit - Source Code Scanner
+      - template: modules/security_scans.yml
+        parameters:
+          scanType: "bandit"
+          severity: "high"
+          inlineScript: |
+            bandit --ini cicd_configs/security/.bandit -r src/ -f json -o security_reports/bandit_report.json
+    
+    # 6. Run Pip Audit - Dependency Scanner (1)
+      - template: modules/security_scans.yml
+        parameters:
+          scanType: "pip-audit"
+          inlineScript: |
+            pip-audit -r security_reports/full_requirements.txt -f json -o security_reports/pip_audit_report.json
+    
+    # 7. Run Safety Check - Dependency Scanner (2)
+      - template: modules/security_scans.yml
+        parameters:
+          scanType: "safety"
+          inlineScript: | 
+            safety --key $(SAFETY_API_KEY) check -r security_reports/full_requirements.txt --save-json security_reports/safety_report.json

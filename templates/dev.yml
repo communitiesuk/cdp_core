@@ -6,69 +6,9 @@ stages:
   - stage: DEV
     displayName: "DEV"
     jobs:
-
-      - job: SecurityChecks
-        displayName: "Source Code and Dependencies Security Checks"
-        steps:
-          # 1. Install Agent Requirements & Allowing Executables
-          - script: |   
-              # Exit immediately if any command fails
-              set -e
-
-              # Install the Databricks CLI
-              curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
-              pip install pylint yamllint bandit pip-audit safety
-              
-              # Enable all scripts to be executable within scripts folder
-              chmod +x ./templates/scripts/*
-            displayName: "Install Agent Requirements & Allowing Executables"
-
-        # 4. Pre Security Check Tasks
-          - script: |
-              # Exit immediately if any command fails
-              set -e
-              
-              # Create a common directory for security reports
-              mkdir security_reports
-
-              # Initiate new python environment
-              python -m venv venv
-              source venv/bin/activate
-              pip install pipreqs
-              
-              # Retrieve top level imports
-              pipreqs ./src --force --savepath security_reports/requirements.txt
-
-              # Install direct requirements and sub-dependencies
-              pip install -r security_reports/requirements.txt
-
-              # Retrieve full dependencies
-              pip freeze > security_reports/full_requirements.txt
-            displayName: "Pre-Security Check Tasks"
-
-        # 5. Run Bandit - Source Code Scanner
-          - template: steps/security_scans.yml
-            parameters:
-              scanType: "bandit"
-              severity: "high"
-              inlineScript: |
-                bandit --ini cicd_configs/security/.bandit -r src/ -f json -o security_reports/bandit_report.json
+      # 1. Run Security Scans
+      - template: modules/security_scans.yml
         
-        # 6. Run Pip Audit - Dependency Scanner (1)
-          - template: steps/security_scans.yml
-            parameters:
-              scanType: "pip-audit"
-              inlineScript: |
-                pip-audit -r security_reports/full_requirements.txt -f json -o security_reports/pip_audit_report.json
-        
-        # 7. Run Safety Check - Dependency Scanner (2)
-          - template: steps/security_scans.yml
-            parameters:
-              scanType: "safety"
-              inlineScript: | 
-                safety --key $(SAFETY_API_KEY) check -r security_reports/full_requirements.txt --save-json security_reports/safety_report.json
-      
-
       - job: "Linting" 
         displayName: "Python and Yaml Lint"
         steps: 
@@ -138,7 +78,7 @@ stages:
             displayName: "Setting Environment Variables"
 
           # 6. Validate Databricks Bundle
-          - template: steps/dev_azure_cli.yml
+          - template: modules/databricks_azure_cli.yml
             parameters:
               servicePrincipal: $(SPN_DEV_NAME)
               description: "Validating Databricks Bundle"
@@ -146,7 +86,7 @@ stages:
                 databricks bundle validate --var=$(setEnvVars.BUNDLE_VAR)
 
           # 7. Deploy Databricks Bundle
-          - template: steps/dev_azure_cli.yml
+          - template: modules/databricks_azure_cli.yml
             parameters:
               servicePrincipal: $(SPN_DEV_NAME)
               description: "Deploy Databricks Bundle"
@@ -179,7 +119,7 @@ stages:
             displayName: "Install Agent Requirements"
           
           # 1. Run Unit Tests
-          - template: steps/dev_azure_cli.yml
+          - template: modules/databricks_azure_cli.yml
             parameters:
               servicePrincipal: $(SPN_DEV_NAME)
               description: "Unit Tests"
