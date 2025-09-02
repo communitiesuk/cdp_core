@@ -29,7 +29,7 @@ jobs:
         displayName: "Install Agent Requirements & Allowing Executables"
 
       # 2. Get and Increment Semantic Version Tag
-      - script: ../../scripts/bump-version.sh
+      - script: ./templates/scripts/bump-version.sh
         name: setTag
         displayName: "Get and Increment Tag"
       
