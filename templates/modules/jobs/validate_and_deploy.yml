@@ -25,7 +25,7 @@ jobs:
           curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
           
           # Enable all scripts to be executable within scripts folder
-          chmod +x templates/scripts/*
+          chmod +x ./templates/scripts/*
         displayName: "Install Agent Requirements & Allowing Executables"
 
       # 2. Get and Increment Semantic Version Tag
