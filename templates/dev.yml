@@ -78,6 +78,7 @@ stages:
               pip install -r security_reports/requirements.txt
               pip freeze > security_reports/full_requirements.txt
 
+              source venv/bin/activate
               safety --key $(SAFETY_API_KEY) check -r security_reports/full_requirements.txt --save-as json security_reports/results.json
 
           # - template: steps/security_scans.yml
