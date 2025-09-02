@@ -8,89 +8,14 @@ stages:
     dependsOn: DEV
     condition: succeeded('DEV')
     jobs:
-      - job: TEST
-        # pool: 
-        #   name: 'vmss-shared'
-        displayName: "Deploy Test"
-        variables:
-        - template: variables.yml
-          parameters:
-            environment: ${{ parameters.environment }}
-
-        steps:
-          # 1. Install All Requirements & Allowing Executables
-          - script: |
-              # Install the Databricks CLI
-              curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
-              
-              # Allow the bump-version script to be executable
-              chmod +x ./templates/scripts/bump-version.sh
-            displayName: "Install Databricks CLI & Allowing Executables"
-
-          # 2. Get and Increment Tag
-          - script: templates/scripts/bump-version.sh
-            name: setTag
-            displayName: "Get and Increment Tag"
-
-          # 3. Set Environment Variables
-          - script: |
-              set -e          
-              export WHL_FILE=cdp_core-$(setTag.BUILD_VERSION)-py3-none-any.whl
-              export SOURCE_PATH=packages/${WHL_FILE}
-              export TARGET_PATH=/Workspace/Shared/artifacts/${WHL_FILE}
-              export BUNDLE_VAR="environment=$(ENVIRONMENT),whl_path=/Workspace/Shared/artifacts/${WHL_FILE},SPN_ID=$(SPN_ID)"
-
-              echo "##vso[task.setvariable variable=SOURCE_PATH;isOutput=true]$SOURCE_PATH";
-              echo "##vso[task.setvariable variable=TARGET_PATH;isOutput=true]$TARGET_PATH";
-              echo "##vso[task.setvariable variable=BUNDLE_VAR;isOutput=true]$BUNDLE_VAR";
-            name: setEnvVars
-            displayName: "Setting Environment Variables"
-
-          # 4. Validate Databricks Bundle
-          - template: steps/test_azure_cli.yml
-            parameters:
-              description: "Validating Databricks Bundle"
-              inlineScript: |
-                databricks bundle validate --var=$(setEnvVars.BUNDLE_VAR)
-
-          # 5. Deploy Databricks Bundle
-          - template: steps/test_azure_cli.yml
-            parameters:
-              description: "Deploy Databricks Bundle"
-              inlineScript: |
-                export BUILD_VERSION=$(setTag.BUILD_VERSION)
-                databricks bundle deploy --var=$(setEnvVars.BUNDLE_VAR)
-
-          # 6. Run System Integration Tests
-          - template: steps/test_azure_cli.yml
-            parameters:
-              description: "Run System Integration Tests"
-              inlineScript: |
-                ls resources/*.yml | xargs -n 1 basename | sed 's/\.yml$//' > bundle_names.txt
-                declare -a pids
-                declare -a statuses
-                
-                for bundle_name in $(cat bundle_names.txt); do
-                  clean_name="${bundle_name%.job}"
-                  if [[ "$clean_name" == *pytest* ]]; then
-                    echo "Skipping bundle: $clean_name (contains 'pytest')"
-                    continue
-                  fi
-                  echo "Running bundle: $clean_name"
-                  databricks bundle run "$clean_name" --refresh-all --var=$(setEnvVars.BUNDLE_VAR)&
-                  pids+=($!)
-                done
-
-                # Wait for all jobs and collect exit codes
-                for pid in "${pids[@]}"; do
-                  wait $pid
-                  statuses+=($?)
-                done
-
-                # Check if any job failed
-                for status in "${statuses[@]}"; do
-                  if [[ $status -ne 0 ]]; then
-                    echo "One or more bundle runs failed."
-                    exit 1
-                  fi
-                done
+      # 1. Validate and Deploy Bundle
+      - template: modules/jobs/validate_and_deploy.yml
+        parameters:
+          servicePrincipal: $(SPN_TEST_NAME)
+          environment: ${{ parameters.environment }}
+      
+      # 2. Run Integration Tests
+      - template: modules/jobs/system_integration_tests.yml
+        parameters:
+          servicePrincipal: $(SPN_TEST_NAME)
+          environment: ${{ parameters.environment }}
