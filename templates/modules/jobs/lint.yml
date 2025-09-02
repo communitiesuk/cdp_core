@@ -1,0 +1,22 @@
+jobs: 
+  - job: Lint
+    displayName: "Python and Yaml Lint"
+    steps: 
+      # 1. Install Agent Requirements
+      - script: |   
+          # Exit immediately if any command fails
+          set -e
+      
+          # Install lint requirements 
+          pip install pylint yamllint 
+        displayName: "Install Agent Requirements"
+
+      # 2. Run PyLint
+      - script: |
+          pylint src/ --rcfile=cicd_configs/lint/.pylintrc --exit-zero
+        displayName: "Run PyLint"
+      
+      # 3. Run YamlLint
+      - script: |
+          yamllint -c cicd_configs/lint/.yamllint . || true
+        displayName: "Run YamlLint"
