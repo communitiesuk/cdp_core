@@ -23,10 +23,10 @@ stages:
     parameters:
       environment: 'development'
 
-  # ############################## TEST Stage #########################################
-  # - template: templates/test.yml
-  #   parameters:
-  #     environment: 'test'
+  ############################## TEST Stage ########################################
+  - template: templates/test.yml
+    parameters:
+      environment: 'test'
 
   # ############################## MANUAL Approval Stage ##############################
   # - stage: ProdApproval
