@@ -45,11 +45,14 @@ stages:
 
         # 4. Pre Security Check Tasks
           - script: |
+              # Exit immediately if any command fails
+              set -e
+              
               # Create a common directory for security reports
               mkdir security_reports
 
               # retrieve top level imports 
-              pipreqs ./src --force --savepath security_reports/requirements.txt
+              pipreqs ./src --force --savepath security_reports/requirements.txt --clean
 
               # initiate new python environment
               python -m venv venv
