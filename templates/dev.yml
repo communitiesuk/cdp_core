@@ -70,13 +70,15 @@ stages:
         # 6. Run Safety Scan - Dependency Scanner (2)
           - script: |
               source venv/bin/activate
+              echo $(SAFETY_API_KEY)
+              echo TEST
               safety scan src/ --key $(SAFETY_API_KEY) --save-as json security_reports/results.json
 
-          - template: steps/security_scans.yml
-            parameters:
-              scanType: "safety"
-              inlineScript: |
-                safety scan src/ --key $(SAFETY_API_KEY) --save-as json results.json
+          # - template: steps/security_scans.yml
+          #   parameters:
+          #     scanType: "safety"
+          #     inlineScript: |
+          #       safety scan src/ --key $(SAFETY_API_KEY) --save-as json results.json
 
           
         # 5. Run Safety - Dependency Scanner         
