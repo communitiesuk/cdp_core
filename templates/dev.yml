@@ -22,7 +22,7 @@ stages:
               
               # Install the Databricks CLI
               curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
-              pip install setuptools pylint yamllint bandit pip-audit safety
+              pip install setuptools pylint yamllint bandit pip-audit safety pipreqs
               python setup.py bdist_wheel --dist-dir packages/
               pip install packages/*.whl 
               
@@ -70,8 +70,8 @@ stages:
         # 6. Run Safety Scan - Dependency Scanner (2)
           - script: |
               source venv/bin/activate
-              echo $(SAFETY_API_KEY)
-              echo TEST
+
+              pipreqs ./src --force --savepath security_reports/requirements.txt
               safety --key $(SAFETY_API_KEY) scan src/ --save-as json security_reports/results.json
 
           # - template: steps/security_scans.yml
