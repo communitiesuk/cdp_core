@@ -72,7 +72,7 @@ stages:
               source venv/bin/activate
               echo $(SAFETY_API_KEY)
               echo TEST
-              safety scan src/ --key $(SAFETY_API_KEY) --save-as json security_reports/results.json
+              safety --key $(SAFETY_API_KEY) scan src/ --save-as json security_reports/results.json
 
           # - template: steps/security_scans.yml
           #   parameters:
