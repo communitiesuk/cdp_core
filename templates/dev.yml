@@ -155,19 +155,24 @@ stages:
               inlineScript: |
                 export BUILD_VERSION=$(setTag.BUILD_VERSION)
                 databricks bundle deploy --var=$(setEnvVars.BUNDLE_VAR)
-          
-          # # 8. Run Unit Tests
-          # - template: steps/dev_azure_cli.yml
-          #   parameters:
-          #     description: "Unit Tests"
-          #     inlineScript: |
-          #       databricks bundle run jb_pytest --var=$(setEnvVars.BUNDLE_VAR)
-          
-          # # 9. Copy whl file to Shared Area 
-          # - template: steps/dev_azure_cli.yml
-          #   parameters:
-          #     description: "Copying whl file to Shared Area"
-          #     inlineScript: |
-          #       databricks workspace mkdirs /Shared/artifacts
-          #       databricks workspace import --overwrite --format "AUTO" --file $(setEnvVars.SOURCE_PATH) $(setEnvVars.TARGET_PATH)
-                
+
+                databricks workspace mkdirs /Shared/artifacts
+                databricks workspace import --overwrite --format "AUTO" --file $(setEnvVars.SOURCE_PATH) $(setEnvVars.TARGET_PATH)
+
+        
+      - job: "UnitTest"
+        displayName: "Unit Tests"
+        dependsOn: 
+          - ValidateAndDeploy
+        variables:
+          - template: variables.yml
+            parameters:
+              environment: ${{ parameters.environment }}
+        steps:
+          # 1. Run Unit Tests
+          - template: steps/dev_azure_cli.yml
+            parameters:
+              description: "Unit Tests"
+              inlineScript: |
+                databricks bundle run jb_pytest --var=$(setEnvVars.BUNDLE_VAR)
+             
