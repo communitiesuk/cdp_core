@@ -5,7 +5,7 @@ parameters:
     type: string
 
 jobs: 
-  - job: Lint
+  - job: UnitTests
     displayName: "Unit Tests"
     dependsOn: 
       - ValidateAndDeploy
