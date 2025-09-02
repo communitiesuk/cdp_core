@@ -14,7 +14,7 @@ stages:
               environment: ${{ parameters.environment }}
 
         steps:
-          # 1. Install Agent Requirements, Allowing Executables & Create Security Reports Directory
+          # 1. Install Agent Requirements & Allowing Executables
           - script: |             
               # Install the Databricks CLI
               curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
@@ -22,7 +22,7 @@ stages:
               
               # Enable all scripts to be executable within scripts folder
               chmod +x ./templates/scripts/*
-            displayName: "Install Agent Requirements, Allowing Executables & Create Security Reports Directory"
+            displayName: "Install Agent Requirements & Allowing Executables"
           
           # 2. Get and Increment Tag
           - script: templates/scripts/bump-version.sh
