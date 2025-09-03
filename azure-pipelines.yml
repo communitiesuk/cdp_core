@@ -37,9 +37,9 @@ stages:
     condition: succeeded('TEST')
     displayName: "APPROVAL GATE"
     jobs:
-      -template: templates/modules/jobs/approval_gate.yml
-      parameters:
-        notifyUsers: ${{ parameters.notifyUsers }}
+      - template: templates/modules/jobs/approval_gate.yml
+        parameters:
+          notifyUsers: ${{ parameters.notifyUsers }}
 
   ############################## PROD Stage ########################################
   - template: templates/prod.yml
