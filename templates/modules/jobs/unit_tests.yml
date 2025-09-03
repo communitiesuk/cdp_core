@@ -16,6 +16,7 @@ jobs:
         parameters:
           environment: ${{ parameters.environment }}
     steps:
+      # 1. Install Databricks CLI
       - script: |   
           # Exit immediately if any command fails
           set -e
@@ -24,10 +25,10 @@ jobs:
           curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
         displayName: "Install Agent Requirements"
       
-      # 1. Run Unit Tests
-      # - template: ../databricks_azure_cli.yml
-      #   parameters:
-      #     servicePrincipal: ${{ parameters.servicePrincipal }}
-      #     description: "Unit Tests"
-      #     inlineScript: |
-      #       databricks bundle run jb_pytest --var=$(BUNDLE_VAR)
+      # 2. Run Unit Tests
+      - template: ../databricks_azure_cli.yml
+        parameters:
+          servicePrincipal: ${{ parameters.servicePrincipal }}
+          description: "Unit Tests"
+          inlineScript: |
+            databricks bundle run jb_pytest --var=$(BUNDLE_VAR)
