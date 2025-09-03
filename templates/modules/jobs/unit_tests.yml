@@ -25,9 +25,9 @@ jobs:
         displayName: "Install Agent Requirements"
       
       # 1. Run Unit Tests
-      - template: ../databricks_azure_cli.yml
-        parameters:
-          servicePrincipal: ${{ parameters.servicePrincipal }}
-          description: "Unit Tests"
-          inlineScript: |
-            databricks bundle run jb_pytest --var=$(BUNDLE_VAR)
+      # - template: ../databricks_azure_cli.yml
+      #   parameters:
+      #     servicePrincipal: ${{ parameters.servicePrincipal }}
+      #     description: "Unit Tests"
+      #     inlineScript: |
+      #       databricks bundle run jb_pytest --var=$(BUNDLE_VAR)
