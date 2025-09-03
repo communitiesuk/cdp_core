@@ -14,8 +14,9 @@ parameters:
     type: string
     default: 'Release notes for the production deployment.'
   - name: notifyUsers
-    displayName: 'Notify Users'
+    displayName: 'Notify Users - one email per line'
     type: object
+    default: []
 
 variables:
   - group: cdp-core-pipeline-global-vars 
@@ -38,7 +39,7 @@ stages:
     jobs:
       -template: templates/modules/jobs/approval_gate.yml
       parameters:
-          notifyUsers: ${{ parameters.notifyUsers }}
+        notifyUsers: ${{ parameters.notifyUsers }}
 
   ############################## PROD Stage ########################################
   - template: templates/prod.yml

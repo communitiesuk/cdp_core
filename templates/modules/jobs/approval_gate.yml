@@ -1,6 +1,7 @@
 parameters:
   - name: notifyUsers
-  - type: object
+    type: object
+    default: []
 
 jobs: 
   - job: WaitForApproval
