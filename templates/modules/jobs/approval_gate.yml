@@ -1,0 +1,16 @@
+parameters:
+  - name: notifyUsers
+    type: object
+    default: []
+
+jobs: 
+  - job: WaitForApproval
+    displayName: "Wait for Prod Approval"
+    pool: 'server'
+    steps:
+      - task: ManualValidation@0
+        inputs:
+          instructions: 'Please approve the deployment to production.'
+          onTimeout: 'reject'
+          timeoutInMinutes: 180
+          notifyUsers: ${{ parameters.notifyUsers }}

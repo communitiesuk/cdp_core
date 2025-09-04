@@ -1,8 +1,10 @@
 from pyspark.sql.types import StringType, IntegerType
 
 # catalogs
-CATALOG_SLT1_DEV = "`catalog-sbx-uks-corecdp-001`"
-
+CATALOG_SLT1_SBX = "`catalog-sbx-uks-corecdp-001`"
+CATALOG_SLT1_DEV = "`catalog-sbx-uks-corecdp-001`" # for development purposes
+CATALOG_SLT1_TEST = "`catalog-test-uks-corecdp-001`"
+CATALOG_SLT1_PROD = "`catalog-prod-uks-corecdp-001`"
 
 # schemas
 SCHEMA_BRONZE = "bronze"

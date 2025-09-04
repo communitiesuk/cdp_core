@@ -1,0 +1,73 @@
+parameters: 
+  - name: servicePrincipal
+    type: string
+  - name: environment
+    type: string
+
+jobs: 
+  - job: ValidateAndDeploy
+    displayName: "Validate and Deploy Bundle"
+    ${{ if eq(parameters.environment, 'development') }}:
+      dependsOn: 
+        - SecurityChecks
+        - Lint
+    variables:
+      - template: ../../variables.yml
+        parameters:
+          environment: ${{ parameters.environment }}
+    
+    steps:
+      # 1. Install Agent Requirements & Allowing Executables
+      - script: |   
+          # Exit immediately if any command fails
+          set -e
+
+          # Install the Databricks CLI
+          curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
+          
+          # Enable all scripts to be executable within scripts folder
+          chmod +x ./templates/scripts/*
+        displayName: "Install Agent Requirements & Allowing Executables"
+
+      # 2. Get and Increment Semantic Version Tag
+      - script: ./templates/scripts/bump-version.sh
+        name: setTag
+        displayName: "Get and Increment Tag"
+      
+      # 3. Generate Environment Variables
+      - script: |
+          # Exit immediately if any command fails
+          set -e    
+
+          # Generate all required variables      
+          export WHL_FILE=cdp_core-$(setTag.BUILD_VERSION)-py3-none-any.whl
+          export SOURCE_PATH=packages/${WHL_FILE}
+          export TARGET_PATH=/Workspace/Shared/artifacts/${WHL_FILE}
+          export BUNDLE_VAR="environment=$(ENVIRONMENT),whl_path=/Workspace/Shared/artifacts/${WHL_FILE},SPN_ID=$(SPN_ID)"
+
+          # Persist variables 
+          echo "##vso[task.setvariable variable=SOURCE_PATH;isOutput=true]$SOURCE_PATH";
+          echo "##vso[task.setvariable variable=TARGET_PATH;isOutput=true]$TARGET_PATH";
+          echo "##vso[task.setvariable variable=BUNDLE_VAR;isOutput=true]$BUNDLE_VAR";
+        name: setEnvVars
+        displayName: "Setting Environment Variables"
+
+      # 6. Validate Databricks Bundle
+      - template: ../databricks_azure_cli.yml
+        parameters:
+          servicePrincipal: ${{ parameters.servicePrincipal }}
+          description: "Validating Databricks Bundle"
+          inlineScript: |
+            databricks bundle validate --var=$(setEnvVars.BUNDLE_VAR)
+
+      # 7. Deploy Databricks Bundle
+      - template: ../databricks_azure_cli.yml
+        parameters:
+          servicePrincipal: ${{ parameters.servicePrincipal }}
+          description: "Deploy Databricks Bundle"
+          inlineScript: |
+            export BUILD_VERSION=$(setTag.BUILD_VERSION)
+            databricks bundle deploy --var=$(setEnvVars.BUNDLE_VAR)
+
+            databricks workspace mkdirs /Shared/artifacts
+            databricks workspace import --overwrite --format "AUTO" --file $(setEnvVars.SOURCE_PATH) $(setEnvVars.TARGET_PATH)

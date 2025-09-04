@@ -1,1 +1,10 @@
 .venv*/
+.databricks
+build
+dist
+packages
+logs
+fixtures
+cdp_core.egg-info
+src/cdp_core.egg-info
+src/cdp_core/cdp_core.egg-info

@@ -6,44 +6,11 @@ stages:
   - stage: PROD
     displayName: "PROD"
     dependsOn: 
-      - TEST
       - ProdApproval
     condition: succeeded('TEST')
     jobs:
-      - job: PROD
-        # pool: 
-        #   name: 'vmss-shared'
-        displayName: "Deploy Prod"
-        variables:
-        - template: variables.yml
-          parameters:
-            environment: ${{ parameters.environment }}
-
-        steps:
-          # 1. Install All Requirements
-          - script: |
-              echo $(DATABRICKS_HOST)
-              curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
-            displayName: "Install Databricks CLI"
-
-          # 2. Set Environment Variables
-          - script: |
-              set -e
-              export DATABRICKS_HOST=$(DATABRICKS_HOST)
-              export ENVIRONMENT=$(ENVIRONMENT)
-            displayName: "Setting Environment Variables"
-
-          # 3. Validate Databricks Bundle
-          - template: steps/prod_azure_cli.yml
-            parameters:
-              description: "Validating Databricks Bundle"
-              inlineScript: |
-                databricks bundle validate --var="environment=$(ENVIRONMENT)"
-
-          # 4. Deploy Databricks Bundle
-          - template: steps/prod_azure_cli.yml
-            parameters:
-              description: "Deploy Databricks Bundle"
-              inlineScript: |
-                databricks bundle deploy --var="environment=$(ENVIRONMENT)"
-
+      # 1. Validate and Deploy Bundle
+      - template: modules/jobs/validate_and_deploy.yml
+        parameters:
+          servicePrincipal: $(SPN_PROD_NAME)
+          environment: ${{ parameters.environment }}

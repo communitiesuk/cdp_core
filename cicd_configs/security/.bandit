@@ -1,0 +1,6 @@
+# FILE: .bandit
+[bandit]
+targets=src/cdp_core
+exclude = src/cdp_core/address_matcher
+# skips = B101,B102
+# tests = B201,B202

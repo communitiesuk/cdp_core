@@ -1,0 +1,38 @@
+parameters:
+  - name: scanType
+    type: string
+  - name: inlineScript
+    type: string
+  - name: severity
+    type: string
+    default: ''
+
+# TODO - fail on severity?
+steps:
+  - script: | 
+      fullCommand="${{ parameters.inlineScript }}"
+
+      if [ "${{ parameters.scanType}}" = "bandit" ]; then
+        fullCommand="${{ parameters.inlineScript }} --exit-zero"
+      fi
+
+      eval $fullCommand
+    displayName: "Run ${{ parameters.scanType }} Scan"
+
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathToPublish: 'security_reports'
+      artifactName: 'security-reports'
+      publishLocation: 'Container'
+    displayName: "Publish ${{ parameters.scanType }} Scan Report"
+
+  - script: |
+      source venv/bin/activate
+      fullCommand="${{ parameters.inlineScript }} --severity-level ${{ parameters.severity }}"
+
+      if [[ "${{ parameters.scanType}}" = "pip-audit" || "${{ parameters.scanType}}" = "safety"  ]]; then
+        fullCommand="${{ parameters.inlineScript }}"
+      fi
+
+      eval $fullCommand  
+    displayName: "Run ${{ parameters.scanType }} - Fail on Severity Level"

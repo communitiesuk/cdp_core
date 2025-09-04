@@ -8,73 +8,14 @@ stages:
     dependsOn: DEV
     condition: succeeded('DEV')
     jobs:
-      - job: TEST
-        # pool: 
-        #   name: 'vmss-shared'
-        displayName: "Deploy Test"
-        variables:
-        - template: variables.yml
-          parameters:
-            environment: ${{ parameters.environment }}
-
-        steps:
-          # 1. Install All Requirements
-          - script: |
-              echo $(DATABRICKS_HOST)
-              curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
-            displayName: "Install Databricks CLI"
-
-          # 2. Set Environment Variables
-          - script: |
-              set -e
-              export DATABRICKS_HOST=$(DATABRICKS_HOST)
-              export ENVIRONMENT=$(ENVIRONMENT)
-            displayName: "Setting Environment Variables"
-
-          # 3. Validate Databricks Bundle
-          - template: steps/test_azure_cli.yml
-            parameters:
-              description: "Validating Databricks Bundle"
-              inlineScript: |
-                databricks bundle validate --var="environment=$(ENVIRONMENT)"
-
-          # 4. Deploy Databricks Bundle
-          - template: steps/test_azure_cli.yml
-            parameters:
-              description: "Deploy Databricks Bundle"
-              inlineScript: |
-                databricks bundle deploy --var="environment=$(ENVIRONMENT)"
-
-          # 5. Run System Integration Tests
-          - template: steps/test_azure_cli.yml
-            parameters:
-              description: "Run System Integration Tests"
-              inlineScript: |
-                ls resources/*.yml | xargs -n 1 basename | sed 's/\.yml$//' > bundle_names.txt
-                declare -a pids
-                declare -a statuses
-                
-                for bundle_name in $(cat bundle_names.txt); do
-                  clean_name="${bundle_name%.job}"
-                  if [[ "$clean_name" == *pytest* ]]; then
-                    echo "Skipping bundle: $clean_name (contains 'pytest')"
-                    continue
-                  fi
-                  echo "Running bundle: $clean_name"
-                  databricks bundle run "$clean_name" --refresh-all --var="environment=$(ENVIRONMENT)"&
-                  pids+=($!)
-                done
-
-                # Wait for all jobs and collect exit codes
-                for pid in "${pids[@]}"; do
-                  wait $pid
-                  statuses+=($?)
-                done
-
-                # Check if any job failed
-                for status in "${statuses[@]}"; do
-                  if [[ $status -ne 0 ]]; then
-                    echo "One or more bundle runs failed."
-                    exit 1
-                  fi
-                done
+      # 1. Validate and Deploy Bundle
+      - template: modules/jobs/validate_and_deploy.yml
+        parameters:
+          servicePrincipal: $(SPN_TEST_NAME)
+          environment: ${{ parameters.environment }}
+      
+      # 2. Run Integration Tests
+      - template: modules/jobs/system_integration_tests.yml
+        parameters:
+          servicePrincipal: $(SPN_TEST_NAME)
+          environment: ${{ parameters.environment }}

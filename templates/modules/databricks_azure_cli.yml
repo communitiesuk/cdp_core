@@ -1,4 +1,6 @@
 parameters:
+  - name: servicePrincipal
+    type: string
   - name: description
     type: string
   - name: inlineScript
@@ -9,7 +11,7 @@ steps:
     condition: succeeded()
     displayName: ${{ parameters.description }}
     inputs:
-      azureSubscription: $(SPN_TEST_ID) # BUG - https://github.com/microsoft/azure-pipelines-tasks/issues/17218
+      azureSubscription: ${{ parameters.servicePrincipal }} # BUG - https://github.com/microsoft/azure-pipelines-tasks/issues/17218
       useGlobalConfig: true
       scriptType: bash
       scriptLocation: inlineScript

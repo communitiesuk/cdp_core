@@ -9,6 +9,17 @@ include:
 variables:
   environment:
     description: "Environment to deploy the bundle to"
+  whl_path: 
+    description: "Path to the wheel file in the Databricks workspace"
+  SPN_ID:
+    description: "Service Principal ID for the Databricks workspace"
+
+artifacts:
+  default:
+    type: whl
+    build: python setup.py bdist_wheel --dist-dir packages/
+    files: 
+      - source: packages/*.whl
 
 targets:
   ${var.environment}:

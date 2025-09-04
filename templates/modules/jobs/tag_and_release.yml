@@ -1,0 +1,42 @@
+jobs: 
+  - job: TagAndRelease
+    displayName: "Tag and Release"
+    steps:
+      # 1. Checkout and persist git credentials
+      - checkout: self
+        persistCredentials: true
+
+      # 2. Allowing Executables
+      - script: |
+          # Allow the bump-version script to be executable
+          chmod +x ./templates/scripts/bump-version.sh
+        displayName: "Allowing Executables"
+
+      # 2. Get and Increment Tag
+      - script: templates/scripts/bump-version.sh
+        name: setTag
+        displayName: "Get and Increment Tag"
+      
+      # 3. Set Git Tag and Push
+      - script: |
+          TAG_NAME=$(setTag.BUILD_VERSION)
+
+          git config --global user.email "you@example.com"
+          git config --global user.name "Your Name"
+          
+          git tag -a $TAG_NAME -m "Release for production deployment"
+          git push origin $TAG_NAME
+        displayName: "setTag"
+    
+    # 4. Create GitHub Release
+      - task: GitHubRelease@1
+        displayName: "Create GitHub Release"
+        inputs:
+          gitHubConnection: $(GITHUB_ID)
+          repositoryName: $(REPOSITORY_NAME)
+          tagSource: 'userSpecifiedTag'
+          tag: $(setTag.BUILD_VERSION)
+          releaseNotesSource: 'inline'
+          releaseNotesInline: ${{ parameters.releaseNotes }}
+          isDraft: false
+          isPrerelease: false
