@@ -13,4 +13,4 @@ jobs:
           instructions: 'Please approve the deployment to production.'
           onTimeout: 'reject'
           timeoutInMinutes: 180
-          notifyUsers: ${{ parameters.notifyUsers }}
+          # notifyUsers: ${{ parameters.notifyUsers }}
