@@ -22,7 +22,17 @@ artifacts:
       - source: packages/*.whl
 
 targets:
-  ${var.environment}:
-    mode: ${var.environment}
+  # ${var.environment}:
+  #   mode: ${var.environment}
+  #   workspace:
+  #     root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
+  development:
+    mode: development
     workspace:
       root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
+    presets:
+      name_prefix: ${workspace.current_user.short_name}-${bundle.git.branch}-
+      pipelines_development: true
+      trigger_pause_status: PAUSED
+      jobs_max_concurrent_runs: 10
+  
