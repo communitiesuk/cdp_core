@@ -8,7 +8,8 @@ resources:
       tasks:
         - task_key: bronze_lad
           spark_python_task:
-            python_file: /Workspace/Users/${var.SPN_ID}/.bundle/cdp_core/${var.environment}/files/src/cdp_core/transform/bronze/bronze_arcgis.py
+            python_file: /Workspace/Users/${var.SPN_ID}/.bundle/cdp_core/files/src/cdp_core/transform/bronze/bronze_arcgis.py
+            # python_file: /Workspace/Users/${var.SPN_ID}/.bundle/cdp_core/${var.environment}/files/src/cdp_core/transform/bronze/bronze_arcgis.py
             parameters:
               - --dataset
               - "{{job.parameters.dataset}}"
@@ -17,7 +18,8 @@ resources:
           depends_on:
             - task_key: bronze_lad
           spark_python_task:
-            python_file: /Workspace/Users/${var.SPN_ID}/.bundle/cdp_core/${var.environment}/files/src/cdp_core/transform/silver/silver_arcgis_lad_apr_2023_uk_nc.py
+            python_file: /Workspace/Users/${var.SPN_ID}/.bundle/cdp_core/files/src/cdp_core/transform/silver/silver_arcgis_lad_apr_2023_uk_nc.py
+            # python_file: /Workspace/Users/${var.SPN_ID}/.bundle/cdp_core/${var.environment}/files/src/cdp_core/transform/silver/silver_arcgis_lad_apr_2023_uk_nc.py
             parameters:
               - --dataset
               - "{{job.parameters.dataset}}"

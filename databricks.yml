@@ -7,8 +7,8 @@ include:
   - resources/*/*.yml
 
 variables:
-  environment:
-    description: "Environment to deploy the bundle to"
+  # environment:
+  #   description: "Environment to deploy the bundle to"
   whl_path: 
     description: "Path to the wheel file in the Databricks workspace"
   SPN_ID:
@@ -26,12 +26,13 @@ targets:
   #   mode: ${var.environment}
   #   workspace:
   #     root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
-  development:
+  user:
     mode: development
+    default: true
     workspace:
       root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
     presets:
-      name_prefix: ${workspace.current_user.short_name}-${bundle.git.branch}-
+      name_prefix: "[${workspace.current_user.short_name}][${bundle.git.branch}]-"
       pipelines_development: true
       trigger_pause_status: PAUSED
       jobs_max_concurrent_runs: 10
