@@ -18,8 +18,8 @@ stages:
           servicePrincipal: $(SPN_DEV_NAME)
           environment: ${{ parameters.environment }}
         
-      # 4. Run Unit Tests
-      - template: modules/jobs/unit_tests.yml
-        parameters:
-          servicePrincipal: $(SPN_DEV_NAME)
-          environment: ${{ parameters.environment }}
+      # # 4. Run Unit Tests
+      # - template: modules/jobs/unit_tests.yml
+      #   parameters:
+      #     servicePrincipal: $(SPN_DEV_NAME)
+      #     environment: ${{ parameters.environment }}

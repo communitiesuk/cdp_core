@@ -32,23 +32,23 @@ stages:
     parameters:
       environment: 'test'
 
-  ############################## MANUAL Approval Stage #############################
-  - stage: ProdApproval
-    condition: succeeded('TEST')
-    displayName: "APPROVAL GATE"
-    jobs:
-      - template: templates/modules/jobs/approval_gate.yml
-        parameters:
-          notifyUsers: ${{ parameters.notifyUsers }}
+  # ############################## MANUAL Approval Stage #############################
+  # - stage: ProdApproval
+  #   condition: succeeded('TEST')
+  #   displayName: "APPROVAL GATE"
+  #   jobs:
+  #     - template: templates/modules/jobs/approval_gate.yml
+  #       parameters:
+  #         notifyUsers: ${{ parameters.notifyUsers }}
 
-  ############################## PROD Stage ########################################
-  - template: templates/prod.yml
-    parameters:
-      environment: 'production'
+  # ############################## PROD Stage ########################################
+  # - template: templates/prod.yml
+  #   parameters:
+  #     environment: 'production'
   
-  ############################## RELEASE Stage #####################################
-  - stage: TagAndRelease
-    displayName: "TAG & RELEASE"
-    condition: succeeded('PROD') 
-    jobs:
-      - template: templates/modules/jobs/tag_and_release.yml
+  # ############################## RELEASE Stage #####################################
+  # - stage: TagAndRelease
+  #   displayName: "TAG & RELEASE"
+  #   condition: succeeded('PROD') 
+  #   jobs:
+  #     - template: templates/modules/jobs/tag_and_release.yml

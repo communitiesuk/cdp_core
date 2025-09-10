@@ -16,6 +16,9 @@ variables:
   SPN_ID:
     description: "Service Principal ID for the Databricks workspace"
     default: ''
+  host:
+    description: "Databricks host defaults to the DEV one"
+    default: https://adb-6686411646094.14.azuredatabricks.net/
 
 artifacts:
   default:
@@ -43,7 +46,7 @@ targets:
     mode: production
     workspace:
       root_path: /Workspace/Users/${var.SPN_ID}/.bundle/${bundle.name}
-      host: https://adb-1036309900456578.18.azuredatabricks.net/
+      host: ${var.host}
     # permissions:
     #   - service_principal_name: ${var.SPN_ID}
     #     level: "CAN_RUN"
@@ -51,6 +54,19 @@ targets:
       service_principal_name: ${var.SPN_ID}
     presets:
       # name_prefix: "[main]"
+      name_prefix: "[${bundle.git.branch}]"
+      pipelines_development: true
+      trigger_pause_status: PAUSED
+      jobs_max_concurrent_runs: 10
+  
+  test:
+    mode: production
+    workspace:
+      root_path: /Workspace/Users/${var.SPN_ID}/.bundle/${bundle.name}
+      host: ${var.host}
+    run_as:
+      service_principal_name: ${var.SPN_ID}
+    presets:
       name_prefix: "[${bundle.git.branch}]"
       pipelines_development: true
       trigger_pause_status: PAUSED
