@@ -9,7 +9,7 @@ include:
 variables:
   environment:
     description: "Environment to deploy the bundle to"
-    default: ''
+    default: 'user'
   whl_path: 
     description: "Path to the wheel file in the Databricks workspace"
     default: ''
@@ -18,7 +18,7 @@ variables:
     default: ''
   policy_id:
     description: "Compute policy"
-    default: ''
+    default: '00164AA6162B137A'
   data_engineering_group:
     description: "Group"
     default: ""
@@ -62,7 +62,6 @@ targets:
       service_principal_name: ${var.SPN_ID}
     presets:
       name_prefix: "[main]"
-      # name_prefix: "[${bundle.git.branch}]"
       pipelines_development: true
       trigger_pause_status: PAUSED
       jobs_max_concurrent_runs: 10
@@ -81,7 +80,6 @@ targets:
         level: "CAN_MANAGE"
     presets:
       name_prefix: "[main]"
-      # name_prefix: "[${bundle.git.branch}]"
       pipelines_development: true
       trigger_pause_status: PAUSED
       jobs_max_concurrent_runs: 10
