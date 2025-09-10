@@ -1,0 +1,101 @@
+trigger: none
+pool:
+  name: 'vmss-shared'
+variables:
+- group: kv-tst-core-cdp-vars
+
+# azure-pipelines.yml
+# Run 1: discovers secret names and re-queues itself.
+# Run 2: uses those names to expand $(secret) and push to Key Vault.
+
+parameters:
+- name: secretNamesJson
+  type: object
+  default: []                   # The first run will be empty → discover mode
+
+- name: vgName
+  type: string
+  default: 'kv-tst-core-cdp-vars'           # Your variable group name
+
+- name: kvName
+  type: string
+  default: 'kvcorecdp4143'    # Your Key Vault name
+
+# --- Stage 1: Discover (only when parameter is empty) ---
+stages:
+- stage: Discover
+  displayName: "Discover secret variable names"
+  condition: ${{ eq(length(parameters.secretNamesJson), 0) }}
+  jobs:
+  - job: Discover
+    displayName: "Find secrets in variable group and self-queue"
+    steps:
+    - checkout: self
+
+    - task: AzureCLI@2
+      displayName: "List secret names and queue this pipeline again"
+      env:
+        AZURE_DEVOPS_EXT_PAT: $(System.AccessToken)
+      inputs:
+        azureSubscription: 'SPN-SP-sub-tst-ctdpslt001-001'
+        scriptType: pscore
+        scriptLocation: inlineScript
+        inlineScript: |
+          az devops configure --defaults organization="$(System.CollectionUri)" project="$(System.TeamProject)"
+
+          # Get variable group id
+          $gid = az pipelines variable-group list `
+            --group-name "${{ parameters.vgName }}" `
+            --query "[0].id" -o tsv
+
+          if (-not $gid) {
+            Write-Error "Variable group '${{ parameters.vgName }}' not found."
+            exit 1
+          }
+
+          # List variables and select only secret names
+          $vars = az pipelines variable-group variable list --group-id $gid | ConvertFrom-Json
+          $names = @()
+          foreach ($p in $vars.PSObject.Properties) {
+            if ($p.Value.isSecret) { $names += $p.Name }
+          }
+
+          if ($names.Count -eq 0) {
+            Write-Host "No secret variables found; nothing to do."
+            exit 0
+          }
+
+          $json = ($names | ConvertTo-Json -Compress)
+          Write-Host "Discovered secret names: $json"
+
+          # Queue THIS pipeline again, passing the names as a parameter
+          $pipelineId = $(System.DefinitionId)
+          az pipelines run --id $pipelineId --parameters secretNamesJson="$json" vgName="${{ parameters.vgName }}" kvName="${{ parameters.kvName }}"
+
+# --- Stage 2: Expand (only when parameter is populated) ---
+- stage: Expand
+  displayName: "Expand secrets and push to Key Vault"
+  condition: ${{ gt(length(parameters.secretNamesJson), 0) }}
+  variables:
+  - group: ${{ parameters.vgName }}     # Attach the variable group here
+
+  jobs:
+  - job: PushToKeyVault
+    displayName: "Write secrets to ${{ parameters.kvName }}"
+    steps:
+    - checkout: none
+
+    # Loop happens at COMPILE TIME; emits literal $(secretName) references
+    - ${{ each s in parameters.secretNamesJson }}:
+      - task: AzureCLI@2
+        displayName: "Push ${{ s }} to Key Vault"
+        inputs:
+          azureSubscription: 'SP-CDX23'
+          scriptType: pscore
+          scriptLocation: inlineScript
+          inlineScript: |
+            az keyvault secret set `
+              --vault-name '${{ parameters.kvName }}' `
+              --name "${{ replace(s, '_', '-') }}" `
+              --value '$(${{ s }})' `
+              --output none
