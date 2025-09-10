@@ -19,6 +19,9 @@ variables:
   policy_id:
     description: "Compute policy"
     default: ''
+  data_engineering_group:
+    description: "Group"
+    default: ""
   # host:
   #   description: "Databricks host defaults to the DEV one"
   #   default: https://adb-6686411646094.14.azuredatabricks.net/
@@ -51,13 +54,15 @@ targets:
       root_path: /Workspace/Users/${var.SPN_ID}/.bundle/${bundle.name}
       host: https://adb-1036309900456578.18.azuredatabricks.net/
     permissions:
-      - group_name: "TST-SG-CDP-Core-DataEngineerD"
-        level: "CAN_VIEW"
+      - group_name: ${var.DataEngineeringGroup}
+        level: "CAN_RUN"
+      # - group_name: "TST-SG-CDP-Core-DataEngineerD"
+      #   level: "CAN_VIEW"
     run_as:
       service_principal_name: ${var.SPN_ID}
     presets:
-      # name_prefix: "[main]"
-      name_prefix: "[${bundle.git.branch}]"
+      name_prefix: "[main]"
+      # name_prefix: "[${bundle.git.branch}]"
       pipelines_development: true
       trigger_pause_status: PAUSED
       jobs_max_concurrent_runs: 10
@@ -70,7 +75,8 @@ targets:
     run_as:
       service_principal_name: ${var.SPN_ID}
     presets:
-      name_prefix: "[${bundle.git.branch}]"
+      name_prefix: "[main]"
+      # name_prefix: "[${bundle.git.branch}]"
       pipelines_development: true
       trigger_pause_status: PAUSED
       jobs_max_concurrent_runs: 10
