@@ -11,7 +11,7 @@ resources:
               spot_bid_max_price: 100
             data_security_mode: SINGLE_USER
             enable_elastic_disk: true
-            node_type_id: Standard_DS3_v2
+            node_type_id: Standard_F4sv2
             num_workers: 1
             policy_id: ${var.policy_id}
             runtime_engine: STANDARD
