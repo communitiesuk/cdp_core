@@ -54,7 +54,7 @@ targets:
       root_path: /Workspace/Users/${var.SPN_ID}/.bundle/${bundle.name}
       host: https://adb-1036309900456578.18.azuredatabricks.net/
     permissions:
-      - group_name: ${var.DataEngineeringGroup}
+      - group_name: ${var.data_engineering_group}
         level: "CAN_RUN"
       # - group_name: "TST-SG-CDP-Core-DataEngineerD"
       #   level: "CAN_VIEW"
@@ -74,6 +74,9 @@ targets:
       host: https://adb-6686411646094.14.azuredatabricks.net/
     run_as:
       service_principal_name: ${var.SPN_ID}
+    permissions:
+      - group_name: ${var.data_engineering_group}
+        level: "CAN_RUN"
     presets:
       name_prefix: "[main]"
       # name_prefix: "[${bundle.git.branch}]"
