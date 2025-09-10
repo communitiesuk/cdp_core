@@ -16,9 +16,9 @@ variables:
   SPN_ID:
     description: "Service Principal ID for the Databricks workspace"
     default: ''
-  host:
-    description: "Databricks host defaults to the DEV one"
-    default: https://adb-6686411646094.14.azuredatabricks.net/
+  # host:
+  #   description: "Databricks host defaults to the DEV one"
+  #   default: https://adb-6686411646094.14.azuredatabricks.net/
 
 artifacts:
   default:
@@ -46,7 +46,7 @@ targets:
     mode: production
     workspace:
       root_path: /Workspace/Users/${var.SPN_ID}/.bundle/${bundle.name}
-      host: ${var.host}
+      host: https://adb-6686411646094.14.azuredatabricks.net/
     # permissions:
     #   - service_principal_name: ${var.SPN_ID}
     #     level: "CAN_RUN"
