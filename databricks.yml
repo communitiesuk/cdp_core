@@ -40,16 +40,17 @@ targets:
   
   # below main environments are only executed during CICD runs via the environment's service principal
   development:
-    mode: development
+    mode: production
     workspace:
-      root_path: /Workspace/Shared/.bundle/${bundle.name}
+      root_path: /Workspace/Users/${var.SPN_ID}/.bundle/${bundle.name}
       host: https://adb-1036309900456578.18.azuredatabricks.net/
-    permissions:
-      - service_principal_name: ${var.SPN_ID}
-        level: "CAN_RUN"
+    # permissions:
+    #   - service_principal_name: ${var.SPN_ID}
+    #     level: "CAN_RUN"
     run_as:
       service_principal_name: ${var.SPN_ID}
     presets:
+      # name_prefix: "[main]"
       name_prefix: "[${bundle.git.branch}]"
       pipelines_development: true
       trigger_pause_status: PAUSED
