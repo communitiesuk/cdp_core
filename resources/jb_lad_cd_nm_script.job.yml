@@ -32,7 +32,7 @@ resources:
               spot_bid_max_price: 100
             node_type_id: Standard_DS3_v2
             enable_elastic_disk: true
-            # policy_id: 00024F3D12FA200A
+            policy_id: ${var.policy_id}
             data_security_mode: SINGLE_USER
             runtime_engine: STANDARD
             num_workers: 1

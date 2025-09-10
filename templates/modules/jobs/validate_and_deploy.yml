@@ -46,7 +46,7 @@ jobs:
           export WHL_FILE=cdp_core-$(setTag.BUILD_VERSION)-py3-none-any.whl
           export SOURCE_PATH=packages/${WHL_FILE}
           export TARGET_PATH=/Workspace/Shared/artifacts/${WHL_FILE}
-          export BUNDLE_VAR="environment=$(ENVIRONMENT),whl_path=/Workspace/Shared/artifacts/${WHL_FILE},SPN_ID=$(SPN_ID)"
+          export BUNDLE_VAR="environment=$(ENVIRONMENT),whl_path=/Workspace/Shared/artifacts/${WHL_FILE},SPN_ID=$(SPN_ID),policy_id=$(POLICY_ID)"
 
           # Persist variables 
           echo "##vso[task.setvariable variable=SOURCE_PATH;isOutput=true]$SOURCE_PATH";

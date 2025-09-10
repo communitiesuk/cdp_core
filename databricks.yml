@@ -16,6 +16,9 @@ variables:
   SPN_ID:
     description: "Service Principal ID for the Databricks workspace"
     default: ''
+  policy_id:
+    description: "Compute policy"
+    default: ''
   # host:
   #   description: "Databricks host defaults to the DEV one"
   #   default: https://adb-6686411646094.14.azuredatabricks.net/
@@ -47,9 +50,9 @@ targets:
     workspace:
       root_path: /Workspace/Users/${var.SPN_ID}/.bundle/${bundle.name}
       host: https://adb-1036309900456578.18.azuredatabricks.net/
-    # permissions:
-    #   - service_principal_name: ${var.SPN_ID}
-    #     level: "CAN_RUN"
+    permissions:
+      - group_name: "TST-SG-CDP-Core-DataEngineerD"
+        level: "CAN_VIEW"
     run_as:
       service_principal_name: ${var.SPN_ID}
     presets:
