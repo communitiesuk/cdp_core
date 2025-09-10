@@ -15,6 +15,9 @@ jobs:
       - template: ../../variables.yml
         parameters:
           environment: ${{ parameters.environment }}
+    ${{ if eq(parameters.environment, 'test') }}:
+      pool: 
+        name: 'vmss-shared'
     steps:
       - script: |   
           # Exit immediately if any command fails
