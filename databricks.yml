@@ -46,7 +46,7 @@ targets:
     mode: production
     workspace:
       root_path: /Workspace/Users/${var.SPN_ID}/.bundle/${bundle.name}
-      host: https://adb-6686411646094.14.azuredatabricks.net/
+      host: https://adb-1036309900456578.18.azuredatabricks.net/
     # permissions:
     #   - service_principal_name: ${var.SPN_ID}
     #     level: "CAN_RUN"
@@ -63,7 +63,7 @@ targets:
     mode: production
     workspace:
       root_path: /Workspace/Users/${var.SPN_ID}/.bundle/${bundle.name}
-      host: ${var.host}
+      host: https://adb-6686411646094.14.azuredatabricks.net/
     run_as:
       service_principal_name: ${var.SPN_ID}
     presets:
