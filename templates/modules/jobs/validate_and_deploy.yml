@@ -11,6 +11,9 @@ jobs:
     #   dependsOn: 
     #     - SecurityChecks
     #     - Lint
+    ${{ if eq(parameters.environment, 'test') }}:
+      pool: 
+        name: 'vmss-shared'
     variables:
       - template: ../../variables.yml
         parameters:
