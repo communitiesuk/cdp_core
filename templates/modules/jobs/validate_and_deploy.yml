@@ -58,7 +58,7 @@ jobs:
           servicePrincipal: ${{ parameters.servicePrincipal }}
           description: "Validating Databricks Bundle"
           inlineScript: |
-            databricks bundle validate --var=$(setEnvVars.BUNDLE_VAR)
+            databricks bundle validate -t $(ENVIRONMENT) --var=$(setEnvVars.BUNDLE_VAR)
 
       # 7. Deploy Databricks Bundle
       - template: ../databricks_azure_cli.yml
@@ -67,7 +67,7 @@ jobs:
           description: "Deploy Databricks Bundle"
           inlineScript: |
             export BUILD_VERSION=$(setTag.BUILD_VERSION)
-            databricks bundle deploy --var=$(setEnvVars.BUNDLE_VAR)
+            databricks bundle deploy -t $(ENVIRONMENT) --var=$(setEnvVars.BUNDLE_VAR)
 
             databricks workspace mkdirs /Shared/artifacts
             databricks workspace import --overwrite --format "AUTO" --file $(setEnvVars.SOURCE_PATH) $(setEnvVars.TARGET_PATH)
