@@ -6,14 +6,14 @@ resources:
         - job_cluster_key: small-cluster
           new_cluster:
             azure_attributes:
-              availability: SPOT_WITH_FALLBACK_AZURE
+              availability: ON_DEMAND_AZURE
               first_on_demand: 1
               spot_bid_max_price: 100
             data_security_mode: SINGLE_USER
             enable_elastic_disk: true
             node_type_id: Standard_DS3_v2
             num_workers: 1
-            policy_id: 00024F3D12FA200A
+            # policy_id: 00024F3D12FA200A
             runtime_engine: STANDARD
             spark_version: 16.4.x-scala2.12
       tasks:

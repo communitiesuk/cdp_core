@@ -9,10 +9,13 @@ include:
 variables:
   environment:
     description: "Environment to deploy the bundle to"
+    default: ''
   whl_path: 
     description: "Path to the wheel file in the Databricks workspace"
+    default: ''
   SPN_ID:
     description: "Service Principal ID for the Databricks workspace"
+    default: ''
 
 artifacts:
   default:
@@ -22,17 +25,32 @@ artifacts:
       - source: packages/*.whl
 
 targets:
-  # ${var.environment}:
-  #   mode: ${var.environment}
-  #   workspace:
-  #     root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
-  development:
+  # this deployment allows individual users to deploy within an isolated user's path
+  user:
     mode: development
+    default: true
     workspace:
-      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
+      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}
+      host: https://adb-1036309900456578.18.azuredatabricks.net/
     presets:
-      name_prefix: ${workspace.current_user.short_name}-${bundle.git.branch}-
+      name_prefix: "[${workspace.current_user.short_name}][${bundle.git.branch}]"
       pipelines_development: true
       trigger_pause_status: PAUSED
       jobs_max_concurrent_runs: 10
   
+  # below main environments are only executed during CICD runs via the environment's service principal
+  development:
+    mode: development
+    workspace:
+      root_path: /Workspace/Shared/.bundle/${bundle.name}
+      host: https://adb-1036309900456578.18.azuredatabricks.net/
+    permissions:
+      - service_principal_name: ${var.SPN_ID}
+        level: "CAN_RUN"
+    run_as:
+      service_principal_name: ${var.SPN_ID}
+    presets:
+      name_prefix: "[${bundle.git.branch}]"
+      pipelines_development: true
+      trigger_pause_status: PAUSED
+      jobs_max_concurrent_runs: 10
