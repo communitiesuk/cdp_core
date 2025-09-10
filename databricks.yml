@@ -56,8 +56,8 @@ targets:
     permissions:
       - group_name: ${var.data_engineering_group}
         level: "CAN_RUN"
-      # - group_name: "TST-SG-CDP-Core-DataEngineerD"
-      #   level: "CAN_VIEW"
+      - service_principal_name: ${var.SPN_ID}
+        level: "CAN_MANAGE"
     run_as:
       service_principal_name: ${var.SPN_ID}
     presets:
@@ -77,6 +77,8 @@ targets:
     permissions:
       - group_name: ${var.data_engineering_group}
         level: "CAN_RUN"
+      - service_principal_name: ${var.SPN_ID}
+        level: "CAN_MANAGE"
     presets:
       name_prefix: "[main]"
       # name_prefix: "[${bundle.git.branch}]"

@@ -47,6 +47,8 @@ jobs:
           export SOURCE_PATH=packages/${WHL_FILE}
           export TARGET_PATH=/Workspace/Shared/artifacts/${WHL_FILE}
           export BUNDLE_VAR="environment=$(ENVIRONMENT),whl_path=/Workspace/Shared/artifacts/${WHL_FILE},SPN_ID=$(SPN_ID),policy_id=$(POLICY_ID),data_engineering_group=$(DATA_ENGINEERING_GROUP)"
+          
+          echo $(DATA_ENGINEERING_GROUP)
 
           # Persist variables 
           echo "##vso[task.setvariable variable=SOURCE_PATH;isOutput=true]$SOURCE_PATH";
