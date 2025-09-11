@@ -1,0 +1,16 @@
+trigger: none
+pool:
+  name: 'vmss-shared'
+variables:
+- group: kv-tst-core-cdp-vars
+
+
+stages:
+- stage: Find requirements
+    steps:
+      - script: |   
+          # Exit immediately if any command fails
+          set -e
+          pip-compile --resolver=backtracking $(Build.SourcesDirectory)/requirements.in -o requirements.txt
+
+          # Install the Databricks CLI
