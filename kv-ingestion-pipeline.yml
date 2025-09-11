@@ -90,7 +90,7 @@ stages:
       - task: AzureCLI@2
         displayName: "Push ${{ s }} to Key Vault"
         inputs:
-          azureSubscription: 'SP-CDX23'
+          azureSubscription: 'SPN-SP-sub-tst-ctdpslt001-001'
           scriptType: pscore
           scriptLocation: inlineScript
           inlineScript: |
