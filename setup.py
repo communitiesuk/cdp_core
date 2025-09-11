@@ -15,5 +15,5 @@ setup(
   # to prevent version mismatch, we exclude any packages that are already installed in the cluster
   # to identify which dependencies are already installed in the chosen cluster runtime, visit the following page
   # https://docs.databricks.com/aws/en/release-notes/runtime
-  install_requires=["geopandas==1.1.1"] # this is not required but used as a test case
+  install_requires=[] # this is not required but used as a test case
 )
