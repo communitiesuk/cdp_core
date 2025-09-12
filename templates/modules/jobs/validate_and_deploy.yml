@@ -41,7 +41,7 @@ jobs:
       - script: |
           # Exit immediately if any command fails
           set -e    
-
+          echo $(POLICY_ID)
           # Generate all required variables      
           export WHL_FILE=cdp_core-$(setTag.BUILD_VERSION)-py3-none-any.whl
           export SOURCE_PATH=packages/${WHL_FILE}
