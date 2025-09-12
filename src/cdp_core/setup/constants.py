@@ -4,8 +4,8 @@ from pyspark.sql.types import StringType, IntegerType
 
 CATALOG = {
     "dev": "`catalog-dev-uks-corecdp-001`",
-    "test": "`catalog-test-uks-corecdp-001`",
-    "prod": "catalog-prod-uks-corecdp-001"
+    "tst": "`catalog-test-uks-corecdp-001`",
+    "prd": "catalog-prod-uks-corecdp-001"
 }[os.getenv('env', 'dev')]
 
 
