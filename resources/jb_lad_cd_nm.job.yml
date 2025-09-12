@@ -1,7 +1,7 @@
 resources:
   jobs:
-    jb_lad_cd_nm_whl:
-      name: jb_lad_cd_nm_whl
+    jb_lad_cd_nm:
+      name: jb_lad_cd_nm
       job_clusters:
         - job_cluster_key: small-cluster
           new_cluster:
