@@ -1,10 +1,13 @@
+import os
 from pyspark.sql.types import StringType, IntegerType
 
-# catalogs
-CATALOG_SLT1_SBX = "`catalog-sbx-uks-corecdp-001`"
-CATALOG_SLT1_DEV = "`catalog-dev-uks-corecdp-001`"
-CATALOG_SLT1_TEST = "`catalog-test-uks-corecdp-001`"
-CATALOG_SLT1_PROD = "`catalog-prod-uks-corecdp-001`"
+
+CATALOG = {
+    "dev": "`catalog-dev-uks-corecdp-001`",
+    "test": "`catalog-test-uks-corecdp-001`",
+    "prod": "catalog-prod-uks-corecdp-001"
+}[os.getenv('env', 'dev')]
+
 
 # schemas
 SCHEMA_BRONZE = "bronze"
