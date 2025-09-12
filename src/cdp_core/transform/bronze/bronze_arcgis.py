@@ -32,9 +32,9 @@ def transform(df: DataFrame) -> DataFrame:
 
 def load(df: DataFrame, config: Dict) -> None:
     table_name = config["dataset"]
-    delta_writer(df, CATALOG_SLT1_DEV, SCHEMA_BRONZE, table_name, OVERWRITE)
-    add_tags(CATALOG_SLT1_DEV, SCHEMA_BRONZE, table_name, config)
-    add_descriptions(CATALOG_SLT1_DEV, SCHEMA_BRONZE, table_name, config)
+    delta_writer(df, CATALOG, SCHEMA_BRONZE, table_name, OVERWRITE)
+    add_tags(CATALOG, SCHEMA_BRONZE, table_name, config)
+    add_descriptions(CATALOG, SCHEMA_BRONZE, table_name, config)
 
 def execute(dataset: str) -> None:
     config = config_reader(dataset)

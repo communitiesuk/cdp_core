@@ -18,7 +18,7 @@ def test_table_exists(spark):
     transformed_df = transform(extracted_df, config)
     load(transformed_df, config)
 
-    assert check_if_table_exists(spark, CATALOG_SLT1_DEV, SCHEMA_SILVER, TABLE) is True, f"INVALID TABLE"
+    assert check_if_table_exists(spark, CATALOG, SCHEMA_SILVER, TABLE) is True, f"INVALID TABLE"
 
 def test_schema_correct(spark):
     expected_schema = StructType([
@@ -26,5 +26,5 @@ def test_schema_correct(spark):
         StructField("local_authority_district_name_2023", StringType(), True)
     ])
 
-    actual_schema = get_table_schema(spark, CATALOG_SLT1_DEV, SCHEMA_SILVER, TABLE)
+    actual_schema = get_table_schema(spark, CATALOG, SCHEMA_SILVER, TABLE)
     assert str(actual_schema) == str(expected_schema), f"Schema does not match. Expected: {expected_schema}, Actual: {actual_schema}"

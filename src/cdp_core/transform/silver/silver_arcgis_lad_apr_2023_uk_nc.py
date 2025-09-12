@@ -16,7 +16,7 @@ from cdp_core.utils.util import cast_columns, config_reader, de_dupe, rename_col
 
 
 def extract(config: dict) -> DataFrame:
-    return read_table(CATALOG_SLT1_DEV, SCHEMA_BRONZE, config['dataset'])
+    return read_table(CATALOG, SCHEMA_BRONZE, config['dataset'])
 
 def transform(df: DataFrame, config: Dict) -> DataFrame:
     # column renaming
@@ -43,9 +43,9 @@ def transform(df: DataFrame, config: Dict) -> DataFrame:
     return df
 
 def load(df: DataFrame, config: Dict) -> None:
-    delta_writer(df, CATALOG_SLT1_DEV, SCHEMA_SILVER, config["dataset"], config["write_method"])
-    add_tags(CATALOG_SLT1_DEV, SCHEMA_SILVER, config["dataset"], config)
-    add_descriptions(CATALOG_SLT1_DEV, SCHEMA_SILVER, config["dataset"], config)
+    delta_writer(df, CATALOG, SCHEMA_SILVER, config["dataset"], config["write_method"])
+    add_tags(CATALOG, SCHEMA_SILVER, config["dataset"], config)
+    add_descriptions(CATALOG, SCHEMA_SILVER, config["dataset"], config)
 
 def execute(dataset: str) -> None:
     config = config_reader(dataset)
