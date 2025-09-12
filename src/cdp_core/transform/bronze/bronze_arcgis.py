@@ -19,6 +19,7 @@ import os
 
 print("HERE")
 print(os.getenv("env"))
+print(os.environ.get("env"))
 
 
 def extract(config: dict) -> DataFrame:
