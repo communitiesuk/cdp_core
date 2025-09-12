@@ -15,6 +15,11 @@ from cdp_core.utils.util import config_reader
 from cdp_core.utils.readers import RestClient
 from cdp_core.utils.writers import delta_writer, add_tags, add_descriptions
 
+import os
+
+print("HERE")
+print(os.getenv("env"))
+
 
 def extract(config: dict) -> DataFrame:
     url = f"{config['url']}{config['dataset']}/FeatureServer/0/query?{urlencode(config['params'])}"
