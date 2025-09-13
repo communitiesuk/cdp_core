@@ -39,7 +39,7 @@ def add_tags(catalog: str, layer: str, table_name: str, config: dict) -> None:
     # --- Column-level tags ---
     schema_config = config.get("schema", {})
     for column, column_config in schema_config.items():
-        if layer != "bronze":
+        if "bronze" not in layer:
             column = column_config.get("target", column)
 
         tags = column_config.get("tag")
