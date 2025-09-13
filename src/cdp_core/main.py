@@ -6,7 +6,7 @@ def main():
     try:
         module = importlib.import_module(sys.argv[1])
         func = getattr(module, "execute")
-        func(sys.argv[2])
+        func(sys.argv[2], sys.argv[3])
     except Exception as e:
         print(f"Error: {e}")
         sys.exit(1)

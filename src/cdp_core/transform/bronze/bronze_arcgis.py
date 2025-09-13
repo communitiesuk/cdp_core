@@ -15,12 +15,6 @@ from cdp_core.utils.util import config_reader
 from cdp_core.utils.readers import RestClient
 from cdp_core.utils.writers import delta_writer, add_tags, add_descriptions
 
-import os
-
-print("HERE")
-print(os.getenv("env"))
-print(os.environ.get("env"))
-
 
 def extract(config: dict) -> DataFrame:
     url = f"{config['url']}{config['dataset']}/FeatureServer/0/query?{urlencode(config['params'])}"
@@ -36,14 +30,14 @@ def transform(df: DataFrame) -> DataFrame:
         df = df.withColumnRenamed(field, field.split(".")[-1])
     return df
 
-def load(df: DataFrame, config: Dict) -> None:
+def load(df: DataFrame, config: Dict, catalog: str) -> None:
     table_name = config["dataset"]
-    delta_writer(df, CATALOG, SCHEMA_BRONZE, table_name, OVERWRITE)
-    add_tags(CATALOG, SCHEMA_BRONZE, table_name, config)
-    add_descriptions(CATALOG, SCHEMA_BRONZE, table_name, config)
+    delta_writer(df, catalog, SCHEMA_BRONZE, table_name, OVERWRITE)
+    add_tags(catalog, SCHEMA_BRONZE, table_name, config)
+    add_descriptions(catalog, SCHEMA_BRONZE, table_name, config)
 
-def execute(dataset: str) -> None:
+def execute(dataset: str, catalog: str) -> None:
     config = config_reader(dataset)
     df = extract(config)
     df = transform(df)
-    load(df, config)
+    load(df, config, catalog)

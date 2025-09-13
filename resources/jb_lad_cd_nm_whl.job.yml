@@ -28,6 +28,7 @@ resources:
             parameters:
               - cdp_core.transform.bronze.bronze_arcgis
               - LAD_APR_2023_UK_NC
+              - ${var.unity_catalog}
           run_if: ALL_SUCCESS
           webhook_notifications: {}
         - task_key: silver
@@ -43,6 +44,7 @@ resources:
             parameters:
               - cdp_core.transform.silver.silver_arcgis_lad_apr_2023_uk_nc
               - LAD_APR_2023_UK_NC
+              - ${var.unity_catalog}
           run_if: ALL_SUCCESS
           webhook_notifications: {}
       email_notifications: {}

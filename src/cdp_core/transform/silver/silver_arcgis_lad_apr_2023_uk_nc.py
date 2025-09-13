@@ -15,8 +15,8 @@ from cdp_core.utils.writers import delta_writer, add_tags, add_descriptions
 from cdp_core.utils.util import cast_columns, config_reader, de_dupe, rename_columns
 
 
-def extract(config: dict) -> DataFrame:
-    return read_table(CATALOG, SCHEMA_BRONZE, config['dataset'])
+def extract(config: dict, catalog: str) -> DataFrame:
+    return read_table(catalog, SCHEMA_BRONZE, config['dataset'])
 
 def transform(df: DataFrame, config: Dict) -> DataFrame:
     # column renaming
@@ -42,14 +42,14 @@ def transform(df: DataFrame, config: Dict) -> DataFrame:
 
     return df
 
-def load(df: DataFrame, config: Dict) -> None:
-    delta_writer(df, CATALOG, SCHEMA_SILVER, config["dataset"], config["write_method"])
-    add_tags(CATALOG, SCHEMA_SILVER, config["dataset"], config)
-    add_descriptions(CATALOG, SCHEMA_SILVER, config["dataset"], config)
+def load(df: DataFrame, config: Dict, catalog: str) -> None:
+    delta_writer(df, catalog, SCHEMA_SILVER, config["dataset"], config["write_method"])
+    add_tags(catalog, SCHEMA_SILVER, config["dataset"], config)
+    add_descriptions(catalog, SCHEMA_SILVER, config["dataset"], config)
 
-def execute(dataset: str) -> None:
+def execute(dataset: str, catalog: str) -> None:
     config = config_reader(dataset)
-    df = extract(config)
+    df = extract(config, catalog)
     df = transform(df, config)
-    load(df, config)
+    load(df, config, catalog)
     
