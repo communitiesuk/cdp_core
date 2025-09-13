@@ -35,7 +35,7 @@ def load(df: DataFrame, config: Dict, catalog: str) -> None:
 
     env = next((e for e in ["test", "prod"] if e in catalog.lower()), "dev")
 
-    SCHEMA_BRONZE = f"schema-{env}-uks-corecdp-bronze-001"
+    SCHEMA_BRONZE = f"`schema-{env}-uks-corecdp-bronze-001`"
 
     delta_writer(df, catalog, SCHEMA_BRONZE, table_name, OVERWRITE)
     add_tags(catalog, SCHEMA_BRONZE, table_name, config)
