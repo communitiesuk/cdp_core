@@ -8,11 +8,10 @@ CATALOG = {
     "prd": "catalog-prod-uks-corecdp-001"
 }[os.getenv('env', 'dev')]
 
-
 # schemas
-SCHEMA_BRONZE = "bronze"
-SCHEMA_SILVER = "silver"
-SCHEMA_GOLD = "gold"
+SCHEMA_BRONZE = "schema-dev-uks-corecdp-bronze-001"
+SCHEMA_SILVER = "schema-dev-uks-corecdp-silver-001"
+SCHEMA_GOLD = "schema-dev-uks-corecdp-gold-001"
 
 # write mode
 OVERWRITE = "overwrite"
