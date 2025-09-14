@@ -73,7 +73,7 @@ def add_descriptions(catalog: str, layer: str, table_name: str, config: dict) ->
     # --- Column Descriptions ---
     schema_config = config.get("schema", {})
     for column, column_config in schema_config.items():
-        if layer != "bronze":
+        if "bronze" not in layer:
             column = column_config.get("target", column)
         description = column_config.get("description")
         if description:
