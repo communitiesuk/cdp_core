@@ -16,7 +16,7 @@ from cdp_core.utils.util import cast_columns, config_reader, de_dupe, rename_col
 
 
 def extract(config: dict, catalog: str) -> DataFrame:
-    env = next((e for e in ["test", "prod"] if e in catalog.lower()), "dev")
+    env = next((e for e in ["tst", "prd"] if e in catalog.lower()), "dev")
 
     SCHEMA_BRONZE = f"`schema-{env}-uks-corecdp-bronze-001`"
 
@@ -48,7 +48,7 @@ def transform(df: DataFrame, config: Dict) -> DataFrame:
 
 def load(df: DataFrame, config: Dict, catalog: str) -> None:
 
-    env = next((e for e in ["test", "prod"] if e in catalog.lower()), "dev")
+    env = next((e for e in ["tst", "prd"] if e in catalog.lower()), "dev")
 
     SCHEMA_SILVER = f"`schema-{env}-uks-corecdp-silver-001`"
     delta_writer(df, catalog, SCHEMA_SILVER, config["dataset"], config["write_method"])

@@ -91,5 +91,5 @@ targets:
       trigger_pause_status: PAUSED
       jobs_max_concurrent_runs: 10
     variables:
-      unity_catalog: "`catalog-test-uks-corecdp-001`"
+      unity_catalog: "`catalog-tst-uks-corecdp-001`"
 

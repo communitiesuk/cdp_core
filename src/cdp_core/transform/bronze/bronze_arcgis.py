@@ -33,7 +33,7 @@ def transform(df: DataFrame) -> DataFrame:
 def load(df: DataFrame, config: Dict, catalog: str) -> None:
     table_name = config["dataset"]
 
-    env = next((e for e in ["test", "prod"] if e in catalog.lower()), "dev")
+    env = next((e for e in ["tst", "prd"] if e in catalog.lower()), "dev")
 
     SCHEMA_BRONZE = f"`schema-{env}-uks-corecdp-bronze-001`"
 
