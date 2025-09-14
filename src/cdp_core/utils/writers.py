@@ -86,7 +86,7 @@ def add_permissions(catalog: str, layer: str, table_name: str, config: dict) -> 
     """
     full_table_name = f"{catalog}.{layer}.{table_name}"
     
-    env = next((e for e in ["test", "prod"] if e in catalog.lower()), "dev")
+    env = next((e for e in ["tst", "prd"] if e in catalog.lower()), "dev")
 
     permissions = config.get("permissions")
 
