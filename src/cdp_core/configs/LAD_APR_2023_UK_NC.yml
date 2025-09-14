@@ -12,6 +12,15 @@ table_tag:
   source: arcgis
   method: api
 
+permissions:
+  dev_role: 
+    TST-SG-CDP-Core-DataEngineerD: "ALL_PRIVILEGES"
+    TST-SG-CDP-Core-AdminD: "ALL_PRIVILEGES"
+  test_role: 
+    TST-SG-CDP-Core-DataEngineer: "SELECT, UPDATE"
+  prod_role:
+    PRD-SG-CDP-Core-DataEngineer: "SELECT"
+
 params:
   where: "1=1"
   resultType: "standard"
@@ -25,7 +34,6 @@ params:
   f: "pjson"
 
 schema:
-
   LAD23CD:
     target: local_authority_district_code_2023
     type: StringType

@@ -11,7 +11,7 @@ sys.path.append(f"/Workspace/Users/{user_email}/cdp_core/src")
 
 from cdp_core.setup.constants import *
 from cdp_core.utils.readers import read_table
-from cdp_core.utils.writers import delta_writer, add_tags, add_descriptions
+from cdp_core.utils.writers import delta_writer, add_tags, add_descriptions, add_permissions
 from cdp_core.utils.util import cast_columns, config_reader, de_dupe, rename_columns
 
 
@@ -54,6 +54,7 @@ def load(df: DataFrame, config: Dict, catalog: str) -> None:
     delta_writer(df, catalog, SCHEMA_SILVER, config["dataset"], config["write_method"])
     add_tags(catalog, SCHEMA_SILVER, config["dataset"], config)
     add_descriptions(catalog, SCHEMA_SILVER, config["dataset"], config)
+    add_permissions(catalog, SCHEMA_SILVER, config["dataset"], config)
 
 def execute(dataset: str, catalog: str) -> None:
     config = config_reader(dataset)

@@ -80,3 +80,21 @@ def add_descriptions(catalog: str, layer: str, table_name: str, config: dict) ->
             spark.sql(f"COMMENT ON COLUMN {full_table_name}.{column} IS '{description}'")
 
 
+def add_permissions(catalog: str, layer: str, table_name: str, config: dict) -> None:
+    """
+    Adds permissions to a Unity Catalog table.
+    """
+    full_table_name = f"{catalog}.{layer}.{table_name}"
+    
+    env = next((e for e in ["test", "prod"] if e in catalog.lower()), "dev")
+
+    permissions = config.get("permissions")
+
+    for environment, role_config in permissions.items():
+        if env in environment:
+            for principal, privileges in role_config.items():
+                spark.sql(f"""
+                    GRANT {privileges} ON TABLE {full_table_name}
+                    TO ROLE '{principal}'
+                """)
+            
