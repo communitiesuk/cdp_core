@@ -95,6 +95,6 @@ def add_permissions(catalog: str, layer: str, table_name: str, config: dict) -> 
             for principal, privileges in role_config.items():
                 spark.sql(f"""
                     GRANT {privileges} ON TABLE {full_table_name}
-                    TO {principal}
+                    TO `{principal}`
                 """)
             
