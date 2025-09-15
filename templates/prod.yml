@@ -9,8 +9,12 @@ stages:
       - ProdApproval
     condition: succeeded('TEST')
     jobs:
-      # 1. Validate and Deploy Bundle
-      - template: modules/jobs/validate_and_deploy.yml
-        parameters:
-          servicePrincipal: $(SPN_PROD_NAME)
-          environment: ${{ parameters.environment }}
+      steps:
+        # Temporary step for until prod is fully implemented
+        - script: echo "This is a temporary step in the PROD stage."
+          displayName: "Temporary Step"
+      # # 1. Validate and Deploy Bundle
+      # - template: modules/jobs/validate_and_deploy.yml
+      #   parameters:
+      #     servicePrincipal: $(SPN_PROD_NAME)
+      #     environment: ${{ parameters.environment }}
