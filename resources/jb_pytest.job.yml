@@ -23,7 +23,7 @@ resources:
           libraries:
             - pypi:
                 package: pytest
-            - whl: /Workspace/Users/suftan@tdigitalcommunities.onmicrosoft.com/.bundle/cdp_core/artifacts/.internal/cdp_core-0.0.1-py3-none-any.whl
+            - whl: ${VAR.whl_path}
           run_if: ALL_SUCCESS
           spark_python_task:
             python_file: tests/main_test.py
