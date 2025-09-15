@@ -1,18 +1,32 @@
-import _bootstrap
-
+import sys
 from typing import Dict
 from urllib.parse import urlencode
 
 import pandas as pd
-from pyspark.dbutils import DBUtils
 from pyspark.sql import DataFrame, SparkSession
 
+# Initialize Spark session
+spark = SparkSession.builder.getOrCreate()
+
+# Dynamically add the repository path to Python's sys.path
+# This is primarily useful during development in the Databricks UI.
+# In production, this script is typically executed via the .whl entrypoint.
+current_user = spark.sql("SELECT current_user()").collect()[0][0]
+repo_path = f"/Workspace/Users/{current_user}/cdp_core/src"
+if repo_path not in sys.path:
+    sys.path.append(repo_path)
+
+# Import CDP Core modules
 from cdp_core.setup.constants import *
 from cdp_core.utils.util import config_reader
 from cdp_core.utils.readers import RestClient
-from cdp_core.utils.writers import delta_writer, add_tags, add_descriptions, add_permissions
+from cdp_core.utils.writers import (
+    delta_writer,
+    add_tags,
+    add_descriptions,
+    add_permissions
+)
 
-spark = SparkSession.builder.appName("pytest").getOrCreate()
 
 def extract(config: dict) -> DataFrame:
     url = f"{config['url']}{config['dataset']}/FeatureServer/0/query?{urlencode(config['params'])}"

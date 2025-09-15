@@ -1,5 +1,3 @@
-import _bootstrap
-
 import os
 import sys
 
@@ -7,6 +5,7 @@ import pytest
 from pyspark.sql import SparkSession
 from pyspark.dbutils import DBUtils
 
+from tests import _bootstrap
 
 spark = SparkSession.builder.getOrCreate()
 dbutils = DBUtils(spark)
