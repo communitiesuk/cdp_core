@@ -1,6 +1,9 @@
 import requests
 
+from pyspark.sql import SparkSession
 from databricks.sdk.runtime import *
+
+spark = SparkSession.builder.appName("pytest").getOrCreate()
 
 class RestClient:
     def __init__(self, base_url: str, headers: dict = None, params: dict = None):

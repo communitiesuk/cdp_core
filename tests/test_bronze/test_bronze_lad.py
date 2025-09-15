@@ -8,16 +8,12 @@ from cdp_core.transform.bronze.bronze_arcgis import *
 from tests.utils import *
 
 
-TABLE = "lad_apr_2023_uk_nc"
+TABLE = "lad_apr_2023_uk_nc_tmp"
 DATASET = "LAD_APR_2023_UK_NC"
+CATALOG = "`catalog-dev-uks-corecdp-001`"
 
-
-def test_table_exists(spark):   
-    config = config_reader(DATASET) 
-    extracted_df = extract(config)
-    transformed_df = transform(extracted_df)
-    load(transformed_df, config)
-
+def test_table_exists(spark):
+    execute(DATASET, CATALOG)
     assert check_if_table_exists(spark, CATALOG, SCHEMA_BRONZE, TABLE) is True, f"INVALID TABLE"
 
 def test_schema_correct(spark):

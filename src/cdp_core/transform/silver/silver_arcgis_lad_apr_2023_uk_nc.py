@@ -1,13 +1,10 @@
-import sys
+import _bootstrap
+
 from typing import Dict
 
 from pyspark.dbutils import DBUtils
 from pyspark.sql import functions as F
 from pyspark.sql import DataFrame, SparkSession
-
-spark = SparkSession.getActiveSession()
-user_email = DBUtils(spark).notebook.entry_point.getDbutils().notebook().getContext().tags().apply('user')
-sys.path.append(f"/Workspace/Users/{user_email}/cdp_core/src")
 
 from cdp_core.setup.constants import *
 from cdp_core.utils.readers import read_table
@@ -20,7 +17,7 @@ def extract(config: dict, catalog: str) -> DataFrame:
 
     SCHEMA_BRONZE = f"`schema-{env}-uks-corecdp-bronze-001`"
 
-    return read_table(catalog, SCHEMA_BRONZE, config['dataset'])
+    return read_table(catalog, SCHEMA_BRONZE, f"{config['dataset']}_tmp")
 
 def transform(df: DataFrame, config: Dict) -> DataFrame:
     # column renaming
@@ -47,14 +44,14 @@ def transform(df: DataFrame, config: Dict) -> DataFrame:
     return df
 
 def load(df: DataFrame, config: Dict, catalog: str) -> None:
-
+    table_name = f"{config["dataset"]}_tmp"
     env = next((e for e in ["tst", "prd"] if e in catalog.lower()), "dev")
 
     SCHEMA_SILVER = f"`schema-{env}-uks-corecdp-silver-001`"
-    delta_writer(df, catalog, SCHEMA_SILVER, config["dataset"], config["write_method"])
-    add_tags(catalog, SCHEMA_SILVER, config["dataset"], config)
-    add_descriptions(catalog, SCHEMA_SILVER, config["dataset"], config)
-    add_permissions(catalog, SCHEMA_SILVER, config["dataset"], config)
+    delta_writer(df, catalog, SCHEMA_SILVER, table_name, config["write_method"])
+    add_tags(catalog, SCHEMA_SILVER, table_name, config)
+    add_descriptions(catalog, SCHEMA_SILVER, table_name, config)
+    add_permissions(catalog, SCHEMA_SILVER, table_name, config)
 
 def execute(dataset: str, catalog: str) -> None:
     config = config_reader(dataset)

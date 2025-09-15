@@ -1,4 +1,5 @@
-import sys
+import _bootstrap
+
 from typing import Dict
 from urllib.parse import urlencode
 
@@ -6,15 +7,12 @@ import pandas as pd
 from pyspark.dbutils import DBUtils
 from pyspark.sql import DataFrame, SparkSession
 
-spark = SparkSession.getActiveSession()
-user_email = DBUtils(spark).notebook.entry_point.getDbutils().notebook().getContext().tags().apply('user')
-sys.path.append(f"/Workspace/Users/{user_email}/cdp_core/src")
-
 from cdp_core.setup.constants import *
 from cdp_core.utils.util import config_reader
 from cdp_core.utils.readers import RestClient
 from cdp_core.utils.writers import delta_writer, add_tags, add_descriptions, add_permissions
 
+spark = SparkSession.builder.appName("pytest").getOrCreate()
 
 def extract(config: dict) -> DataFrame:
     url = f"{config['url']}{config['dataset']}/FeatureServer/0/query?{urlencode(config['params'])}"
@@ -31,7 +29,7 @@ def transform(df: DataFrame) -> DataFrame:
     return df
 
 def load(df: DataFrame, config: Dict, catalog: str) -> None:
-    table_name = config["dataset"]
+    table_name = f"{config["dataset"]}_tmp"
 
     env = next((e for e in ["tst", "prd"] if e in catalog.lower()), "dev")
 

@@ -14,10 +14,10 @@ table_tag:
 
 permissions:
   dev_role: 
-    TST-SG-CDP-Core-DataEngineerD: "ALL_PRIVILEGES"
-    TST-SG-CDP-Core-AdminD: "ALL_PRIVILEGES"
+    TST-SG-CDP-Core-DataEngineerD: "MANAGE"
+    TST-SG-CDP-Core-AdminD: "MANAGE"
   test_role: 
-    TST-SG-CDP-Core-DataEngineer: "SELECT, UPDATE"
+    TST-SG-CDP-Core-DataEngineer: "MANAGE"
   prod_role:
     PRD-SG-CDP-Core-DataEngineer: "SELECT"
 

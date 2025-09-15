@@ -1,3 +1,5 @@
+import _bootstrap
+
 import os
 import sys
 

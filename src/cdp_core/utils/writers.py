@@ -1,5 +1,7 @@
-from pyspark.sql import DataFrame
+from pyspark.sql import DataFrame, SparkSession
 from databricks.sdk.runtime import *
+
+spark = SparkSession.builder.appName("pytest").getOrCreate()
 
 def delta_writer(
     df: DataFrame,
