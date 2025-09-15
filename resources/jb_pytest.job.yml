@@ -23,7 +23,7 @@ resources:
           libraries:
             - pypi:
                 package: pytest
-            - whl: ${VAR.whl_path}
+            - whl: ${var.whl_path}
           run_if: ALL_SUCCESS
           spark_python_task:
             python_file: tests/main_test.py
