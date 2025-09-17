@@ -23,6 +23,7 @@ os.chdir(f"/Workspace/{repo_root}")
 # Skip writing pyc files on a readonly filesystem.
 sys.dont_write_bytecode = True
 
+print(sys.path)
 # Run pytest.
 retcode = pytest.main([".", "-v", "-p", "no:cacheprovider", "--disable-warnings"])
 
