@@ -1,3 +1,5 @@
+import _bootstrap
+
 import os
 import sys
 
@@ -5,7 +7,6 @@ import pytest
 from pyspark.sql import SparkSession
 from pyspark.dbutils import DBUtils
 
-from tests import _bootstrap
 
 spark = SparkSession.builder.getOrCreate()
 dbutils = DBUtils(spark)
@@ -18,9 +19,6 @@ repo_root = os.path.dirname(os.path.dirname(notebook_path))
 
 # Prepare to run pytest from the repo.
 os.chdir(f"/Workspace/{repo_root}")
-
-print(f"/Workspace/{repo_root}")
-print(sys.path)
 
 # Skip writing pyc files on a readonly filesystem.
 sys.dont_write_bytecode = True
