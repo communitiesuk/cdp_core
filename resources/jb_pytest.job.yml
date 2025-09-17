@@ -6,31 +6,33 @@ resources:
         - task_key: jb_pytest
           spark_python_task:
             python_file: /Workspace/Users/${var.SPN_ID}/.bundle/cdp_core/files/tests/main_test.py
-          job_cluster_key: jb_pytest_cluster
+          # job_cluster_key: jb_pytest_cluster
+          existing_cluster_id: 0815-091619-vzj675bi
           libraries:
             - pypi:
                 package: pytest==8.4.2
-      job_clusters:
-        - job_cluster_key: jb_pytest_cluster
-          new_cluster:
-            cluster_name: ""
-            spark_version: 16.4.x-scala2.12
-            spark_conf:
-              spark.master: local[*, 4]
-              spark.databricks.cluster.profile: singleNode
-            azure_attributes:
-              availability: ON_DEMAND_AZURE
-              spot_bid_max_price: 100
-            node_type_id: Standard_F4s_v2
-            custom_tags:
-              ResourceClass: SingleNode
-            spark_env_vars:
-              env: dev
-            policy_id: ${var.policy_id}
-            data_security_mode: SINGLE_USER
-            runtime_engine: STANDARD
-            kind: CLASSIC_PREVIEW
-            is_single_node: true
-            num_workers: 0
+
+      # job_clusters:
+      #   - job_cluster_key: jb_pytest_cluster
+      #     new_cluster:
+      #       cluster_name: ""
+      #       spark_version: 16.4.x-scala2.12
+      #       spark_conf:
+      #         spark.master: local[*, 4]
+      #         spark.databricks.cluster.profile: singleNode
+      #       azure_attributes:
+      #         availability: ON_DEMAND_AZURE
+      #         spot_bid_max_price: 100
+      #       node_type_id: Standard_F4s_v2
+      #       custom_tags:
+      #         ResourceClass: SingleNode
+      #       spark_env_vars:
+      #         env: dev
+      #       policy_id: ${var.policy_id}
+      #       data_security_mode: SINGLE_USER
+      #       runtime_engine: STANDARD
+      #       kind: CLASSIC_PREVIEW
+      #       is_single_node: true
+      #       num_workers: 0
       queue:
         enabled: true
