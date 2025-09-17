@@ -19,6 +19,9 @@ repo_root = os.path.dirname(os.path.dirname(notebook_path))
 # Prepare to run pytest from the repo.
 os.chdir(f"/Workspace/{repo_root}")
 
+print(f"/Workspace/{repo_root}")
+print(sys.path)
+
 # Skip writing pyc files on a readonly filesystem.
 sys.dont_write_bytecode = True
 
