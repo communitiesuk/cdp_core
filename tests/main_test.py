@@ -1,7 +1,4 @@
-import _bootstrap
-
 import sys
-# Skip writing pyc files on a readonly filesystem.
 sys.dont_write_bytecode = True
 
 import os
@@ -10,6 +7,7 @@ import pytest
 from pyspark.sql import SparkSession
 from pyspark.dbutils import DBUtils
 
+import _bootstrap
 
 spark = SparkSession.builder.getOrCreate()
 dbutils = DBUtils(spark)
