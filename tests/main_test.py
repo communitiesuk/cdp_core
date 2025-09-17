@@ -1,7 +1,10 @@
 import _bootstrap
 
-import os
 import sys
+# Skip writing pyc files on a readonly filesystem.
+sys.dont_write_bytecode = True
+
+import os
 
 import pytest
 from pyspark.sql import SparkSession
@@ -20,10 +23,6 @@ repo_root = os.path.dirname(os.path.dirname(notebook_path))
 # Prepare to run pytest from the repo.
 os.chdir(f"/Workspace/{repo_root}")
 
-# Skip writing pyc files on a readonly filesystem.
-sys.dont_write_bytecode = True
-
-print(sys.path)
 # Run pytest.
 retcode = pytest.main([".", "-v", "-p", "no:cacheprovider", "--disable-warnings"])
 
