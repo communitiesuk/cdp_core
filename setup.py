@@ -10,7 +10,7 @@ setup(
   package_dir={'': 'src'},
   package_data={'cdp_core': ['configs/*.yml']},
   entry_points={
-    "console_scripts": ['run=cdp_core.main:main']
+    "console_scripts": ['main=cdp_core.main:main']
   },
   # to prevent version mismatch, we exclude any packages that are already installed in the cluster
   # to identify which dependencies are already installed in the chosen cluster runtime, visit the following page

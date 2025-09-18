@@ -7,9 +7,6 @@ include:
   - resources/*/*.yml
 
 variables:
-  unity_catalog:
-    description: "Unity Catalog to use for the bundle"
-    default: '`catalog-dev-uks-corecdp-001`'
   environment:
     description: "Environment to deploy the bundle to"
     default: 'user'
@@ -49,8 +46,6 @@ targets:
       pipelines_development: true
       trigger_pause_status: PAUSED
       jobs_max_concurrent_runs: 10
-    variables:
-      unity_catalog: "`catalog-dev-uks-corecdp-001`"
   
   # below main environments are only executed during CICD runs via the environment's service principal
   development:
@@ -70,8 +65,6 @@ targets:
       pipelines_development: true
       trigger_pause_status: PAUSED
       jobs_max_concurrent_runs: 10
-    variables:
-      unity_catalog: "`catalog-dev-uks-corecdp-001`"
 
   test:
     mode: production
@@ -90,6 +83,4 @@ targets:
       pipelines_development: true
       trigger_pause_status: PAUSED
       jobs_max_concurrent_runs: 10
-    variables:
-      unity_catalog: "`catalog-tst-uks-corecdp-001`"
 

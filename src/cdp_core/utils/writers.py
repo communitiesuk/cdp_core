@@ -1,20 +1,14 @@
-from pyspark.sql import DataFrame, SparkSession
 from databricks.sdk.runtime import *
 
-spark = SparkSession.builder.appName("pytest").getOrCreate()
+from pyspark.sql import DataFrame, SparkSession
 
-def delta_writer(
-    df: DataFrame,
-    catalog: str,
-    layer: str,
-    table_name: str,
-    mode: str,
-    partition_by: str = None
-) -> None:
-    """
-    Writes a DataFrame to a Delta table in the specified layer and mode.
-    """
-    full_table_name = f"{catalog}.{layer}.{table_name}"
+from cdp_core.setup.constants import CATALOG, ENVIRONMENT
+
+spark = SparkSession.builder.getOrCreate()
+
+def delta_writer(df: DataFrame, schema: str, table_name: str, mode: str, partition_by: str = None) -> None:
+    """ Function to write a Spark DataFrame into a Delta table in the specified schema and mode."""
+    full_table_name = f"{CATALOG}.{schema}.{table_name}"
 
     writer = df.write.mode(mode).format("delta")
 
@@ -23,80 +17,61 @@ def delta_writer(
 
     writer.saveAsTable(full_table_name)
 
-def add_tags(catalog: str, layer: str, table_name: str, config: dict) -> None:
+def get_full_table_name(schema: str, table_name: str) -> str:
+    """Constructs the fully qualified Unity Catalog table name."""
+    return f"{CATALOG}.{schema}.{table_name}"
+
+def resolve_column_name(schema: str, column: str, column_config: dict) -> str:
     """
-    Adds Unity Catalog tags to a table and its columns based on the provided config.
+    Resolves the column name based on schema type and config.
+    If not bronze, uses the 'target' field from config.
     """
-    full_table_name = f"{catalog}.{layer}.{table_name}"
+    return column_config.get("target", column) if "bronze" not in schema else column
 
-    # --- Table-level tags ---
-    table_tags = config.get("table_tag", {})
-    if table_tags:
-        table_tag_string = ", ".join([f"'{key}' = '{value}'" for key, value in table_tags.items()])
-        spark.sql(f"""
-            ALTER TABLE {full_table_name}
-            SET TAGS ({table_tag_string})
-        """)
+def apply_table_tags(full_table_name: str, tags: dict) -> None:
+    """Applies Unity Catalog tags to the table."""
+    if tags:
+        tag_str = ", ".join(f"'{k}' = '{v}'" for k, v in tags.items())
+        spark.sql(f"ALTER TABLE {full_table_name} SET TAGS ({tag_str})")
 
-    # --- Column-level tags ---
-    schema_config = config.get("schema", {})
-    for column, column_config in schema_config.items():
-        if "bronze" not in layer:
-            column = column_config.get("target", column)
-
-        tags = column_config.get("tag")
+def apply_column_tags(full_table_name: str, schema_config: dict, schema: str) -> None:
+    """Applies Unity Catalog tags to individual columns based on schema config."""
+    for col, cfg in schema_config.items():
+        tags = cfg.get("tag")
         if not tags:
-            continue  # Skip if tag is None or empty
-
-        # Ensure tags is a list
+            continue
         if isinstance(tags, str):
             tags = [tags]
+        tag_str = ", ".join(f"'{tag}' = ''" for tag in tags)
+        resolved_col = resolve_column_name(schema, col, cfg)
+        spark.sql(f"ALTER TABLE {full_table_name} ALTER COLUMN {resolved_col} SET TAGS ({tag_str})")
 
-        # Convert list of tags to key-value pairs (key = tag name, value = empty string)
-        tag_string = ", ".join([f"'{tag}' = ''" for tag in tags])
-        spark.sql(f"""
-            ALTER TABLE {full_table_name}
-            ALTER COLUMN {column}
-            SET TAGS ({tag_string})
-        """)
+def apply_descriptions(full_table_name: str, config: dict, schema: str) -> None:
+    """Applies table and column descriptions in Unity Catalog."""
+    if desc := config.get("table_description"):
+        spark.sql(f"COMMENT ON TABLE {full_table_name} IS '{desc}'")
+    for col, cfg in config.get("schema", {}).items():
+        if desc := cfg.get("description"):
+            resolved_col = resolve_column_name(schema, col, cfg)
+            spark.sql(f"COMMENT ON COLUMN {full_table_name}.{resolved_col} IS '{desc}'")
 
+def apply_permissions(full_table_name: str, config: dict) -> None:
+    """Grants permissions to principals based on environment-specific config."""
+    for env, roles in config.get("permissions", {}).items():
+        if ENVIRONMENT in env:
+            for principal, privileges in roles.items():
+                spark.sql(f"GRANT {privileges} ON TABLE {full_table_name} TO `{principal}`")
 
-def add_descriptions(catalog: str, layer: str, table_name: str, config: dict) -> None:
-    """
-    Adds descriptions to a Unity Catalog table and its columns.
-    """
-    full_table_name = f"{catalog}.{layer}.{table_name}"
-
-    # --- Table Description ---
-    table_description = config.get("table_description")
-    if table_description:
-        spark.sql(f"COMMENT ON TABLE {full_table_name} IS '{table_description}'")
-
-    # --- Column Descriptions ---
+def add_metadata(schema: str, table_name: str, config: dict) -> None:
+    """Applies tags, descriptions, and permissions to a Unity Catalog table and its columns."""
+    full_table_name = get_full_table_name(schema, table_name)
     schema_config = config.get("schema", {})
-    for column, column_config in schema_config.items():
-        if "bronze" not in layer:
-            column = column_config.get("target", column)
-        description = column_config.get("description")
-        if description:
-            spark.sql(f"COMMENT ON COLUMN {full_table_name}.{column} IS '{description}'")
+
+    apply_table_tags(full_table_name, config.get("table_tag", {}))
+    apply_column_tags(full_table_name, schema_config, schema)
+    apply_descriptions(full_table_name, config, schema)
+    apply_permissions(full_table_name, config)
 
 
-def add_permissions(catalog: str, layer: str, table_name: str, config: dict) -> None:
-    """
-    Adds permissions to a Unity Catalog table.
-    """
-    full_table_name = f"{catalog}.{layer}.{table_name}"
-    
-    env = next((e for e in ["tst", "prd"] if e in catalog.lower()), "dev")
 
-    permissions = config.get("permissions")
-
-    for environment, role_config in permissions.items():
-        if env in environment:
-            for principal, privileges in role_config.items():
-                spark.sql(f"""
-                    GRANT {privileges} ON TABLE {full_table_name}
-                    TO `{principal}`
-                """)
             

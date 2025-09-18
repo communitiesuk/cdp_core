@@ -13,6 +13,8 @@ resources:
             enable_elastic_disk: true
             node_type_id: Standard_F4s_v2
             num_workers: 1
+            spark_env_vars:
+              env: dev
             policy_id: ${var.policy_id}
             runtime_engine: STANDARD
             spark_version: 16.4.x-scala2.12
@@ -23,12 +25,11 @@ resources:
           libraries:
             - whl: ${var.whl_path}
           python_wheel_task:
-            entry_point: run
+            entry_point: main
             package_name: cdp_core
             parameters:
               - cdp_core.transform.bronze.bronze_arcgis
               - LAD_APR_2023_UK_NC
-              - ${var.unity_catalog}
           run_if: ALL_SUCCESS
           webhook_notifications: {}
         - task_key: silver
@@ -39,12 +40,11 @@ resources:
           libraries:
             - whl: ${var.whl_path}
           python_wheel_task:
-            entry_point: run
+            entry_point: main
             package_name: cdp_core
             parameters:
               - cdp_core.transform.silver.silver_arcgis_lad_apr_2023_uk_nc
               - LAD_APR_2023_UK_NC
-              - ${var.unity_catalog}
           run_if: ALL_SUCCESS
           webhook_notifications: {}
       email_notifications: {}

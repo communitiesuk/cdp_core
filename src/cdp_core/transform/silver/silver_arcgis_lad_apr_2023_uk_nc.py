@@ -1,53 +1,48 @@
 import sys
-from typing import Dict
 
-from pyspark.sql import DataFrame, SparkSession
+from pyspark.sql import (
+    DataFrame, 
+    SparkSession
+)
 
-# Initialize Spark session
+# initialize Spark session
 spark = SparkSession.builder.getOrCreate()
 
-# Dynamically add the repository path to Python's sys.path
-# This is primarily useful during development in the Databricks UI.
-# In production, this script is typically executed via the .whl entrypoint.
+# dynamically add the repository path to Python's sys.path
+# only useful during development via Databricks UI but is serves no purpose when running via whl
 current_user = spark.sql("SELECT current_user()").collect()[0][0]
 repo_path = f"/Workspace/Users/{current_user}/cdp_core/src"
 if repo_path not in sys.path:
     sys.path.append(repo_path)
 
-# Import CDP Core modules
-from cdp_core.setup.constants import *
+from cdp_core.utils.logger import get_logger
 from cdp_core.utils.readers import read_table
 from cdp_core.utils.writers import (
-    delta_writer, 
-    add_tags, 
-    add_descriptions, 
-    add_permissions
+    delta_writer,
+    add_metadata
+)
+from cdp_core.setup.constants import (
+    SCHEMA_BRONZE, 
+    SCHEMA_SILVER
 )
 from cdp_core.utils.util import (
-    cast_columns, 
-    config_reader, 
     de_dupe, 
-    rename_columns
+    cast_columns, 
+    rename_columns,
+    config_reader, 
 )
 
+# initiate logger instance
+logger = get_logger(__name__)
 
-def extract(config: dict, catalog: str) -> DataFrame:
-    env = next((e for e in ["tst", "prd"] if e in catalog.lower()), "dev")
+def extract(config: dict) -> DataFrame:
+    """Function to host the bronze extraction logic."""
+    table_name = f"{config["dataset"]}_tmp" # TODO - remove tmp once table permissions are sorted
+    
+    return read_table(SCHEMA_BRONZE, table_name)
 
-    SCHEMA_BRONZE = f"`schema-{env}-uks-corecdp-bronze-001`"
-
-    return read_table(catalog, SCHEMA_BRONZE, f"{config['dataset']}_tmp")
-
-def transform(df: DataFrame, config: Dict) -> DataFrame:
-    # column renaming
-    # type casting
-    # filtering
-    # normalisation
-    # deduplication
-    # enrichment?
-    # validation?
-    # partitioning?
-
+def transform(df: DataFrame, config: dict) -> DataFrame:
+    """Function to host the silver custom transformation logic."""
     # drop duplicates
     df = df.dropDuplicates()
 
@@ -62,19 +57,27 @@ def transform(df: DataFrame, config: Dict) -> DataFrame:
 
     return df
 
-def load(df: DataFrame, config: Dict, catalog: str) -> None:
-    table_name = f"{config["dataset"]}_tmp"
-    env = next((e for e in ["tst", "prd"] if e in catalog.lower()), "dev")
+def load(df: DataFrame, config: dict) -> None:
+    """Function to host the silver custom load logic."""
+    table_name = f"{config["dataset"]}_tmp" # TODO - remove tmp once table permissions are sorted
 
-    SCHEMA_SILVER = f"`schema-{env}-uks-corecdp-silver-001`"
-    delta_writer(df, catalog, SCHEMA_SILVER, table_name, config["write_method"])
-    add_tags(catalog, SCHEMA_SILVER, table_name, config)
-    add_descriptions(catalog, SCHEMA_SILVER, table_name, config)
-    add_permissions(catalog, SCHEMA_SILVER, table_name, config)
+    # write to delta table
+    delta_writer(df, SCHEMA_SILVER, table_name, config["write_method"])
 
-def execute(dataset: str, catalog: str) -> None:
+    # add metadata to table -tags / column description / permissions
+    add_metadata(SCHEMA_SILVER, table_name, config)
+
+def execute(dataset: str) -> None:
+    """Module entrypoint to execute the extract, transform and load process."""  
+    # retrieve dataset config
     config = config_reader(dataset)
-    df = extract(config, catalog)
-    df = transform(df, config)
-    load(df, config, catalog)
     
+    # extract, transform and load
+    df = extract(config)
+    logger.info("Data extracted")
+
+    df = transform(df, config)
+    logger.info("Data transformed")
+    
+    load(df, config)
+    logger.info("Data loaded")

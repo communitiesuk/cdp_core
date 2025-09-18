@@ -1,9 +1,11 @@
 import requests
-
-from pyspark.sql import SparkSession
 from databricks.sdk.runtime import *
 
-spark = SparkSession.builder.appName("pytest").getOrCreate()
+from pyspark.sql import SparkSession, DataFrame
+
+from cdp_core.setup.constants import CATALOG
+
+spark = SparkSession.builder.getOrCreate()
 
 class RestClient:
     def __init__(self, base_url: str, headers: dict = None, params: dict = None):
@@ -20,7 +22,8 @@ class RestClient:
             print(f"HTTP request failed: {e}")
             return {}
 
-def read_table(catalog: str, schema: str, table: str):
-    return spark.read.table(f'{catalog}.{schema}.{table}')
+def read_table(schema: str, table: str) -> DataFrame:
+    """Function to return a Spark DataFrame from a table in the specified schema"""
+    return spark.read.table(f'{CATALOG}.{schema}.{table}')
 
 
