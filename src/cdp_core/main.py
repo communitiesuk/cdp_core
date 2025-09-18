@@ -12,8 +12,7 @@ def main():
 
     Arguments:
         sys.argv[1] (str): Name of the module to import. The target module must contain a function named 'execute' that accepts two arguments.
-        sys.argv[2] (str): First argument to pass to the 'execute' function, this is the dataset.
-        sys.argv[3] (str): Second argument to pass to the 'execute' function, this is the catalog     
+        sys.argv[2] (str): First argument to pass to the 'execute' function, this is the dataset. 
 
     Example:
         Refer to the `bronze_task` in the `jb_lad_cd_nm_whl` example job in the `Jobs & Pipelines` panel
@@ -21,7 +20,7 @@ def main():
     try:
         module = importlib.import_module(sys.argv[1])
         func = getattr(module, "execute")
-        func(sys.argv[2], sys.argv[3])
+        func(sys.argv[2])
     except Exception as e:
         print(f"Error: {e}")
         sys.exit(1)
