@@ -16,7 +16,7 @@ permissions:
   dev_role: 
     TST-SG-CDP-Core-DataEngineerD: "MANAGE"
     TST-SG-CDP-Core-AdminD: "MANAGE"
-    6f4aedc5-6ff3-48f3-8d6a-e4c03148e42f: "MANAGE" # fix
+    6f4aedc5-6ff3-48f3-8d6a-e4c03148e42f: "SELECT" # fix
   test_role: 
     TST-SG-CDP-Core-DataEngineer: "MANAGE"
   prod_role:
