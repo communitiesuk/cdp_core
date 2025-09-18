@@ -1,7 +1,7 @@
 import pytest
 from pyspark.sql.types import StructType, StructField, StringType
 
-from tests.utils import *
+from utils import *
 from cdp_core.transform.silver.silver_arcgis_lad_apr_2023_uk_nc import *
 
 TABLE = "lad_apr_2023_uk_nc_tmp"
