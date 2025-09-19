@@ -5,7 +5,7 @@ resources:
       tasks:
         - task_key: jb_pytest
           spark_python_task:
-            python_file: /Workspace/Users/${var.SPN_ID}/.bundle/cdp_core/files/tests/main.py
+            python_file: /Workspace/Users/${var.spn_id}/.bundle/cdp_core/files/tests/main.py
           job_cluster_key: jb_pytest_cluster
           libraries:
             - pypi:
