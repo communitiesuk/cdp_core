@@ -39,8 +39,6 @@ stages:
 
   # ############################## PROD Stage ########################################
   # - template: templates/prod.yml
-  #   parameters:
-  #     environment: 'prd'
   
   # ############################## RELEASE Stage #####################################
   # - stage: TagAndRelease

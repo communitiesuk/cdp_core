@@ -10,7 +10,7 @@ variables:
   whl_path: 
     description: "Path to the wheel file in the Databricks workspace"
     default: ''
-  SPN_ID:
+  spn_id:
     description: "Service Principal ID for the Databricks workspace"
     default: ''
   policy_id:
@@ -43,41 +43,37 @@ targets:
       pipelines_development: true
       trigger_pause_status: PAUSED
       jobs_max_concurrent_runs: 10
-    variables: 
-      environment: "dev"
   
   # below main environments are only executed during CICD runs via the environment's service principal
   dev:
     mode: production
     workspace:
-      root_path: /Workspace/Users/${var.SPN_ID}/.bundle/${bundle.name}
+      root_path: /Workspace/Users/${var.spn_id}/.bundle/${bundle.name}
       host: https://adb-1036309900456578.18.azuredatabricks.net/
     permissions:
       - group_name: ${var.data_engineering_group}
         level: "CAN_RUN"
-      - service_principal_name: ${var.SPN_ID}
+      - service_principal_name: ${var.spn_id}
         level: "CAN_MANAGE"
     run_as:
-      service_principal_name: ${var.SPN_ID}
+      service_principal_name: ${var.spn_id}
     presets:
       name_prefix: "[main]"
       pipelines_development: true
       trigger_pause_status: PAUSED
       jobs_max_concurrent_runs: 10
-    variables: 
-      environment: "dev"
 
   tst:
     mode: production
     workspace:
-      root_path: /Workspace/Users/${var.SPN_ID}/.bundle/${bundle.name}
+      root_path: /Workspace/Users/${var.spn_id}/.bundle/${bundle.name}
       host: https://adb-6686411646094.14.azuredatabricks.net/
     run_as:
-      service_principal_name: ${var.SPN_ID}
+      service_principal_name: ${var.spn_id}
     permissions:
       - group_name: ${var.data_engineering_group}
         level: "CAN_RUN"
-      - service_principal_name: ${var.SPN_ID}
+      - service_principal_name: ${var.spn_id}
         level: "CAN_MANAGE"
     presets:
       name_prefix: "[main]"

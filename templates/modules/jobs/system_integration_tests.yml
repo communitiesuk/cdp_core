@@ -15,7 +15,7 @@ jobs:
       - template: ../../variables.yml
         parameters:
           environment: ${{ parameters.environment }}
-    ${{ if eq(parameters.environment, 'test') }}:
+    ${{ if eq(parameters.environment, 'tst') }}:
       pool: 
         name: 'vmss-shared'
     steps:
@@ -43,7 +43,7 @@ jobs:
                 continue
               fi
               echo "Running bundle: $clean_name"
-              databricks bundle run -t test "$clean_name" --refresh-all --var=$(BUNDLE_VAR)&
+              databricks bundle run -t ${{ parameters.environment}} "$clean_name" --refresh-all --var=$(BUNDLE_VAR)&
               pids+=($!)
             done
 
