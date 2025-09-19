@@ -1,8 +1,8 @@
 parameters: 
   - name: servicePrincipal
     type: string
-  - name: environment
-    type: string
+  # - name: environment
+  #   type: string
 
 jobs: 
   - job: UnitTests
@@ -12,9 +12,9 @@ jobs:
     variables:
       - name: BUNDLE_VAR
         value: $[ dependencies.ValidateAndDeploy.outputs['setEnvVars.BUNDLE_VAR'] ]
-      - template: ../../variables.yml
-        parameters:
-          environment: ${{ parameters.environment }}
+      # - template: ../../variables.yml
+      #   parameters:
+      #     environment: ${{ parameters.environment }}
     steps:
       # 1. Install Databricks CLI
       - script: |   
