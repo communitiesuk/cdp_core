@@ -25,10 +25,8 @@ stages:
   ############################## DEV Stage #########################################
   - template: templates/dev.yml
 
-  # ############################## TEST Stage ########################################
-  # - template: templates/test.yml
-  #   parameters:
-  #     environment: 'tst'
+  ############################## TEST Stage ########################################
+  - template: templates/test.yml
 
   # ############################## MANUAL Approval Stage #############################
   # - stage: ProdApproval
