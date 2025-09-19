@@ -23,7 +23,7 @@ variables:
 
 stages:
   ############################## DEV Stage #########################################
-  - template: templates/dev.yml
+  # - template: templates/dev.yml
 
   ############################## TEST Stage ########################################
   - template: templates/test.yml
