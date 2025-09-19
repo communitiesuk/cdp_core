@@ -19,9 +19,6 @@ variables:
   data_engineering_group:
     description: "Group"
     default: ""
-  # host:
-  #   description: "Databricks host defaults to the DEV one"
-  #   default: https://adb-6686411646094.14.azuredatabricks.net/
 
 artifacts:
   default:
@@ -43,6 +40,8 @@ targets:
       pipelines_development: true
       trigger_pause_status: PAUSED
       jobs_max_concurrent_runs: 10
+    variables: 
+      environment: "dev"
   
   # below main environments are only executed during CICD runs via the environment's service principal
   dev:
@@ -62,6 +61,8 @@ targets:
       pipelines_development: true
       trigger_pause_status: PAUSED
       jobs_max_concurrent_runs: 10
+    variables: 
+      environment: "dev"
 
   tst:
     mode: production
@@ -80,4 +81,5 @@ targets:
       pipelines_development: true
       trigger_pause_status: PAUSED
       jobs_max_concurrent_runs: 10
-
+    variables: 
+      environment: "tst"
