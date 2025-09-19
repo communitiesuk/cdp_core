@@ -45,7 +45,7 @@ targets:
       jobs_max_concurrent_runs: 10
   
   # below main environments are only executed during CICD runs via the environment's service principal
-  development:
+  dev:
     mode: production
     workspace:
       root_path: /Workspace/Users/${var.SPN_ID}/.bundle/${bundle.name}
@@ -63,7 +63,7 @@ targets:
       trigger_pause_status: PAUSED
       jobs_max_concurrent_runs: 10
 
-  test:
+  tst:
     mode: production
     workspace:
       root_path: /Workspace/Users/${var.SPN_ID}/.bundle/${bundle.name}
