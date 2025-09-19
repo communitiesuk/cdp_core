@@ -7,9 +7,6 @@ include:
   - resources/*/*.yml
 
 variables:
-  environment:
-    description: "Environment to deploy the bundle to"
-    default: 'user'
   whl_path: 
     description: "Path to the wheel file in the Databricks workspace"
     default: ''
