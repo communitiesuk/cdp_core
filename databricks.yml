@@ -19,6 +19,9 @@ variables:
   data_engineering_group:
     description: "Group"
     default: ""
+  environment:
+    description: "primarily used to determine the OS env variable when starting a job cluster"
+    default: "dev" 
 
 artifacts:
   default:
