@@ -14,4 +14,4 @@ stages:
       - template: modules/jobs/system_integration_tests.yml
         parameters:
           servicePrincipal: $(SPN_TEST_NAME)
-          environment: tst
+          # environment: tst
