@@ -1,8 +1,8 @@
 stages:
   - stage: TEST
     displayName: "TEST"
-    # dependsOn: DEV
-    # condition: succeeded('DEV')
+    dependsOn: DEV
+    condition: succeeded('DEV')
     jobs:
       # 1. Validate and Deploy Bundle
       - template: modules/jobs/validate_and_deploy.yml
