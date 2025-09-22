@@ -3,7 +3,7 @@ stages:
     displayName: "PROD"
     dependsOn: 
       - ProdApproval
-    condition: succeeded('TEST')
+    condition: succeeded('ProdApproval')
     jobs:
       - job: ProdDeployment
         displayName: "Production Deployment"

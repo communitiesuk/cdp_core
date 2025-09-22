@@ -1,8 +1,6 @@
 parameters: 
   - name: servicePrincipal
     type: string
-  # - name: environment
-  #   type: string
 
 jobs: 
   - job: SystemIntegrationTests
@@ -14,12 +12,6 @@ jobs:
         value: $[ dependencies.ValidateAndDeploy.outputs['setEnvVars.BUNDLE_VAR'] ]
     pool: 
       name: 'vmss-shared'
-    #   - template: ../../variables.yml
-    #     parameters:
-    #       environment: ${{ parameters.environment }}
-    # ${{ if eq(parameters.environment, 'tst') }}:
-    #   pool: 
-    #     name: 'vmss-shared'
     steps:
       - script: |   
           # Exit immediately if any command fails
