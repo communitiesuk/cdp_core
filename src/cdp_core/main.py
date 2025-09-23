@@ -4,18 +4,24 @@ import importlib
 
 def main():
     """
-    Function to dynamically import a transformation module and executes its 'execute' function with two arguments. 
-    
-    Note, this is the entry point for the whl file. 
+    Entry point for the Python Wheel task. Dynamically imports a specified transformation module
+    and executes its `execute` function with arguments provided via the command line.
 
-    The below arguments are passed as positional arguments within the Python Wheel Task in the specified Databricks Jobs.
+    This function does not accept parameters directly; instead, it reads arguments from `sys.argv`.
+    It is designed to be invoked when the wheel is executed in a Databricks Job.
 
-    Arguments:
-        sys.argv[1] (str): Name of the module to import. The target module must contain a function named 'execute' that accepts two arguments.
-        sys.argv[2] (str): First argument to pass to the 'execute' function, this is the dataset. 
+    Command-line Arguments: 
+        sys.argv[1] (str): Name of the module to import. The module must define an `execute` function.
+        sys.argv[2] (str): First argument to pass to the `execute` function (e.g., dataset name).
 
-    Example:
-        Refer to the `bronze_task` in the `jb_lad_cd_nm_whl` example job in the `Jobs & Pipelines` panel
+    Behavior:
+        - Imports the module specified in sys.argv[1].
+        - Retrieves the `execute` function from the module.
+        - Calls `execute` with sys.argv[2] as its argument.
+
+    Notes:
+        - The target module must contain an `execute` function that accepts at least one argument.
+        - Errors during import or execution will be printed, and the process will exit with code 1.
     """
     try:
         module = importlib.import_module(sys.argv[1])
