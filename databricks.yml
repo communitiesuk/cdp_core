@@ -7,12 +7,21 @@ include:
   - resources/*/*.yml
 
 variables:
-  environment:
-    description: "Environment to deploy the bundle to"
   whl_path: 
     description: "Path to the wheel file in the Databricks workspace"
-  SPN_ID:
+    default: ''
+  spn_id:
     description: "Service Principal ID for the Databricks workspace"
+    default: ''
+  policy_id:
+    description: "Compute policy"
+    default: '00164AA6162B137A'
+  data_engineering_group:
+    description: "Group"
+    default: ""
+  environment:
+    description: "primarily used to determine the OS env variable when starting a job cluster"
+    default: "dev" 
 
 artifacts:
   default:
@@ -22,7 +31,54 @@ artifacts:
       - source: packages/*.whl
 
 targets:
-  ${var.environment}:
-    mode: ${var.environment}
+  # this deployment allows individual users to deploy within an isolated user's path
+  user:
+    mode: development
+    default: true
     workspace:
-      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
+      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}
+      host: https://adb-1036309900456578.18.azuredatabricks.net/
+    presets:
+      name_prefix: "[${workspace.current_user.short_name}][${bundle.git.branch}]"
+      pipelines_development: true
+      trigger_pause_status: PAUSED
+      jobs_max_concurrent_runs: 10
+  
+  # below main environments are only executed during CICD runs via the environment's service principal
+  dev:
+    mode: production
+    workspace:
+      root_path: /Workspace/Users/${var.spn_id}/.bundle/${bundle.name}
+      host: https://adb-1036309900456578.18.azuredatabricks.net/
+    permissions:
+      - group_name: ${var.data_engineering_group}
+        level: "CAN_RUN"
+      - service_principal_name: ${var.spn_id}
+        level: "CAN_MANAGE"
+    run_as:
+      service_principal_name: ${var.spn_id}
+    presets:
+      name_prefix: "[main]"
+      pipelines_development: true
+      trigger_pause_status: PAUSED
+      jobs_max_concurrent_runs: 10
+
+  tst:
+    mode: production
+    workspace:
+      root_path: /Workspace/Users/${var.spn_id}/.bundle/${bundle.name}
+      host: https://adb-6686411646094.14.azuredatabricks.net/
+    run_as:
+      service_principal_name: ${var.spn_id}
+    permissions:
+      - group_name: ${var.data_engineering_group}
+        level: "CAN_RUN"
+      - service_principal_name: ${var.spn_id}
+        level: "CAN_MANAGE"
+    presets:
+      name_prefix: "[main]"
+      pipelines_development: true
+      trigger_pause_status: PAUSED
+      jobs_max_concurrent_runs: 10
+    variables: 
+      environment: "tst"

@@ -1,16 +1,16 @@
-parameters:
-  - name: environment
-    type: string
-
 stages:
   - stage: PROD
     displayName: "PROD"
     dependsOn: 
       - ProdApproval
-    condition: succeeded('TEST')
+    condition: succeeded('ProdApproval')
     jobs:
-      # 1. Validate and Deploy Bundle
-      - template: modules/jobs/validate_and_deploy.yml
-        parameters:
-          servicePrincipal: $(SPN_PROD_NAME)
-          environment: ${{ parameters.environment }}
+      - job: ProdDeployment
+        displayName: "Production Deployment"
+        pool: 
+          name: 'vmss-shared'
+        steps:
+          # Temporary step for until prod is fully implemented
+          - script: echo "This is a temporary step in the PROD stage."
+            displayName: "Temporary Step"
+

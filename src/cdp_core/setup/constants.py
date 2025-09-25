@@ -1,19 +1,17 @@
+import os
+
 from pyspark.sql.types import StringType, IntegerType
 
-# catalogs
-CATALOG_SLT1_SBX = "`catalog-sbx-uks-corecdp-001`"
-CATALOG_SLT1_DEV = "`catalog-sbx-uks-corecdp-001`" # for development purposes
-CATALOG_SLT1_TEST = "`catalog-test-uks-corecdp-001`"
-CATALOG_SLT1_PROD = "`catalog-prod-uks-corecdp-001`"
+# environment
+ENVIRONMENT = os.getenv('env', 'dev')
+
+# catalog
+CATALOG =  f"`catalog-{ENVIRONMENT}-uks-corecdp-001`"
 
 # schemas
-SCHEMA_BRONZE = "bronze"
-SCHEMA_SILVER = "silver"
-SCHEMA_GOLD = "gold"
-
-# write mode
-OVERWRITE = "overwrite"
-APPEND = "append"
+SCHEMA_BRONZE = f"`schema-{ENVIRONMENT}-uks-corecdp-bronze-001`"
+SCHEMA_SILVER = f"`schema-{ENVIRONMENT}-uks-corecdp-silver-001`"
+SCHEMA_GOLD = f"`schema-{ENVIRONMENT}-uks-corecdp-gold-001`"
 
 # type mappings
 TYPE_MAPPING = {

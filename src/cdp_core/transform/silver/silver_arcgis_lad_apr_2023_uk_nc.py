@@ -1,33 +1,48 @@
 import sys
-from typing import Dict
 
-from pyspark.dbutils import DBUtils
-from pyspark.sql import functions as F
-from pyspark.sql import DataFrame, SparkSession
+from pyspark.sql import (
+    DataFrame, 
+    SparkSession
+)
 
-spark = SparkSession.getActiveSession()
-user_email = DBUtils(spark).notebook.entry_point.getDbutils().notebook().getContext().tags().apply('user')
-sys.path.append(f"/Workspace/Users/{user_email}/cdp_core/src")
+# initialize Spark session
+spark = SparkSession.builder.getOrCreate()
 
-from cdp_core.setup.constants import *
+# dynamically add the repository path to Python's sys.path
+# only useful during development via Databricks UI but is serves no purpose when running via whl
+current_user = spark.sql("SELECT current_user()").collect()[0][0]
+repo_path = f"/Workspace/Users/{current_user}/cdp_core/src"
+if repo_path not in sys.path:
+    sys.path.append(repo_path)
+
+from cdp_core.utils.logger import get_logger
 from cdp_core.utils.readers import read_table
-from cdp_core.utils.writers import delta_writer, add_tags, add_descriptions
-from cdp_core.utils.util import cast_columns, config_reader, de_dupe, rename_columns
+from cdp_core.utils.writers import (
+    delta_writer,
+    add_metadata
+)
+from cdp_core.setup.constants import (
+    SCHEMA_BRONZE, 
+    SCHEMA_SILVER
+)
+from cdp_core.utils.util import (
+    de_dupe, 
+    cast_columns, 
+    rename_columns,
+    config_reader, 
+)
 
+# initiate logger instance
+logger = get_logger(__name__)
 
 def extract(config: dict) -> DataFrame:
-    return read_table(CATALOG_SLT1_DEV, SCHEMA_BRONZE, config['dataset'])
+    """Function to host the bronze extraction logic."""
+    table_name = f"{config["dataset"]}_tmp" # TODO - remove tmp once table permissions are sorted
+    
+    return read_table(SCHEMA_BRONZE, table_name)
 
-def transform(df: DataFrame, config: Dict) -> DataFrame:
-    # column renaming
-    # type casting
-    # filtering
-    # normalisation
-    # deduplication
-    # enrichment?
-    # validation?
-    # partitioning?
-
+def transform(df: DataFrame, config: dict) -> DataFrame:
+    """Function to host the silver custom transformation logic."""
     # drop duplicates
     df = df.dropDuplicates()
 
@@ -42,14 +57,27 @@ def transform(df: DataFrame, config: Dict) -> DataFrame:
 
     return df
 
-def load(df: DataFrame, config: Dict) -> None:
-    delta_writer(df, CATALOG_SLT1_DEV, SCHEMA_SILVER, config["dataset"], config["write_method"])
-    add_tags(CATALOG_SLT1_DEV, SCHEMA_SILVER, config["dataset"], config)
-    add_descriptions(CATALOG_SLT1_DEV, SCHEMA_SILVER, config["dataset"], config)
+def load(df: DataFrame, config: dict) -> None:
+    """Function to host the silver custom load logic."""
+    table_name = f"{config["dataset"]}_tmp" # TODO - remove tmp once table permissions are sorted
+
+    # write to delta table
+    delta_writer(df, SCHEMA_SILVER, table_name, config["write_method"])
+
+    # add metadata to table -tags / column description / permissions
+    add_metadata(SCHEMA_SILVER, table_name, config)
 
 def execute(dataset: str) -> None:
+    """Module entrypoint to execute the extract, transform and load process."""  
+    # retrieve dataset config
     config = config_reader(dataset)
-    df = extract(config)
-    df = transform(df, config)
-    load(df, config)
     
+    # extract, transform and load
+    df = extract(config)
+    logger.info("Data extracted")
+
+    df = transform(df, config)
+    logger.info("Data transformed")
+    
+    load(df, config)
+    logger.info("Data loaded")

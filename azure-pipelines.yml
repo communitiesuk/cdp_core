@@ -24,15 +24,11 @@ variables:
 stages:
   ############################## DEV Stage #########################################
   - template: templates/dev.yml
-    parameters:
-      environment: 'development'
 
   ############################## TEST Stage ########################################
   - template: templates/test.yml
-    parameters:
-      environment: 'test'
 
-  ############################## MANUAL Approval Stage #############################
+  ############################## APPROVAL Gate #####################################
   - stage: ProdApproval
     condition: succeeded('TEST')
     displayName: "APPROVAL GATE"
@@ -43,8 +39,6 @@ stages:
 
   ############################## PROD Stage ########################################
   - template: templates/prod.yml
-    parameters:
-      environment: 'production'
   
   ############################## RELEASE Stage #####################################
   - stage: TagAndRelease

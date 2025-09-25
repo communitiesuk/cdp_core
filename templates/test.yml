@@ -1,7 +1,3 @@
-parameters:
-  - name: environment
-    type: string
-
 stages:
   - stage: TEST
     displayName: "TEST"
@@ -12,10 +8,9 @@ stages:
       - template: modules/jobs/validate_and_deploy.yml
         parameters:
           servicePrincipal: $(SPN_TEST_NAME)
-          environment: ${{ parameters.environment }}
+          environment: tst
       
       # 2. Run Integration Tests
       - template: modules/jobs/system_integration_tests.yml
         parameters:
           servicePrincipal: $(SPN_TEST_NAME)
-          environment: ${{ parameters.environment }}
