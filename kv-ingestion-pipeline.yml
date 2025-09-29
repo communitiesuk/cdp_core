@@ -1,8 +1,5 @@
 trigger: none
 pr: none
-pool:
-  vmImage: ${{ if eq(parameters.environment, 'dev') }}
-  name: ${{ if eq(parameters.environment, 'test') }}
 
 # azure-pipelines.yml
 # Run 1: discovers secret names and re-queues itself.
@@ -40,6 +37,11 @@ stages:
   jobs:
   - job: Discover
     displayName: "Find secrets in variable group and self-queue"
+    pool:
+      ${{ if eq(parameters.environment, 'dev') }}:
+        vmImage: 'ubuntu-latest'
+      ${{ if eq(parameters.environment, 'test') }}:
+        name: 'vmss-shared'
     steps:
     - checkout: self
 
@@ -93,6 +95,11 @@ stages:
   jobs:
   - job: PushToKeyVault
     displayName: "Write secrets to ${{ parameters.environmentConfig[parameters.environment].keyVault }}"
+    pool:
+      ${{ if eq(parameters.environment, 'dev') }}:
+        vmImage: 'ubuntu-latest'
+      ${{ if eq(parameters.environment, 'test') }}:
+        name: 'vmss-shared'
     steps:
     - checkout: none
 
