@@ -3,10 +3,10 @@ trigger:
     include:
       - main
 
-pr:
-  branches:
-    exclude:
-      - "*"
+# pr:
+#   branches:
+#     exclude:
+#       - "*"
 
 parameters:
   - name: releaseNotes
