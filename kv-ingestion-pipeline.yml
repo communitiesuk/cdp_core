@@ -1,7 +1,10 @@
 trigger: none
 pr: none
 pool:
-  name: 'vmss-shared'
+  ${{ if eq(parameters.environment, 'dev') }}:
+    vmImage: 'ubuntu-latest'
+  ${{ if eq(parameters.environment, 'test') }}:
+    name: 'vmss-shared'
 
 # azure-pipelines.yml
 # Run 1: discovers secret names and re-queues itself.
