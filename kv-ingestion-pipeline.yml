@@ -83,7 +83,7 @@ stages:
 
           # Queue THIS pipeline again, passing the names as a parameter
           $pipelineId = $(System.DefinitionId)
-          az pipelines run --id $pipelineId --branch "feat/kv-pipeline-envs" --parameters secretNamesJson="$json" environment="${{ parameters.environment }}"
+          az pipelines run --id $pipelineId --parameters secretNamesJson="$json" environment="${{ parameters.environment }}"
 
 # --- Stage 2: Expand (only when parameter is populated) ---
 - stage: Expand
