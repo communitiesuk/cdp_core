@@ -1,8 +1,5 @@
 trigger: none
-pool:
-  name: 'vmss-shared'
-variables:
-- group: kv-tst-core-cdp-vars
+pr: none
 
 # azure-pipelines.yml
 # Run 1: discovers secret names and re-queues itself.
@@ -13,13 +10,24 @@ parameters:
   type: object
   default: []                   # The first run will be empty → discover mode
 
-- name: vgName
+- name: environment
   type: string
-  default: 'kv-tst-core-cdp-vars'           # Your variable group name
+  default: 'test'
+  values:
+  - 'dev'
+  - 'test'
 
-- name: kvName
-  type: string
-  default: 'kvcorecdp4143'    # Your Key Vault name
+- name: environmentConfig
+  type: object
+  default:
+    dev:
+      variableGroup: 'kv-dev-core-cdp-vars'
+      keyVault: 'kvdevcorecdp8172'
+      serviceConnection: 'SPN-SP-dev-corecdp-databricks-001'
+    test:
+      variableGroup: 'kv-tst-core-cdp-vars'
+      keyVault: 'kvcorecdp4143'
+      serviceConnection: 'SPN-SP-sub-tst-ctdpslt001-001'
 
 # --- Stage 1: Discover (only when parameter is empty) ---
 stages:
@@ -29,6 +37,11 @@ stages:
   jobs:
   - job: Discover
     displayName: "Find secrets in variable group and self-queue"
+    pool:
+      ${{ if eq(parameters.environment, 'dev') }}:
+        vmImage: 'ubuntu-latest'
+      ${{ if eq(parameters.environment, 'test') }}:
+        name: 'vmss-shared'
     steps:
     - checkout: self
 
@@ -37,7 +50,7 @@ stages:
       env:
         AZURE_DEVOPS_EXT_PAT: $(System.AccessToken)
       inputs:
-        azureSubscription: 'SPN-SP-sub-tst-ctdpslt001-001'
+        azureSubscription: '${{ parameters.environmentConfig[parameters.environment].serviceConnection }}'
         scriptType: pscore
         scriptLocation: inlineScript
         inlineScript: |
@@ -45,11 +58,11 @@ stages:
 
           # Get variable group id
           $gid = az pipelines variable-group list `
-            --group-name "${{ parameters.vgName }}" `
+            --group-name "${{ parameters.environmentConfig[parameters.environment].variableGroup }}" `
             --query "[0].id" -o tsv
 
           if (-not $gid) {
-            Write-Error "Variable group '${{ parameters.vgName }}' not found."
+            Write-Error "Variable group '${{ parameters.environmentConfig[parameters.environment].variableGroup }}' not found."
             exit 1
           }
 
@@ -70,18 +83,23 @@ stages:
 
           # Queue THIS pipeline again, passing the names as a parameter
           $pipelineId = $(System.DefinitionId)
-          az pipelines run --id $pipelineId --parameters secretNamesJson="$json" vgName="${{ parameters.vgName }}" kvName="${{ parameters.kvName }}"
+          az pipelines run --id $pipelineId --parameters secretNamesJson="$json" environment="${{ parameters.environment }}"
 
 # --- Stage 2: Expand (only when parameter is populated) ---
 - stage: Expand
   displayName: "Expand secrets and push to Key Vault"
   condition: ${{ gt(length(parameters.secretNamesJson), 0) }}
   variables:
-  - group: ${{ parameters.vgName }}     # Attach the variable group here
+  - group: ${{ parameters.environmentConfig[parameters.environment].variableGroup }}     # Attach the variable group here
 
   jobs:
   - job: PushToKeyVault
-    displayName: "Write secrets to ${{ parameters.kvName }}"
+    displayName: "Write secrets to ${{ parameters.environmentConfig[parameters.environment].keyVault }}"
+    pool:
+      ${{ if eq(parameters.environment, 'dev') }}:
+        vmImage: 'ubuntu-latest'
+      ${{ if eq(parameters.environment, 'test') }}:
+        name: 'vmss-shared'
     steps:
     - checkout: none
 
@@ -90,12 +108,12 @@ stages:
       - task: AzureCLI@2
         displayName: "Push ${{ s }} to Key Vault"
         inputs:
-          azureSubscription: 'SPN-SP-sub-tst-ctdpslt001-001'
+          azureSubscription: '${{ parameters.environmentConfig[parameters.environment].serviceConnection }}'
           scriptType: pscore
           scriptLocation: inlineScript
           inlineScript: |
             az keyvault secret set `
-              --vault-name '${{ parameters.kvName }}' `
+              --vault-name '${{ parameters.environmentConfig[parameters.environment].keyVault }}' `
               --name "${{ replace(s, '_', '-') }}" `
               --value '$(${{ s }})' `
               --output none
