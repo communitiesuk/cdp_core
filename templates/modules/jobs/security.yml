@@ -23,9 +23,12 @@ jobs:
           python -m venv venv
           source venv/bin/activate
           pip install pipreqs
-          
+
+          # HARD-CODED FOR NOW to test security packages- see security_reports/requirements.txt >>>>
           # Retrieve top level imports
-          pipreqs ./src --force --savepath security_reports/requirements.txt
+          # pipreqs ./src --force --savepath security_reports/requirements.txt
+          # HARD-CODED FOR NOW - see security_reports/requirements.txt <<<<
+
 
           # Install direct requirements and sub-dependencies
           pip install -r security_reports/requirements.txt
@@ -55,3 +58,6 @@ jobs:
           scanType: "safety"
           inlineScript: | 
             safety --key $(SAFETY_API_KEY) check -r security_reports/full_requirements.txt --save-json security_reports/safety_report.json
+
+
+            safety check -r security_reports/full_requirements.txt --save-json security_reports/safety_report.json

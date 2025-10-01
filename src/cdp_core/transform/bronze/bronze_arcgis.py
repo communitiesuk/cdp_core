@@ -53,7 +53,7 @@ def transform(df: DataFrame) -> DataFrame:
 
 def load(df: DataFrame, config: dict) -> None:
     """Function to host the bronze custom load logic."""
-    table_name = f"{config["dataset"]}_tmp" # TODO - remove tmp once table permissions are sorted
+    table_name = f"{config['dataset']}_tmp" # TODO - remove tmp once table permissions are sorted
 
     # write to delta table
     delta_writer(df, SCHEMA_BRONZE, table_name, config["write_method"])
