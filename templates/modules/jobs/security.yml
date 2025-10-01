@@ -41,7 +41,7 @@ jobs:
       - template: scans.yml
         parameters:
           scanType: "bandit"
-          severity: "high"
+          severity: "medium"
           inlineScript: |
             bandit --ini cicd_configs/security/.bandit -r src/ -f json -o security_reports/bandit_report.json
     
