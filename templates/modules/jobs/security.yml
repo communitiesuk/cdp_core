@@ -17,7 +17,7 @@ jobs:
           set -e
           
           # Create a common directory for security reports
-          mkdir security_reports
+          mkdir -p security_reports
 
           # Initiate new python environment
           python -m venv venv
