@@ -31,7 +31,12 @@ class RestClient:
         Raises:
             requests.exceptions.ReqeustException: If the request fails.
         """
-        response = requests.get(self.base_url, headers=self.headers, params=self.params)
+        response = requests.get(
+            self.base_url,
+            headers=self.headers,
+            params=self.params,
+            timeout=10  # seconds
+)
         response.raise_for_status()
         return response.json()
 
