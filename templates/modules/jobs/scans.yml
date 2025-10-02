@@ -35,4 +35,4 @@ steps:
       fi
 
       eval $fullCommand  
-    displayName: "Run ${{ parameters.scanType }} - Fail on Severity Level"
+    displayName: "Run ${{ parameters.scanType }} - Fail on Severity Level: ${{ parameters.severity }}"

@@ -37,7 +37,7 @@ logger = get_logger(__name__)
 
 def extract(config: dict) -> DataFrame:
     """Function to host the bronze extraction logic."""
-    table_name = f"{config["dataset"]}_tmp" # TODO - remove tmp once table permissions are sorted
+    table_name = f"{config['dataset']}_tmp"
     
     return read_table(SCHEMA_BRONZE, table_name)
 
@@ -59,7 +59,7 @@ def transform(df: DataFrame, config: dict) -> DataFrame:
 
 def load(df: DataFrame, config: dict) -> None:
     """Function to host the silver custom load logic."""
-    table_name = f"{config["dataset"]}_tmp" # TODO - remove tmp once table permissions are sorted
+    table_name = f"{config['dataset']}_tmp"
 
     # write to delta table
     delta_writer(df, SCHEMA_SILVER, table_name, config["write_method"])
