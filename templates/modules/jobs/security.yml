@@ -50,14 +50,11 @@ jobs:
         parameters:
           scanType: "pip-audit"
           inlineScript: |
-            pip-audit -r security_reports/full_requirements.txt -f json -o security_reports/pip_audit_report.json
+            pip-audit -r security_reports/full_requirements.txt -f json | tee security_reports/pip_audit_report.json
     
       # 7. Run Safety Check - Dependency Scanner (2)
       - template: scans.yml
         parameters:
           scanType: "safety"
           inlineScript: | 
-            safety --key $(SAFETY_API_KEY) check -r security_reports/full_requirements.txt --save-json security_reports/safety_report.json
-
-
-            safety check -r security_reports/full_requirements.txt --save-json security_reports/safety_report.json
+            safety --key $(SAFETY_API_KEY) check -r security_reports/full_requirements.txt --json | tee security_reports/safety_report.json
