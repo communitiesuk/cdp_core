@@ -3,8 +3,14 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 
+# azure-pipelines-1.yml
 trigger:
-- main
+  branches:
+    exclude:
+      - "*"
+  tags:
+    include:
+      - test_tags*
 
 pool:
   vmImage: ubuntu-latest
