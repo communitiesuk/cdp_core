@@ -37,12 +37,14 @@ stages:
         parameters:
           notifyUsers: ${{ parameters.notifyUsers }}
 
-  ############################## PROD Stage ########################################
-  - template: templates/prod.yml
-  
   ############################## RELEASE Stage #####################################
   - stage: TagAndRelease
     displayName: "TAG & RELEASE"
     condition: succeeded('PROD') 
     jobs:
       - template: templates/modules/jobs/tag_and_release.yml
+
+  ############################## PROD Stage ########################################
+  - template: templates/prod.yml
+  
+
