@@ -1,7 +1,12 @@
 trigger:
+  branches:
+    exclude:
+      - '*'
   tags:
     include:
       - test_tags*
+
+pr: none
 
 pool:
   vmImage: ubuntu-latest
