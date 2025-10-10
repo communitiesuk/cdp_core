@@ -1,7 +1,7 @@
 stages:
   - stage: TEST
     displayName: "TEST"
-    dependsOn: DEV
+    dependsOn: [] # on main at this point - dev checks has already passed
     condition: and(
       succeeded(),
       ne(variables['Build.Reason'], 'PullRequest'),
