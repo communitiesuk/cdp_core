@@ -36,6 +36,9 @@ stages:
               fi
             displayName: "Check tag's commit ancestry"
 
-  - template: templates/prod.yml
+  - stage: PROD
+    displayName: "PROD Deployment"
     dependsOn: VerifyCommit
     condition: succeeded()
+    jobs:
+      - template: templates/prod.yml
