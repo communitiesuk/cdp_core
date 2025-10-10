@@ -1,12 +1,9 @@
-stages:
-  - stage: PROD
-    displayName: "PROD"
-    jobs:
-      - job: ProdDeployment
-        displayName: "Production Deployment"
-        pool: 
-          name: 'vmss-shared'
-        steps:
-          # Temporary step for until prod is fully implemented
-          - script: echo "This is a temporary step in the PROD stage."
-            displayName: "Temporary Step"
+jobs:
+  - job: ProdDeployment
+    displayName: "Production Deployment"
+    pool:
+      name: "vmss-shared"
+    steps:
+      # Temporary step for until prod is fully implemented
+      - script: echo "This is a temporary step in the PROD stage."
+        displayName: "Temporary Step"
