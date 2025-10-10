@@ -17,8 +17,8 @@ variables:
 
 stages:
   ############################## PROD Stage ########################################
-  - stage: PROD
-    displayName: "PROD Deployment"
+  - stage: Verify
+    displayName: "Verify Commit on Main"
     jobs:
       - job: VerifyCommit
         displayName: "Verify commit belongs to main"
