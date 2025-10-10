@@ -3,7 +3,7 @@ stages:
     displayName: "TEST"
     dependsOn: DEV
     condition: and(
-        succeeded(DEV),
+        succeeded(),
         ne(variables['Build.Reason'], 'PullRequest'),
         or(
           eq(variables['Build.SourceBranch'], 'refs/heads/main'),
