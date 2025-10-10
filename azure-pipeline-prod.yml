@@ -4,8 +4,7 @@ trigger:
       - "*" # don't trigger on any branch commits
   tags:
     include:
-      - "v[0-9]+.[0-9]+.[0-9]+"
-      - "[0-9]+.[0-9]+.[0-9]+"
+      - "*.*.*"
 
 pr:
   branches:
