@@ -38,7 +38,7 @@ stages:
 
   - stage: PROD
     displayName: "PROD Deployment"
-    dependsOn: VerifyCommit
+    dependsOn: Verify
     condition: succeeded()
     jobs:
       - template: templates/prod.yml
