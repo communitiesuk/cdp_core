@@ -1,28 +1,27 @@
 trigger:
   branches:
-    include: [ main ]       # runs on push/merge to main  → for TEST deploy
+    include: [main] # runs on push/merge to main  → for TEST deploy
 
 pr:
   branches:
-    include: [ main ]       # runs on PRs targeting main   → for DEV deploy
+    include: [main] # runs on PRs targeting main   → for DEV deploy
 
 parameters:
   - name: releaseNotes
-    displayName: 'Release Notes'
+    displayName: "Release Notes"
     type: string
-    default: 'Release notes for the production deployment.'
+    default: "Release notes for the production deployment."
   - name: notifyUsers
-    displayName: 'Notify Users - one email per line'
+    displayName: "Notify Users - one email per line"
     type: object
     default: []
 
 variables:
-  - group: cdp-core-pipeline-global-vars 
+  - group: cdp-core-pipeline-global-vars
 
 stages:
   ############################## DEV Stage #########################################
   - template: templates/dev.yml
-
 
   ############################## TEST Stage ########################################
   - template: templates/test.yml
@@ -39,6 +38,6 @@ stages:
   ############################## RELEASE Stage #####################################
   - stage: TagAndRelease
     displayName: "TAG & RELEASE"
-    condition: succeeded('TEST') 
+    condition: succeeded('TEST')
     jobs:
       - template: templates/modules/jobs/tag_and_release.yml
