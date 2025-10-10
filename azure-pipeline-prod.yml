@@ -12,9 +12,6 @@ pr:
     exclude:
       - "*" # don't trigger on PRs either
 
-variables:
-  - group: cdp-core-pipeline-global-vars
-
 stages:
   ############################## PROD Stage ########################################
   - stage: Verify
