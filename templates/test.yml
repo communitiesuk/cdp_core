@@ -2,14 +2,21 @@ stages:
   - stage: TEST
     displayName: "TEST"
     dependsOn: DEV
-    condition: succeeded('DEV')
+    condition: and(
+      succeeded(),
+      ne(variables['Build.Reason'], 'PullRequest'),
+      or(
+      eq(variables['Build.SourceBranch'], 'refs/heads/main'),
+      eq(variables['Build.SourceBranchName'], 'main')
+      )
+      )
     jobs:
       # 1. Validate and Deploy Bundle
       - template: modules/jobs/validate_and_deploy.yml
         parameters:
           servicePrincipal: $(SPN_TEST_NAME)
           environment: tst
-      
+
       # 2. Run Integration Tests
       - template: modules/jobs/system_integration_tests.yml
         parameters:
