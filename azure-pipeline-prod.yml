@@ -29,7 +29,7 @@ stages:
               else
                 echo "❌ The tagged commit is NOT on main. Skipping deployment."
                 echo "##vso[task.complete result=SucceededWithIssues;]Tag commit not on main"
-                exit 0
+                exit 1
               fi
             displayName: "Check tag's commit ancestry"
 
