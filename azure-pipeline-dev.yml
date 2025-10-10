@@ -8,16 +8,6 @@ pr:
     include:
       - main    # Only run when a PR targets 'main'
 
-parameters:
-  - name: releaseNotes
-    displayName: 'Release Notes'
-    type: string
-    default: 'Release notes for the production deployment.'
-  - name: notifyUsers
-    displayName: 'Notify Users - one email per line'
-    type: object
-    default: []
-
 variables:
   - group: cdp-core-pipeline-global-vars 
 

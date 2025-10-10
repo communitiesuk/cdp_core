@@ -22,7 +22,6 @@ variables:
   - group: cdp-core-pipeline-global-vars 
 
 stages:
-
   ############################## TEST Stage ########################################
   - template: templates/test.yml
 
