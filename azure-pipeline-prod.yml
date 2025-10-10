@@ -13,7 +13,7 @@ pr:
       - "*"
 
 variables:
-  - group: cdp-core-pipeline-global-vars 
+  - group: cdp-core-pipeline-global-vars
 
 stages:
   ############################## PROD Stage ########################################
