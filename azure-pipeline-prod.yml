@@ -20,7 +20,7 @@ stages:
         displayName: "Verify commit belongs to main"
         steps:
           - checkout: self
-            fetchDepth: 5   # ensures history for git branch checks
+            fetchDepth: 10   # ensures history for git branch checks
           - bash: |
               COMMIT_SHA=$(Build.SourceVersion)
               echo "Checking if the tag's commit ($COMMIT_SHA) is part of main..."
