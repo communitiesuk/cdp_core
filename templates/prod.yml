@@ -4,6 +4,6 @@ jobs:
     pool:
       name: "vmss-shared"
     steps:
-      # Temporary step for until prod is fully implemented
+      # Temporary step until prod is fully implemented
       - script: echo "This is a placeholder step in the PROD stage."
         displayName: "Placeholder Step"
