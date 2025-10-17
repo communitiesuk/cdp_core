@@ -44,6 +44,14 @@ def test_databricks_cluster(monkeypatch):
 
     assert spark.name == "cluster", f"Expected 'cluster', got '{spark.name}'"
  
+def test_local_fallback(monkeypatch):
+    """Simulate fully local environment (no Databricks, no Connect)."""
+    
+    # Replace os.environ with a clean dict
+    monkeypatch.setattr(os, "environ", {})
+    spark = get_spark()
+
+    assert spark is None, f"Expected None for local Spark fallback, got '{spark.name}'"
  
 def test_databricks_connect(monkeypatch):
     """Simulate Databricks Connect v14+ (remote Spark via Spark Connect)."""
@@ -69,11 +77,3 @@ def test_databricks_connect(monkeypatch):
     spark = get_spark()
     assert spark.name == "connect", f"Expected 'connect', got '{spark.name}'"
  
-def test_local_fallback(monkeypatch):
-    """Simulate fully local environment (no Databricks, no Connect)."""
-    
-    # Replace os.environ with a clean dict
-    monkeypatch.setattr(os, "environ", {})
-    spark = get_spark()
-
-    assert spark is None, f"Expected None for local Spark fallback, got '{spark.name}'"
