@@ -1,7 +1,9 @@
 import pytest
 import sys
 import types
+import importlib
 from unittest import mock
+from unittest.mock import MagicMock
  
 from cdp_core.utils.spark import get_spark
  
@@ -9,11 +11,6 @@ from cdp_core.utils.spark import get_spark
 class DummySpark:
     def __init__(self, name):
         self.name = name
- 
-    class builder:
-        @staticmethod
-        def getOrCreate():
-            return DummySpark("local")
  
  
 @pytest.fixture(autouse=True)
@@ -31,35 +28,51 @@ def clear_env(monkeypatch):
 def test_databricks_cluster(monkeypatch):
     """Simulate Databricks UI/cluster environment."""
     monkeypatch.setenv("DATABRICKS_RUNTIME_VERSION", "14.3")
- 
+
+    # Your dummy spark object
     dummy_cluster_spark = DummySpark("cluster")
-    monkeypatch.setattr("pyspark.sql.SparkSession.builder.getOrCreate", lambda: dummy_cluster_spark)
- 
+
+    # Mock the builder object with getOrCreate
+    fake_builder = MagicMock()
+    fake_builder.getOrCreate.return_value = dummy_cluster_spark
+
+    # Patch the builder attribute on SparkSession
+    monkeypatch.setattr("pyspark.sql.SparkSession.builder", fake_builder)
+
+    # Now call your function
     spark = get_spark()
+
     assert spark.name == "cluster"
+    print(f"✅ Got mocked SparkSession: {spark.name}")
  
  
 def test_databricks_connect(monkeypatch):
     """Simulate Databricks Connect v14+ (remote Spark via Spark Connect)."""
-    # Simulate databricks.connect and DatabricksSession
-    dummy_connect_mod = types.SimpleNamespace()
-    dummy_session_class = type("DatabricksSession", (), {
-        "builder": type("builder", (), {
-            "getOrCreate": staticmethod(lambda: DummySpark("connect"))
-        })()
-    })
-    dummy_connect_mod.DatabricksSession = dummy_session_class
+
+    dummy_spark = DummySpark("connect")
+
+    fake_builder = MagicMock()
+    fake_builder.getOrCreate.return_value = dummy_spark
+
+    class DummyDatabricksSession:
+        builder = fake_builder
+
+    dummy_connect_mod = types.SimpleNamespace(
+        DatabricksSession=DummyDatabricksSession
+    )
+    dummy_connect_mod.__spec__ = importlib.machinery.ModuleSpec(
+        name="databricks.connect",
+        loader=None,
+    )
+
     sys.modules["databricks.connect"] = dummy_connect_mod
- 
+
     spark = get_spark()
     assert spark.name == "connect"
  
- 
 def test_local_fallback(monkeypatch):
-    """Simulate fully local environment."""
-    monkeypatch.setattr("pyspark.sql.SparkSession.builder.getOrCreate", lambda: DummySpark("local"))
-    monkeypatch.setattr("pyspark.sql.SparkSession.builder.master", lambda *_: DummySpark("local"))
-    monkeypatch.setattr("pyspark.sql.SparkSession.builder.appName", lambda *_: DummySpark("local"))
- 
-    spark = get_spark()
-    assert spark.name == "local"
+    """Simulate fully local environment (no Databricks, no Connect)."""
+    monkeypatch.delenv("DATABRICKS_RUNTIME_VERSION", raising=False)
+    sys.modules.pop("databricks.connect", None)
+
+    assert get_spark() is None

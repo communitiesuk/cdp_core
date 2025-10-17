@@ -6,6 +6,7 @@ import sys
 sys.dont_write_bytecode = True 
 
 import pytest
+# not park of local pyspark so tests need to be run in a databricks environment
 from pyspark.dbutils import DBUtils
 from pyspark.sql import SparkSession
 
