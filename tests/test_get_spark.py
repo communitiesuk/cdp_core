@@ -70,8 +70,7 @@ def test_databricks_connect(monkeypatch):
  
 def test_local_fallback(monkeypatch):
     """Simulate fully local environment (no Databricks, no Connect)."""
-    monkeypatch.delenv("DATABRICKS_RUNTIME_VERSION", raising=False)
-    sys.modules.pop("databricks.connect", None)
+    monkeypatch.setattr("os.environ.get", lambda key, default=None: None)
 
     spark = get_spark()
     print(spark)
