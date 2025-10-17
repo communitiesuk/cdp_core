@@ -2,7 +2,6 @@ import pytest
 import sys
 import types
 import importlib
-from unittest import mock
 from unittest.mock import MagicMock
  
 from cdp_core.utils.spark import get_spark
@@ -42,8 +41,7 @@ def test_databricks_cluster(monkeypatch):
     # Now call your function
     spark = get_spark()
 
-    assert spark.name == "cluster"
-    print(f"✅ Got mocked SparkSession: {spark.name}")
+    assert spark.name == "cluster", f"Expected 'cluster', got '{spark.name}'"
  
  
 def test_databricks_connect(monkeypatch):
@@ -68,11 +66,11 @@ def test_databricks_connect(monkeypatch):
     sys.modules["databricks.connect"] = dummy_connect_mod
 
     spark = get_spark()
-    assert spark.name == "connect"
+    assert spark.name == "connect", f"Expected 'connect', got '{spark.name}'"
  
 def test_local_fallback(monkeypatch):
     """Simulate fully local environment (no Databricks, no Connect)."""
     monkeypatch.delenv("DATABRICKS_RUNTIME_VERSION", raising=False)
     sys.modules.pop("databricks.connect", None)
 
-    assert get_spark() is None
+    assert get_spark() is None, "Expected None for local Spark fallback"
