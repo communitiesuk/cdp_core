@@ -76,4 +76,4 @@ def test_local_fallback(monkeypatch):
     monkeypatch.setattr(os, "environ", {})
     spark = get_spark()
 
-    assert spark is None, "Expected None for local Spark fallback"
+    assert spark is None, f"Expected None for local Spark fallback, got '{spark.name}'"
