@@ -1,6 +1,7 @@
 import pytest
 import sys
 import types
+import os
 import importlib
 from unittest.mock import MagicMock
  
@@ -70,8 +71,9 @@ def test_databricks_connect(monkeypatch):
  
 def test_local_fallback(monkeypatch):
     """Simulate fully local environment (no Databricks, no Connect)."""
-    monkeypatch.setattr("os.environ.get", lambda key, default=None: None)
-
+    
+    # Replace os.environ with a clean dict
+    monkeypatch.setattr(os, "environ", {})
     spark = get_spark()
-    print(spark)
+
     assert spark is None, "Expected None for local Spark fallback"
