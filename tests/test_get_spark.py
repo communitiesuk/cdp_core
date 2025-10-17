@@ -73,4 +73,6 @@ def test_local_fallback(monkeypatch):
     monkeypatch.delenv("DATABRICKS_RUNTIME_VERSION", raising=False)
     sys.modules.pop("databricks.connect", None)
 
-    assert get_spark() is None, "Expected None for local Spark fallback"
+    spark = get_spark()
+    print(spark)
+    assert spark is None, "Expected None for local Spark fallback"
