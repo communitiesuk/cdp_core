@@ -1,6 +1,7 @@
 .venv*/
 .vscode/
 .databricks
+.DS_Store
 build
 dist
 packages

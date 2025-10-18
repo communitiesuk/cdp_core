@@ -6,6 +6,7 @@ import sys
 sys.dont_write_bytecode = True 
 
 import pytest
+# not park of local pyspark so tests need to be run in a databricks environment
 from pyspark.dbutils import DBUtils
 from pyspark.sql import SparkSession
 
@@ -25,6 +26,11 @@ for i, subdir in enumerate(subdirs):
     path = f"/Workspace/{repo_root}/{subdir}/"
     if path not in sys.path:
         sys.path.insert(i, path)
+
+# 🔄 Force reload of your module to avoid stale cache
+import importlib
+import cdp_core.utils.spark
+importlib.reload(cdp_core.utils.spark)
 
 # Run pytest.
 retcode = pytest.main([".", "-v", "-p", "no:cacheprovider", "--disable-warnings"])
