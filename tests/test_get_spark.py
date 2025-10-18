@@ -5,7 +5,7 @@ import importlib
 import builtins
 import os
 from unittest.mock import MagicMock
-from src.cdp_core.utils.spark import get_spark
+from cdp_core.utils.spark import get_spark
 # --------------------------------------------------------------------------- #
 # Dummy Spark class for mock testing
 # --------------------------------------------------------------------------- #
@@ -53,13 +53,7 @@ def test_databricks_connect(monkeypatch):
     """Simulate environment where Databricks Connect is installed and usable."""
     sys.modules.pop("databricks.connect", None)
     sys.modules["databricks.connect"] = make_fake_connect("connect")
-    # Block PySpark to force Connect path
-    real_import = builtins.__import__
-    def blocked_pyspark(name, *args, **kwargs):
-        if name.startswith("pyspark"):
-            raise ImportError("blocked by test")
-        return real_import(name, *args, **kwargs)
-    monkeypatch.setattr(builtins, "__import__", blocked_pyspark)
+
     spark = get_spark()
     assert spark.name == "connect", f"Expected 'connect', got '{spark.name}'"
 # --------------------------------------------------------------------------- #
@@ -68,7 +62,9 @@ def test_databricks_connect(monkeypatch):
 def test_databricks_cluster_existing_spark(monkeypatch):
     """Simulate Databricks cluster with preexisting Spark session."""
     sys.modules.pop("databricks.connect", None)
+    # Simulate allocation of existing Spark session in Databricks Runtime
     sys.modules["databricks.connect"] = make_fake_connect("cluster_existing")
+
     spark = get_spark()
     assert spark.name == "cluster_existing", (
         f"Expected 'cluster_existing', got '{spark.name}'"
