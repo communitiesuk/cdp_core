@@ -73,80 +73,72 @@ def test_databricks_cluster_existing_spark(monkeypatch):
 # 3. Local fallback (PySpark available, Databricks Connect blocked)
 # --------------------------------------------------------------------------- #
 def test_local_fallback(monkeypatch):
-    """Simulate local PySpark when Databricks Connect is unavailable.
-
-    • Locally / CI: Connect blocked → DummySpark("local")
-    • Databricks:   May still yield real SparkSession depending on runtime preload timing
-    """
-    real_import = builtins.__import__
-
-    def blocked_connect_import(name, *args, **kwargs):
-        if name.startswith("databricks.connect"):
-            raise ImportError("blocked by test")
-        return real_import(name, *args, **kwargs)
-
-    monkeypatch.setattr(builtins, "__import__", blocked_connect_import)
-
-    # Fake PySpark
-    dummy_spark = DummySpark("local")
-    fake_builder = MagicMock()
-    fake_builder.getOrCreate.return_value = dummy_spark
-
-    class FakeSparkSession:
-        builder = fake_builder
-
-        @staticmethod
-        def getActiveSession():
-            return None
-
-    fake_sql = types.SimpleNamespace(SparkSession=FakeSparkSession)
-    sys.modules["pyspark"] = types.SimpleNamespace(sql=fake_sql)
-    sys.modules["pyspark.sql"] = fake_sql
-    sys.modules["pyspark.sql.SparkSession"] = FakeSparkSession
-
-    spark = get_spark()
+    """Test that PySpark fallback is used when Connect is unavailable."""
     in_databricks = "DATABRICKS_RUNTIME_VERSION" in os.environ
 
-    # ✅ Accept either real SparkSession or DummySpark on Databricks
     if in_databricks:
+        # Inside Databricks: expect a real SparkSession
         from pyspark.sql import SparkSession
-        assert isinstance(spark, (SparkSession, DummySpark)), (
-            f"Expected SparkSession or DummySpark in Databricks, got {type(spark)}"
-        )
+        spark = get_spark()
+        assert isinstance(spark, SparkSession), \
+            f"Expected SparkSession in Databricks runtime, got {type(spark)}"
     else:
-        assert hasattr(spark, "name") and spark.name == "local", (
-            f"Expected DummySpark('local'), got {getattr(spark, 'name', type(spark))}"
-        )
+        # Local/CI: simulate missing Connect, expect DummySpark("local")
+        real_import = builtins.__import__
 
+        def blocked_connect_import(name, *args, **kwargs):
+            if name.startswith("databricks.connect"):
+                raise ImportError("blocked by test")
+            return real_import(name, *args, **kwargs)
+
+        monkeypatch.setattr(builtins, "__import__", blocked_connect_import)
+
+        dummy_spark = DummySpark("local")
+        fake_builder = MagicMock()
+        fake_builder.getOrCreate.return_value = dummy_spark
+
+        class FakeSparkSession:
+            builder = fake_builder
+            @staticmethod
+            def getActiveSession():
+                return None
+
+        fake_sql = types.SimpleNamespace(SparkSession=FakeSparkSession)
+        sys.modules["pyspark"] = types.SimpleNamespace(sql=fake_sql)
+        sys.modules["pyspark.sql"] = fake_sql
+        sys.modules["pyspark.sql.SparkSession"] = FakeSparkSession
+
+        spark = get_spark()
+        assert spark.name == "local", f"Expected DummySpark('local'), got {getattr(spark, 'name', type(spark))}"
 
 # --------------------------------------------------------------------------- #
 # 4. Graceful failure (neither Connect nor PySpark available)
 # --------------------------------------------------------------------------- #
 def test_graceful_failure(monkeypatch):
-    """Verify RuntimeError locally, or working SparkSession on Databricks."""
-
-    sys.modules.pop("databricks.connect", None)
-    sys.modules.pop("pyspark", None)
-    real_import = builtins.__import__
-
-    def blocked_import(name, *args, **kwargs):
-        if name.startswith("databricks.connect") or name.startswith("pyspark"):
-            raise ImportError("blocked by test")
-        return real_import(name, *args, **kwargs)
-
-    monkeypatch.setattr(builtins, "__import__", blocked_import)
+    """Raise RuntimeError locally, use live SparkSession in Databricks."""
     in_databricks = "DATABRICKS_RUNTIME_VERSION" in os.environ
 
     if in_databricks:
-        # PySpark may already be preloaded; tolerate both outcomes
-        try:
-            spark = get_spark()
-            from pyspark.sql import SparkSession
-            assert isinstance(spark, (SparkSession, DummySpark))
-        except RuntimeError:
-            pass  # Accept either behaviour inside Databricks runtime
+        # In Databricks, PySpark is already available → must get SparkSession
+        from pyspark.sql import SparkSession
+        spark = get_spark()
+        assert isinstance(spark, SparkSession), (
+            f"Expected SparkSession in Databricks runtime, got {type(spark)}"
+        )
     else:
+        # Local / CI: block both Connect and PySpark → expect RuntimeError
+        real_import = builtins.__import__
+
+        def blocked_import(name, *args, **kwargs):
+            if name.startswith("databricks.connect") or name.startswith("pyspark"):
+                raise ImportError("blocked by test")
+            return real_import(name, *args, **kwargs)
+
+        monkeypatch.setattr(builtins, "__import__", blocked_import)
+
         with pytest.raises(RuntimeError) as excinfo:
             get_spark()
-        assert "Unable to create a Spark session" in str(excinfo.value)
+        msg = str(excinfo.value)
+        assert "Unable to create a Spark session" in msg, \
+            f"Unexpected error message: {msg}"
     
