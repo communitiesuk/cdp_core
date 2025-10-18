@@ -6,6 +6,12 @@ import builtins
 import os
 from unittest.mock import MagicMock
 from cdp_core.utils.spark import get_spark
+
+"""
+Note: Databricks pre-populates sys.modules before you get a chance to run any import hooks, so the only reliable way to intercept imports inside Databricks is to directly replace entries in sys.modules.
+That’s effectively monkeypatching the Python import cache itself.
+
+"""
 # --------------------------------------------------------------------------- #
 # Dummy Spark class for mock testing
 # --------------------------------------------------------------------------- #
