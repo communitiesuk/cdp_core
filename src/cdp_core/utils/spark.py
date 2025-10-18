@@ -2,48 +2,48 @@ def get_spark():
     """
     Return a SparkSession appropriate to the current environment.
 
-    This function uses the modern Databricks Connect v2 interface to automatically
-    create or retrieve a Spark session that works seamlessly in both Databricks and
-    non-Databricks environments.
-
-    Behaviour:
-        • When running inside a Databricks workspace (e.g., notebook, job, or cluster),
-          `DatabricksSession.builder.getOrCreate()` transparently returns the
-          already-active in-cluster `SparkSession` provided by the Databricks runtime.
-          No additional configuration or authentication is required.
-
-        • When running locally (e.g., VS Code, PyCharm, or a CI pipeline) with
-          Databricks Connect installed and configured, the same call creates a remote
-          Spark Connect session that communicates with the configured Databricks
-          workspace using `DATABRICKS_HOST` and `DATABRICKS_TOKEN`.
-
-        • If Databricks Connect is not available, the function falls back to creating
-          a standard local `pyspark.sql.SparkSession`, allowing offline Spark
-          development or testing.
-
-    This unified interface replaces older environment-detection logic
-    (checking `DATABRICKS_RUNTIME_VERSION`, etc.) and ensures the same code
-    runs unchanged across both Databricks and local environments.
-
-    Returns:
-        pyspark.sql.SparkSession: An active Spark session (either local,
-        in-cluster, or remote via Spark Connect).
+    Strategy:
+      1) Try Databricks Connect v2 (works in Databricks and locally via Spark Connect).
+         If Connect is installed but misconfigured (e.g., version mismatch), convert
+         the opaque error into a clear message and attempt local PySpark.
+      2) Fallback to local PySpark.
+      3) If both fail, raise a concise, actionable RuntimeError.
     """
+    # 1) Databricks Connect path
     try:
         from databricks.connect import DatabricksSession
-        return DatabricksSession.builder.getOrCreate()
-    except ImportError:
-        # Fallback: attempt to use local PySpark
         try:
-            from pyspark.sql import SparkSession
-            return SparkSession.builder.getOrCreate()
+            return DatabricksSession.builder.getOrCreate()
         except Exception as e:
-            raise RuntimeError(
-                "Unable to create a local SparkSession. "
-                "This likely means Java or PySpark is not installed or properly configured. "
-                "To use Spark locally, ensure you have:\n"
-                "  • Java 8 or 11 installed and available in PATH\n"
-                "  • The 'pyspark' package installed (`pip install pyspark`)\n"
-                "If you intend to connect to Databricks instead, install 'databricks-connect' "
-                "and configure your DATABRICKS_HOST and DATABRICKS_TOKEN."
-            ) from e
+            # Connect is present but failed (common: version mismatch)
+            # Try local PySpark next; if that also fails, wrap with a clear message.
+            try:
+                from pyspark.sql import SparkSession
+                return SparkSession.getActiveSession() or SparkSession.builder.getOrCreate()
+            except Exception as e2:
+                raise RuntimeError(
+                    "Databricks Connect is installed but failed to start (often a "
+                    "version mismatch between your Connect library and the target "
+                    "Databricks Runtime). Either:\n"
+                    "  • Align versions (upgrade/downgrade databricks-connect), or\n"
+                    "  • Run inside a Databricks workspace, or\n"
+                    "  • Install/enable local PySpark + Java.\n"
+                    "Original error (Connect): " + str(e)
+                ) from e2
+    except ImportError:
+        pass  # Connect not installed → try local PySpark
+
+    # 2) Local PySpark path
+    try:
+        from pyspark.sql import SparkSession
+        return SparkSession.builder.getOrCreate()
+    except Exception as e:
+        # 3) Friendly failure
+        raise RuntimeError(
+            "Unable to create a Spark session.\n"
+            "Neither Databricks Connect nor local PySpark is usable.\n"
+            "To fix:\n"
+            "  • For Databricks Connect: install and configure matching versions, set "
+            "DATABRICKS_HOST/TOKEN; or\n"
+            "  • For local PySpark: install Java (8/11), and `pip install pyspark`."
+        ) from e

@@ -2,6 +2,7 @@ import pytest
 import sys
 import types
 import importlib
+import builtins
 from unittest.mock import MagicMock
 
 from cdp_core.utils.spark import get_spark
@@ -15,10 +16,13 @@ class DummySpark:
 @pytest.fixture(autouse=True)
 def clear_env(monkeypatch):
     """Ensure each test runs in a clean environment."""
-    sys.modules.pop("databricks.connect", None)
-    sys.modules.pop("pyspark", None)
-    sys.modules.pop("pyspark.sql", None)
-    sys.modules.pop("pyspark.sql.session", None)
+    for mod in [
+        "databricks.connect",
+        "pyspark",
+        "pyspark.sql",
+        "pyspark.sql.session",
+    ]:
+        sys.modules.pop(mod, None)
     monkeypatch.delenv("DATABRICKS_HOST", raising=False)
     monkeypatch.delenv("DATABRICKS_TOKEN", raising=False)
 
@@ -78,8 +82,8 @@ def test_databricks_cluster_existing_spark(monkeypatch):
 # --------------------------------------------------------------------------- #
 def test_local_fallback(monkeypatch):
     """Simulate local PySpark environment when Databricks Connect is unavailable."""
-    # Build a fake pyspark module structure
     dummy_spark = DummySpark("local")
+
     fake_sql = types.SimpleNamespace()
     fake_sql.SparkSession = types.SimpleNamespace(builder=MagicMock())
     fake_sql.SparkSession.builder.getOrCreate.return_value = dummy_spark
@@ -100,17 +104,20 @@ def test_local_fallback(monkeypatch):
 # Graceful failure (neither Databricks Connect nor PySpark available)
 # --------------------------------------------------------------------------- #
 def test_graceful_failure(monkeypatch):
-    """Verify friendly RuntimeError is raised when no Spark backend is available."""
-    # Simulate no databricks.connect or pyspark installed
-    sys.modules.pop("databricks.connect", None)
-    sys.modules.pop("pyspark", None)
-    sys.modules.pop("pyspark.sql", None)
-    sys.modules.pop("pyspark.sql.session", None)
+    """Verify friendly RuntimeError when neither Connect nor PySpark can be imported."""
+    real_import = builtins.__import__
+
+    def blocked_import(name, *args, **kwargs):
+        if name.startswith("databricks.connect") or name.startswith("pyspark"):
+            raise ImportError("blocked by test")
+        return real_import(name, *args, **kwargs)
+
+    # Block both Connect and PySpark imports
+    monkeypatch.setattr(builtins, "__import__", blocked_import)
 
     with pytest.raises(RuntimeError) as excinfo:
         get_spark()
 
     message = str(excinfo.value)
-    assert "Unable to create a local SparkSession" in message
-    assert "Java" in message or "PySpark" in message
-    
+    assert "Unable to create a Spark session" in message or \
+           "Databricks Connect is installed but failed" in message
