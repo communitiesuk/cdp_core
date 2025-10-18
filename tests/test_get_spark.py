@@ -137,23 +137,42 @@ def test_local_fallback(monkeypatch):
 # Graceful failure (neither Databricks Connect nor PySpark available)
 # --------------------------------------------------------------------------- #
 def test_graceful_failure(monkeypatch):
-    """Verify friendly RuntimeError when neither Connect nor PySpark can be imported."""
+    """Verify RuntimeError or existing Spark session behaviour depending on environment.
+
+    - Locally / CI:  Databricks Connect + PySpark blocked → should raise RuntimeError.
+    - Databricks:    PySpark already loaded before hook → returns live SparkSession instead.
+    """
+
+    import os
+    import builtins
 
     real_import = builtins.__import__
 
     def blocked_import(name, *args, **kwargs):
-        # Block both Databricks Connect and PySpark
+        # Block both Databricks Connect and PySpark for this simulation
         if name.startswith("databricks.connect") or name.startswith("pyspark"):
             raise ImportError("blocked by test")
         return real_import(name, *args, **kwargs)
 
     monkeypatch.setattr(builtins, "__import__", blocked_import)
 
-    with pytest.raises(RuntimeError) as excinfo:
-        get_spark()
+    # Detect if we're running inside an actual Databricks cluster/runtime
+    in_databricks = "DATABRICKS_RUNTIME_VERSION" in os.environ
 
-    message = str(excinfo.value)
-    assert "Unable to create a Spark session" in message, \
-        f"Unexpected error message: {message}"
-    
-    
+    if in_databricks:
+        # In Databricks, PySpark is preloaded — import hook won't apply.
+        spark = get_spark()
+
+        # Expect a real SparkSession instance, not a RuntimeError
+        from pyspark.sql import SparkSession
+        assert isinstance(spark, SparkSession), (
+            "Expected a live SparkSession in Databricks runtime"
+        )
+    else:
+        # Locally or in CI, both imports should be blocked → graceful failure path
+        with pytest.raises(RuntimeError) as excinfo:
+            get_spark()
+
+        message = str(excinfo.value)
+        assert "Unable to create a Spark session" in message, \
+            f"Unexpected error message: {message}"
