@@ -68,20 +68,21 @@ def test_databricks_cluster_existing_spark(monkeypatch):
 
 
 def test_local_fallback(monkeypatch):
-    """Simulate environment with no Databricks Connect installed."""
-    # Mock importlib.find_spec to simulate missing databricks.connect
-    monkeypatch.setattr(
-        importlib.util,
-        "find_spec",
-        lambda name: None if name == "databricks.connect" else importlib.util.find_spec(name),
-    )
-
+    """Force complete pyspark isolation to test fallback path."""
     dummy_spark = DummySpark("local")
-    fake_builder = MagicMock()
-    fake_builder.getOrCreate.return_value = dummy_spark
 
-    monkeypatch.setattr("pyspark.sql.SparkSession.builder", fake_builder)
+    # Build a fake pyspark.sql module with a fake SparkSession
+    fake_sql = types.SimpleNamespace()
+    fake_sql.SparkSession = types.SimpleNamespace(builder=MagicMock())
+    fake_sql.SparkSession.builder.getOrCreate.return_value = dummy_spark
+
+    fake_pyspark = types.SimpleNamespace(sql=fake_sql)
+    sys.modules["pyspark"] = fake_pyspark
+    sys.modules["pyspark.sql"] = fake_sql
+    sys.modules["pyspark.sql.SparkSession"] = fake_sql.SparkSession
+
+    # Pretend databricks.connect not installed
+    sys.modules.pop("databricks.connect", None)
 
     spark = get_spark()
-    assert spark.name == "local", f"Expected 'local', got '{spark.name}'"
-    
+    assert spark.name == "local"
