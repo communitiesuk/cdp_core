@@ -27,6 +27,11 @@ for i, subdir in enumerate(subdirs):
     if path not in sys.path:
         sys.path.insert(i, path)
 
+# 🔄 Force reload of your module to avoid stale cache
+import importlib
+import cdp_core.utils.spark
+importlib.reload(cdp_core.utils.spark)
+
 # Run pytest.
 retcode = pytest.main([".", "-v", "-p", "no:cacheprovider", "--disable-warnings"])
 
