@@ -16,10 +16,16 @@ class DummySpark:
 def clear_env(monkeypatch):
     """Ensure each test runs in a clean environment."""
     sys.modules.pop("databricks.connect", None)
+    sys.modules.pop("pyspark", None)
+    sys.modules.pop("pyspark.sql", None)
+    sys.modules.pop("pyspark.sql.session", None)
     monkeypatch.delenv("DATABRICKS_HOST", raising=False)
     monkeypatch.delenv("DATABRICKS_TOKEN", raising=False)
 
 
+# --------------------------------------------------------------------------- #
+# Databricks Connect present (v2)
+# --------------------------------------------------------------------------- #
 def test_databricks_connect(monkeypatch):
     """Simulate environment with Databricks Connect available (v2)."""
     dummy_spark = DummySpark("connect")
@@ -32,8 +38,7 @@ def test_databricks_connect(monkeypatch):
 
     dummy_connect_mod = types.SimpleNamespace(DatabricksSession=DummyDatabricksSession)
     dummy_connect_mod.__spec__ = importlib.machinery.ModuleSpec(
-        name="databricks.connect",
-        loader=None,
+        name="databricks.connect", loader=None
     )
 
     sys.modules["databricks.connect"] = dummy_connect_mod
@@ -42,16 +47,17 @@ def test_databricks_connect(monkeypatch):
     assert spark.name == "connect", f"Expected 'connect', got '{spark.name}'"
 
 
+# --------------------------------------------------------------------------- #
+# Databricks cluster (existing Spark)
+# --------------------------------------------------------------------------- #
 def test_databricks_cluster_existing_spark(monkeypatch):
-    """Simulate Databricks cluster where `spark` already exists in global scope."""
-    # Pretend Databricks Connect module is available (as it is on clusters)
+    """Simulate Databricks cluster where a Spark session already exists."""
     dummy_connect_mod = types.SimpleNamespace()
     dummy_connect_mod.__spec__ = importlib.machinery.ModuleSpec(
         name="databricks.connect", loader=None
     )
     sys.modules["databricks.connect"] = dummy_connect_mod
 
-    # Mock DatabricksSession to just return the global spark (cluster case)
     dummy_spark = DummySpark("cluster_existing")
     fake_builder = MagicMock()
     fake_builder.getOrCreate.return_value = dummy_spark
@@ -67,11 +73,13 @@ def test_databricks_cluster_existing_spark(monkeypatch):
     )
 
 
+# --------------------------------------------------------------------------- #
+# Local fallback (PySpark available, Databricks Connect missing)
+# --------------------------------------------------------------------------- #
 def test_local_fallback(monkeypatch):
-    """Force complete pyspark isolation to test fallback path."""
+    """Simulate local PySpark environment when Databricks Connect is unavailable."""
+    # Build a fake pyspark module structure
     dummy_spark = DummySpark("local")
-
-    # Build a fake pyspark.sql module with a fake SparkSession
     fake_sql = types.SimpleNamespace()
     fake_sql.SparkSession = types.SimpleNamespace(builder=MagicMock())
     fake_sql.SparkSession.builder.getOrCreate.return_value = dummy_spark
@@ -85,4 +93,24 @@ def test_local_fallback(monkeypatch):
     sys.modules.pop("databricks.connect", None)
 
     spark = get_spark()
-    assert spark.name == "local"
+    assert spark.name == "local", f"Expected 'local', got '{spark.name}'"
+
+
+# --------------------------------------------------------------------------- #
+# Graceful failure (neither Databricks Connect nor PySpark available)
+# --------------------------------------------------------------------------- #
+def test_graceful_failure(monkeypatch):
+    """Verify friendly RuntimeError is raised when no Spark backend is available."""
+    # Simulate no databricks.connect or pyspark installed
+    sys.modules.pop("databricks.connect", None)
+    sys.modules.pop("pyspark", None)
+    sys.modules.pop("pyspark.sql", None)
+    sys.modules.pop("pyspark.sql.session", None)
+
+    with pytest.raises(RuntimeError) as excinfo:
+        get_spark()
+
+    message = str(excinfo.value)
+    assert "Unable to create a local SparkSession" in message
+    assert "Java" in message or "PySpark" in message
+    
