@@ -1,80 +1,99 @@
 import os
 import re
 import subprocess
-import requests
+import sys
 from pathlib import Path
-import time
+import urllib.request
+import urllib.error
 
-# Configuration
-wheel_download_dir = Path("./wheelhouse")
+# Where to save downloaded wheels
+wheel_download_dir = Path("./wheels")
 wheel_download_dir.mkdir(exist_ok=True)
 
-# Main function
-def install_package_offline(package_name):
-    max_retries = 10  # Avoid infinite loops
-    attempt = 0
+def install_package_with_web_fallback(package_name: str):
+    """
+    Try to install a package using pip. If PyPI index access fails,
+    extract wheel URLs from stderr and download them manually, then retry
+    installing from the local wheels folder.
+    """
+    print(f"\n📦 Attempting to install {package_name}...\n")
 
-    while attempt < max_retries:
-        attempt += 1
-        print(f"\n🌀 Attempt {attempt}: pip install {package_name}\n")
+    # First attempt — normal pip install (uses local wheels if present)
+    result = subprocess.run(
+        [
+            sys.executable, "-m", "pip", "install",
+            "--no-cache-dir",
+            f"--find-links={wheel_download_dir}",
+            package_name
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True
+    )
 
-        # Run pip install and capture stderr
-        result = subprocess.run(
-            ["pip", "install", package_name, "--no-cache-dir"],
-            stderr=subprocess.PIPE,
-            text=True
-        )
-
-        stderr_output = result.stderr
-
-        # Check if install succeeded
-        if result.returncode == 0:
-            print("✅ Package installed successfully!")
-            break
-
-        # Extract all .whl URLs
-        wheel_urls = re.findall(r"https://files\.pythonhosted\.org/[^\s]+\.whl", stderr_output)
-
-        if not wheel_urls:
-            print("❌ No .whl URLs found. Cannot proceed further.")
-            print(stderr_output)
-            break
-
-        print(f"🔗 Found {len(wheel_urls)} wheel URL(s). Downloading...")
-
-        # Download each wheel if not already downloaded
-        for whl_url in wheel_urls:
-            filename = whl_url.split("/")[-1]
-            local_path = wheel_download_dir / filename
-            if local_path.exists():
-                print(f"✅ Already downloaded: {filename}")
-                continue
-
-            try:
-                print(f"⬇️ Downloading {filename}...")
-                r = requests.get(whl_url)
-                r.raise_for_status()
-                with open(local_path, "wb") as f:
-                    f.write(r.content)
-                print(f"✅ Saved: {local_path}")
-            except requests.RequestException as e:
-                print(f"❌ Failed to download {whl_url}: {e}")
-
-        # Add local wheelhouse to pip install options
-        # This time, try installing from local wheels
-        print("\n🔁 Retrying installation using local wheels...\n")
-        package_name = wheel_download_dir.as_posix()  # Install from local wheel directory
-
+    output = result.stdout + result.stderr
+    if result.returncode != 0 or "error" in output.lower() or "failed" in output.lower():
+        print("❌ Initial installation failed. Analyzing output...\n")
     else:
-        print("❌ Maximum retries reached. Some dependencies may still be missing.")
+        print("✅ Package installed successfully.")
+        return True
 
-# 🔧 Entry point
+    # Extract wheel URLs
+    wheel_urls = re.findall(r"https://files\.pythonhosted\.org/[^\s]+\.whl", output)
+    if not wheel_urls:
+        print("❌ No .whl URLs found in pip output. Cannot continue.\n")
+        print(output)
+        return False
+
+    print(f"🔗 Found {len(wheel_urls)} wheel(s) to download...")
+
+    # Download all found wheels
+    for whl_url in wheel_urls:
+        print(f"🌐 Processing URL: {whl_url}")
+        filename = whl_url.split("/")[-1]
+        local_path = wheel_download_dir / filename
+
+        if local_path.exists():
+            print(f"✅ Already downloaded: {filename}")
+            continue
+
+        try:
+            print(f"⬇️  Downloading {filename} ...")
+            with urllib.request.urlopen(whl_url) as response:
+                with open(local_path, "wb") as f:
+                    f.write(response.read())
+            print(f"💾 Saved: {local_path}")
+        except urllib.error.URLError as e:
+            print(f"❌ Failed to download {filename}: {e}")
+
+    # Retry once using only local wheels
+    print("\n🔁 Retrying installation using downloaded wheels...\n")
+    retry_result = subprocess.run(
+        [
+            sys.executable, "-m", "pip", "install",
+            "--no-index",  # use only local wheels
+            f"--find-links={wheel_download_dir}",
+            package_name
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True
+    )
+
+    if retry_result.returncode == 0:
+        print("✅ Successfully installed from local wheels!")
+        return True
+    else:
+        print("❌ Installation still failed.\n")
+        print(retry_result.stderr)
+        return False
+
+
 if __name__ == "__main__":
-    import sys
-
     if len(sys.argv) < 2:
-        print("Usage: python install_package.py <package-name>")
+        print("Usage: python install_from_web_wheels.py <package-name>")
         sys.exit(1)
 
     pkg = sys.argv[1]
-    install_package_offline(pkg)
+    install_package_with_web_fallback(pkg)
+    
