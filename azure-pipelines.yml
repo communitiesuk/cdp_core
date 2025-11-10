@@ -21,17 +21,17 @@ variables:
 
 stages:
   ############################## DEV Stage #########################################
-  - template: templates/dev.yml
+  - template: cicd_templates/dev.yml
 
   ############################## TEST Stage ########################################
-  - template: templates/test.yml
+  - template: cicd_templates/test.yml
 
   ############################## APPROVAL Gate #####################################
   - stage: ReleaseApproval
     condition: succeeded('TEST')
     displayName: "RELEASE APPROVAL GATE"
     jobs:
-      - template: templates/modules/jobs/approval_gate.yml
+      - template: cicd_templates/modules/jobs/approval_gate.yml
         parameters:
           notifyUsers: ${{ parameters.notifyUsers }}
 
@@ -40,4 +40,4 @@ stages:
     displayName: "TAG & RELEASE"
     condition: succeeded('TEST')
     jobs:
-      - template: templates/modules/jobs/tag_and_release.yml
+      - template: cicd_templates/modules/jobs/tag_and_release.yml

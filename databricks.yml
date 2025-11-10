@@ -26,9 +26,8 @@ variables:
 artifacts:
   default:
     type: whl
-    build: python setup.py bdist_wheel --dist-dir packages/
-    files: 
-      - source: packages/*.whl
+    path: ../..
+    build: python -m build --wheel --dist-dir packages/
 
 targets:
   # this deployment allows individual users to deploy within an isolated user's path

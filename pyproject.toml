@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cdp_core"
+version = "0.0.1"
+description = "Core utilities for CDP"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = []
+
+[project.scripts]
+main = "cdp_core.main:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+# When building the package cdp_core, include all files that match the pattern configs/*.yml inside it (have to say as its non python files).
+[tool.setuptools.package-data]
+cdp_core = ["configs/*.yml"]
