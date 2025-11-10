@@ -10,3 +10,6 @@ fixtures
 cdp_core.egg-info
 src/cdp_core.egg-info
 src/cdp_core/cdp_core.egg-info
+tests/__pycache__/
+tests/test_bronze/__pycache__/
+tests/test_silver/__pycache__/

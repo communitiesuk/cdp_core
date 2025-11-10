@@ -1,0 +1,62 @@
+# This is a Databricks asset bundle definition for deploy_infra.
+# See https://docs.databricks.com/dev-tools/bundles/index.html for documentation.
+bundle:
+  name: deploy_user_dab
+  uuid: xxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+
+sync:
+  paths:
+    - ../../
+    - ./src
+
+artifacts:
+  default:
+    type: whl
+    files:
+      - source: wheels/cdp_core-0.0.1-py3-none-any.whl # update with a valid wheel file name
+
+include:
+   - resources/*.yml
+
+variables:
+  policy_id:
+    description: "Job Compute policy"
+    default: '' # dev
+  environment:
+    description: "Environment runtime"
+    default: 'dev' # dev
+  catalog:
+    description: "Catalog to use for metadata"
+    default: ""
+  bronze-schema:
+    description: "Schema used for files and tables"
+    default: ""
+  meta-volume:
+    description: "Volume location used for log files"
+    default: ""
+  shared_cluster_id:
+    description: "Cluster ID to use for the job"
+    default: ""
+  spn_id:
+    description: "Service Principal ID (Databricks workspace user name - DAB home)"
+    default: "${workspace.current_user.userName}"
+  whl_path:
+    description: "Path to the wheel file artifact"
+    default: "/Workspace/Users/${var.spn_id}/.bundle/${bundle.name}/artifacts/.internal/lgof-1.0.0-py3-none-any.whl"
+
+targets:
+  user:
+    # The default target uses 'mode: development' to create a development copy.
+    # - Deployed resources get prefixed with '[dev my_user_name]'
+    # - Any job schedules and triggers are paused by default.
+    # See also https://docs.databricks.com/dev-tools/bundles/deployment-modes.html.
+    mode: development
+    default: true
+    workspace:
+      root_path: /Workspace/Users/${var.spn_id}/.bundle/${bundle.name}
+      host: https://adb-xxx.x.azuredatabricks.net/
+    presets:
+      name_prefix: "[${var.spn_id}][${bundle.git.branch}]"
+      # this is also needed if the bundle contains any DLT pipelines
+      pipelines_development: true
+      trigger_pause_status: PAUSED
