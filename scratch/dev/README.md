@@ -1,4 +1,9 @@
 # dev bundle
+This bundle is intended for local development and testing.
+It uses the shared interactive cluster in your Databricks workspace, providing a much faster feedback loop than the job compute used in CI/CD bundles.
+
+Rather than modifying an existing DAB’s job cluster to use a shared cluster ID — or picking apart full CI/CD bundles just to test small components — this lightweight development bundle offers a cleaner alternative.
+You can run bite-sized tasks independently and iterate quickly without impacting production configurations.
 
 ## Getting Started
 
