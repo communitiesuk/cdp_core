@@ -1,0 +1,15 @@
+# The main job for deploy_infra.
+resources:
+  jobs:
+    tasks_to_test:
+      name: tasks_to_test
+
+      tasks:
+        - task_key: Test
+          existing_cluster_id: ${var.shared_cluster_id}
+          description: Test development of task
+          python_wheel_task: 
+            package_name: lgof 
+            entry_point: "test-this"
+          libraries:
+            - whl: ${var.whl_path}
