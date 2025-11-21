@@ -1,27 +1,48 @@
 # table level details
 dataset: "LAD_APR_2023_UK_NC"
-schema_version: 1
 table_description: Contains Local Authority District Name and Code as of April 2023
+schema_version: 1
 write_method: overwrite
 partition_by: null
 primary_key: LAD23CD
 de_dupe_col: LAD23NM
 table_tag: 
-  sensitivity: "OFFICIAL"
-  owner_email: "finn.tan@test.com"
-  source: arcgis
-  method: api
+  Access Rights: INTERNAL - HMG only
+  Contains Personal Identifiable Information: "no"
+  DPIA Check Completed: "no"
+  Essential Shared Data Assets Designation: "no" 
+  Expected Data Update Frequency: Daily
+  License required: "no"
+  Publish to Data Catalogue: "no"
+  Publish to National Data Library: "no"
+  Reference Data: "no"
+  Security Classification: OFFICIAL
+  Theme: Geography
+
+# column level details
+schema:
+  LAD23CD:
+    target: local_authority_district_code_2023
+    type: StringType
+    description: Local Authority District Code for 2023
+    tag: 
+      - example_tag1
+      - example_tag2
+      
+  LAD23NM:
+    target: local_authority_district_name_2023
+    type: StringType
+    description: Local Authority District Name for 2023
+    tag: null
 
 # blanket permissions across all schemas; bronze, silver, gold - might need to rethink this
 permissions:
   dev_role: 
     TST-SG-CDP-Core-DataEngineerD: "MANAGE"
-    TST-SG-CDP-Core-AdminD: "MANAGE"
-    6f4aedc5-6ff3-48f3-8d6a-e4c03148e42f: "MODIFY" # fix
   test_role: 
     TST-SG-CDP-Core-DataEngineer: "MANAGE"
   prod_role:
-    PRD-SG-CDP-Core-DataEngineer: "SELECT"
+    PRD-SG-CDP-Core-DataEngineer: "MANAGE"
 
 # this is currently used for the REST API params - do we want this here?
 url: "https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/"
@@ -36,20 +57,3 @@ params:
   cacheHint: "false"
   sqlFormat: "none"
   f: "pjson"
-
-schema:
-  # all entries below are column, specifying the target column name, its data type, description and tags
-  # the latter two will be added as metadata at the column level
-  LAD23CD:
-    target: local_authority_district_code_2023
-    type: StringType
-    description: Local Authority District Code for 2023
-    tag: 
-      - example_tag1
-      - example_tag2
-      
-  LAD23NM:
-    target: local_authority_district_name_2023
-    type: StringType
-    description: Local Authority District Name for 2023
-    tag: null

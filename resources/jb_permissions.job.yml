@@ -1,0 +1,28 @@
+resources:
+  jobs:
+    jb_permissions:
+      name: jb_permissions
+      tasks:
+        - task_key: infer_permissions
+          sql_task:
+            parameters:
+              catalog: ${var.catalog}
+            file:
+              path: /Workspace/Users/${var.spn_id}/cdp_core/permissions/infer_open_permissions.sql
+              source: WORKSPACE
+            warehouse_id: 907711fee55bc4b6
+        - task_key: apply_permissions
+          depends_on:
+            - task_key: infer_permissions
+          spark_python_task:
+            python_file: /Workspace/Users/${var.spn_id}/cdp_core/permissions/grant_open_access.py
+            parameters:
+              - ${var.catalog}
+          environment_key: Default
+      queue:
+        enabled: true
+      environments:
+        - environment_key: Default
+          spec:
+            environment_version: "4"
+      performance_target: PERFORMANCE_OPTIMIZED

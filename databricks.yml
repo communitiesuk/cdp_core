@@ -15,13 +15,16 @@ variables:
     default: ''
   policy_id:
     description: "Compute policy"
-    default: '00164AA6162B137A'
+    default: '00083BE3CC143C48'
   data_engineering_group:
     description: "Group"
     default: ""
   environment:
     description: "primarily used to determine the OS env variable when starting a job cluster"
     default: "dev" 
+  catalog:
+    description: "Unity Catalog for Permissions Script"
+    default: "`catalog-dev-uks-corecdp-001`"
 
 artifacts:
   default:
@@ -43,6 +46,8 @@ targets:
       pipelines_development: true
       trigger_pause_status: PAUSED
       jobs_max_concurrent_runs: 10
+    variables: 
+      spn_id: "${workspace.current_user.userName}"
   
   # below main environments are only executed during CICD runs via the environment's service principal
   dev:
@@ -82,3 +87,4 @@ targets:
       jobs_max_concurrent_runs: 10
     variables: 
       environment: "tst"
+      catalog: "`catalog-tst-uks-corecdp-001`"
