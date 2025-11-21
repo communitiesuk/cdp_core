@@ -16,7 +16,7 @@ from cdp_core.setup.constants import (
 from cdp_core.transform.bronze.bronze_arcgis import execute
 
 DATASET = "LAD_APR_2023_UK_NC"
-TABLE = "lad_apr_2023_uk_nc_tmp"
+TABLE = "lad_apr_2023_uk_nc"
 
 def test_table_exists(spark):
     execute(DATASET)
