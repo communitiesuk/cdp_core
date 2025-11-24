@@ -2,8 +2,6 @@
 # See https://docs.databricks.com/dev-tools/bundles/index.html for documentation.
 bundle:
   name: pollution_data_pipeline
-  version: 0.0.1
-  description: "A Databricks bundle for the London pollution data pipeline"
   uuid: ee60bfe5-b9c5-4b43-81fc-1e28a1c32738
 
 sync:
