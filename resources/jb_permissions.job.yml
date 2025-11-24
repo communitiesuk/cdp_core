@@ -10,7 +10,7 @@ resources:
             file:
               path: /Workspace/Users/${var.spn_id}/.bundle/cdp_core/files/permissions/infer_permissions.sql
               source: WORKSPACE
-            warehouse_id: ${warehouse_id}
+            warehouse_id: ${var.warehouse_id}
         - task_key: grant_permissions
           depends_on:
             - task_key: infer_permissions
