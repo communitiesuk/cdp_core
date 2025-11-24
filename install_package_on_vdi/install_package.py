@@ -46,7 +46,8 @@ def install_package_with_web_fallback(package_name: str):
             return True
 
         # Extract wheel URLs
-        wheel_urls = re.findall(r"https://files\.pythonhosted\.org/[^\s]+\.whl", output)
+        wheel_urls = list(set(re.findall(r"https://files\.pythonhosted\.org/[^\s]+\.whl", output)))
+        print(f"🔍 Found wheel URLs: {wheel_urls}")
         if not wheel_urls:
             print("❌ No .whl URLs found in pip output. Cannot continue.\n")
             print(output)

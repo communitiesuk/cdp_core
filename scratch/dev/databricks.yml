@@ -1,12 +1,13 @@
 # This is a Databricks asset bundle definition for deploy_infra.
 # See https://docs.databricks.com/dev-tools/bundles/index.html for documentation.
 bundle:
-  name: deploy_user_dab
-  uuid: xxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+  name: pollution_data_pipeline
+  version: 0.0.1
+  description: "A Databricks bundle for the London pollution data pipeline"
+  uuid: ee60bfe5-b9c5-4b43-81fc-1e28a1c32738
 
 sync:
   paths:
-    - ../../
     - ./src
 
 artifacts:
@@ -36,7 +37,7 @@ variables:
     default: ""
   shared_cluster_id:
     description: "Cluster ID to use for the job"
-    default: ""
+    default: "1120-155559-w402v8vi"  # Adams personal cluster
   spn_id:
     description: "Service Principal ID (Databricks workspace user name - DAB home)"
     default: "${workspace.current_user.userName}"
@@ -54,7 +55,7 @@ targets:
     default: true
     workspace:
       root_path: /Workspace/Users/${var.spn_id}/.bundle/${bundle.name}
-      host: https://adb-xxx.x.azuredatabricks.net/
+      host: https://adb-1036309900456578.18.azuredatabricks.net
     presets:
       name_prefix: "[${var.spn_id}][${bundle.git.branch}]"
       # this is also needed if the bundle contains any DLT pipelines

@@ -1,15 +1,32 @@
 # The main job for deploy_infra.
 resources:
   jobs:
-    tasks_to_test:
-      name: tasks_to_test
-
+    london_pollutant_data_pipeline:
+      name: London Pollutant Data Pipeline
+      schedule:
+        quartz_cron_expression: "0 0 14-17 ? * *"  # min 0 of 14,15,16,17 hours daily
+        timezone_id: "UTC"
+        pause_status: "UNPAUSED"
       tasks:
-        - task_key: Test
+        - task_key: injest_london_authority_pollutant_data
           existing_cluster_id: ${var.shared_cluster_id}
-          description: Test development of task
-          python_wheel_task: 
-            package_name: lgof 
-            entry_point: "test-this"
-          libraries:
-            - whl: ${var.whl_path}
+          description: Run the consume environmental data notebook
+          notebook_task:
+            notebook_path: "/Workspace/Users/${var.spn_id}/.bundle/${bundle.name}/files/src/bronze"
+
+        - task_key: process_london_authority_pollutant_data
+          depends_on:
+            - task_key: injest_london_authority_pollutant_data
+          existing_cluster_id: ${var.shared_cluster_id}
+          description: Run the consume environmental data notebook
+          notebook_task:
+            notebook_path: "/Workspace/Users/${var.spn_id}/.bundle/${bundle.name}/files/src/silver"
+
+        - task_key: generate_london_pollutant_data_analysis
+          depends_on:
+            - task_key: process_london_authority_pollutant_data
+          existing_cluster_id: ${var.shared_cluster_id}
+          description: Run the consume environmental data notebook
+          notebook_task:
+            notebook_path: "/Workspace/Users/${var.spn_id}/.bundle/${bundle.name}/files/src/gold"
+
