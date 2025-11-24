@@ -16,6 +16,7 @@ parameters:
   values:
   - 'dev'
   - 'test'
+  - 'prd'
 
 - name: environmentConfig
   type: object
@@ -28,6 +29,10 @@ parameters:
       variableGroup: 'kv-tst-core-cdp-vars'
       keyVault: 'kvcorecdp4143'
       serviceConnection: 'SPN-SP-sub-tst-ctdpslt001-001'
+    prd:
+      variableGroup: 'kv-prd-core-cdp-vars'
+      keyVault: 'kvcorecdp2591'
+      serviceConnection: 'SPN-SP-sub-prd-corecdp-databricks-001'
 
 # --- Stage 1: Discover (only when parameter is empty) ---
 stages:
@@ -41,6 +46,8 @@ stages:
       ${{ if eq(parameters.environment, 'dev') }}:
         vmImage: 'ubuntu-latest'
       ${{ if eq(parameters.environment, 'test') }}:
+        name: 'vmss-shared'
+      ${{ if eq(parameters.environment, 'prd') }}:
         name: 'vmss-shared'
     steps:
     - checkout: self
@@ -99,6 +106,8 @@ stages:
       ${{ if eq(parameters.environment, 'dev') }}:
         vmImage: 'ubuntu-latest'
       ${{ if eq(parameters.environment, 'test') }}:
+        name: 'vmss-shared'
+      ${{ if eq(parameters.environment, 'prd') }}:
         name: 'vmss-shared'
     steps:
     - checkout: none
