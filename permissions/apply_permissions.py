@@ -11,11 +11,13 @@ df = spark.sql(
     """
 )
 
+syntax = "TO" if permission == "GRANT" else "FROM"
+
 for row in df.collect():
     sql = (
         f"""
         {permission} SELECT ON `{row['catalog_name']}`.`{row['schema_name']}`.`{row['table_name']}` 
-        TO `account users`
+        {syntax} `account users`
         """
     )
     print(sql)
