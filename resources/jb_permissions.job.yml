@@ -8,16 +8,28 @@ resources:
             parameters:
               catalog: ${var.catalog}
             file:
-              path: /Workspace/Users/${var.spn_id}/cdp_core/permissions/infer_open_permissions.sql
+              path: /Workspace/Users/${var.spn_id}/.bundle/cdp_core/files/permissions/infer_permissions.sql
               source: WORKSPACE
-            warehouse_id: 907711fee55bc4b6
-        - task_key: apply_permissions
+            warehouse_id: ${warehouse_id}
+        - task_key: grant_permissions
           depends_on:
             - task_key: infer_permissions
           spark_python_task:
-            python_file: /Workspace/Users/${var.spn_id}/cdp_core/permissions/grant_open_access.py
+            python_file: /Workspace/Users/${var.spn_id}/.bundle/cdp_core/files/permissions/apply_permissions.py
             parameters:
               - ${var.catalog}
+              - open_access_required
+              - GRANT
+          environment_key: Default
+        - task_key: revoke_permissions
+          depends_on:
+            - task_key: infer_permissions
+          spark_python_task:
+            python_file: /Workspace/Users/${var.spn_id}/.bundle/cdp_core/files/permissions/apply_permissions.py
+            parameters:
+              - ${var.catalog}
+              - close_restricted_tables
+              - REVOKE
           environment_key: Default
       queue:
         enabled: true
