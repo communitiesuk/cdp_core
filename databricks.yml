@@ -22,6 +22,9 @@ variables:
   environment:
     description: "primarily used to determine the OS env variable when starting a job cluster"
     default: "dev" 
+  warehouse_id:
+    description: "warehouse id used for permissions"
+    default: 907711fee55bc4b6
   catalog:
     description: "Unity Catalog for Permissions Script"
     default: "`catalog-dev-uks-corecdp-001`"

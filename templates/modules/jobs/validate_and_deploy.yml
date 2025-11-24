@@ -44,7 +44,7 @@ jobs:
           
           # Generate all required variables      
           export WHL_FILE=cdp_core-$(setTag.BUILD_VERSION)-py3-none-any.whl
-          export BUNDLE_VAR="whl_path=/Workspace/Users/$(SPN_ID)/.bundle/cdp_core/artifacts/.internal/${WHL_FILE},spn_id=$(SPN_ID),policy_id=$(POLICY_ID),data_engineering_group=$(DATA_ENGINEERING_GROUP)"
+          export BUNDLE_VAR="whl_path=/Workspace/Users/$(SPN_ID)/.bundle/cdp_core/artifacts/.internal/${WHL_FILE},spn_id=$(SPN_ID),policy_id=$(POLICY_ID),data_engineering_group=$(DATA_ENGINEERING_GROUP),warehouse_id=$(WAREHOUSE_ID),catalog=$(CATALOG)"
 
           # Persist variables 
           echo "##vso[task.setvariable variable=BUNDLE_VAR;isOutput=true]$BUNDLE_VAR";
