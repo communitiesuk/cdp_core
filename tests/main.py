@@ -19,7 +19,7 @@ notebook_path = dbutils.notebook.entry_point.getDbutils().notebook().getContext(
 repo_root = os.path.dirname(os.path.dirname(notebook_path))
 
 # define the subdirectories to ad to sys.path
-subdirs = ["tests", "src"]
+subdirs = ["tests", "src", "permissions"]
 
 # insert each path into sys.path if not already present
 for i, subdir in enumerate(subdirs):

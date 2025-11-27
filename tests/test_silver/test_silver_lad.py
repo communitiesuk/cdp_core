@@ -15,14 +15,16 @@ from cdp_core.setup.constants import (
 )
 from cdp_core.transform.silver.silver_arcgis_lad_apr_2023_uk_nc import execute
 
-TABLE = "lad_apr_2023_uk_nc_tmp"
+TABLE = "lad_apr_2023_uk_nc"
 DATASET = "LAD_APR_2023_UK_NC"
 
+@pytest.mark.order(3)
 def test_table_exists(spark):
     execute(DATASET)
 
     assert check_if_table_exists(spark, CATALOG, SCHEMA_SILVER, TABLE) is True, f"INVALID TABLE"
 
+@pytest.mark.order(4)
 def test_schema_correct(spark):
     expected_schema = StructType([
         StructField("local_authority_district_code_2023", StringType(), True),

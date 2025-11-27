@@ -17,7 +17,6 @@ resources:
               env: ${var.environment}
             policy_id: ${var.policy_id}
             runtime_engine: STANDARD
-            spark_version: 16.4.x-scala2.12
       tasks:
         - task_key: bronze_arcgis
           job_cluster_key: small-cluster
@@ -32,7 +31,7 @@ resources:
               - LAD_APR_2023_UK_NC
           run_if: ALL_SUCCESS
           webhook_notifications: {}
-        - task_key: silver
+        - task_key: silver_arcgis
           depends_on:
             - task_key: bronze_arcgis
           job_cluster_key: small-cluster
