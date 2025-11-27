@@ -8,6 +8,11 @@ resources:
         timezone_id: "UTC"
         pause_status: "UNPAUSED"
       tasks:
+        - task_key: run_la_prerequisite
+          existing_cluster_id: ${var.shared_cluster_id}
+          spark_python_task:
+            python_file: "/Workspace/Users/${var.spn_id}/.bundle/${bundle.name}/files/src/test_one.py"
+
         - task_key: injest_london_authority_pollutant_data
           existing_cluster_id: ${var.shared_cluster_id}
           description: Run the consume environmental data notebook
@@ -17,6 +22,7 @@ resources:
         - task_key: process_london_authority_pollutant_data
           depends_on:
             - task_key: injest_london_authority_pollutant_data
+            - task_key: run_la_prerequisite
           existing_cluster_id: ${var.shared_cluster_id}
           description: Run the consume environmental data notebook
           notebook_task:
@@ -29,4 +35,11 @@ resources:
           description: Run the consume environmental data notebook
           notebook_task:
             notebook_path: "/Workspace/Users/${var.spn_id}/.bundle/${bundle.name}/files/src/gold"
+
+        - task_key: produce_la_output_files
+          depends_on:
+            - task_key: process_london_authority_pollutant_data
+          existing_cluster_id: ${var.shared_cluster_id}
+          spark_python_task:
+            python_file: "/Workspace/Users/${var.spn_id}/.bundle/${bundle.name}/files/src/test_two.py"
 
