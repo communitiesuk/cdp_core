@@ -17,7 +17,6 @@ resources:
               env: ${var.environment}
             policy_id: ${var.policy_id}
             runtime_engine: STANDARD
-            # spark_version: 16.4.x-scala2.12
       tasks:
         - task_key: bronze_arcgis
           job_cluster_key: small-cluster
