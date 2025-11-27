@@ -13,3 +13,4 @@ src/cdp_core/cdp_core.egg-info
 tests/__pycache__/
 tests/test_bronze/__pycache__/
 tests/test_silver/__pycache__/
+install_package_on_vdi/wheels/*.whl
