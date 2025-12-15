@@ -32,7 +32,7 @@ variables:
 artifacts:
   default:
     type: whl
-    path: ../..
+    path: ./
     build: python -m build --wheel
 
 targets:
