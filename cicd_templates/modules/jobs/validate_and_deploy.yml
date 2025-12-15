@@ -28,6 +28,9 @@ jobs:
           # Install the Databricks CLI
           curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
           
+          # Install build
+          pip install build
+
           # Enable all scripts to be executable within scripts folder
           chmod +x ./cicd_templates/scripts/*
         displayName: "Install Agent Requirements & Allowing Executables"

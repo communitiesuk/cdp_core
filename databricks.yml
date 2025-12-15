@@ -32,8 +32,8 @@ variables:
 artifacts:
   default:
     type: whl
-    path: ../..
-    build: python -m build --wheel --dist-dir packages/
+    path: ./
+    build: python -m build --wheel
 
 targets:
   # this deployment allows individual users to deploy within an isolated user's path
